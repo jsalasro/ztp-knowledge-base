@@ -1,0 +1,422 @@
+apiVersion: siteconfig.open-cluster-management.io/v1alpha1
+kind: ClusterInstance
+metadata:
+  name: "test1-preprod1"
+  namespace: "test1-preprod1"
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  holdInstallation: false
+    # HoldInstallation will prevent installation from happening when true.
+    # Inspection and validation will proceed as usual, but once the
+    # RequirementsMet condition is true, installation will not begin until this field is set to false.
+  baseDomain: "DOMAIN_EXAMPLE_5.COM"
+  pullSecretRef:
+    name: "pull-secret"
+  clusterImageSetNameRef: "openshift-mirror"
+  sshPublicKey: "SSH_PUBLIC_KEY_1"
+  clusterName: "test1-preprod1"
+  networkType: "OVNKubernetes"
+  clusterNetwork:
+    - cidr: IP_ADDRESS_66/14
+      hostPrefix: 23
+  machineNetwork:
+    - cidr: IP_ADDRESS_67/28
+  apiVIPs:
+    - IP_ADDRESS_68
+  ingressVIPs:
+    - IP_ADDRESS_69
+  serviceNetwork:
+    - cidr: IP_ADDRESS_70/16
+  additionalNTPSources:
+    - DOMAIN_EXAMPLE_32.COM
+    - DOMAIN_EXAMPLE_33.COM
+  extraLabels:
+    ManagedCluster:
+      ocp: "true"
+      config-version: "v418-20251117"
+  templateRefs: # https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html-single/multicluster_engine_operator_with_red_hat_advanced_cluster_management/index#default-templates
+    - name: ai-cluster-templates-v1
+      namespace: open-cluster-management
+  # extraManifestsRefs: # https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html-single/multicluster_engine_operator_with_red_hat_advanced_cluster_management/index#mirror-images-disconnected
+  #   - name: extra-manifests-cm
+
+  ########################################################
+  # Nodes in test1-preprod1
+  ########################################################
+  nodes:
+    - hostName: "DOMAIN_EXAMPLE_34.COM"
+      role: "master"
+      bmcAddress: "redfish-virtualmedia://IP_ADDRESS_71/redfish/v1/Systems/1"
+      bmcCredentialsName:
+        name: "bmc-secret"
+      bootMACAddress: "d4:f5:ef:b0:ea:e0"
+      bootMode: "UEFI"
+      templateRefs:
+        - name: ai-node-templates-v1
+          namespace: open-cluster-management
+      rootDeviceHints:
+        hctl: "2:1:0:0"
+      nodeNetwork:
+        interfaces:
+          - name: "ens4f0"
+            macAddress: "d4:f5:ef:b0:ea:e0"
+          - name: "ens6f1"
+            macAddress: "d4:f5:ef:b0:e9:b9"
+        config:
+          interfaces:
+            - description: "Bond 0"
+              name: bond0
+              type: bond
+              state: up
+              mtu: 8950
+              link-aggregation:
+                mode: '802.3ad'
+                options:
+                  miimon: "100"
+                  lacp_rate: "0"
+                port:
+                  - ens4f0
+                  - ens6f1
+            - name: bond0.140
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 140
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_72
+                    prefix-length: 28
+              mtu: 8950
+            - name: bond0.142
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 142
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_73
+                    prefix-length: 28
+              mtu: 8950
+          dns-resolver:
+            config:
+              server:
+                - IP_ADDRESS_3
+                - IP_ADDRESS_45
+          routes:
+            config:
+              - destination: 0.0.0.0/0
+                next-hop-address: IP_ADDRESS_74
+                next-hop-interface: bond0.140
+              - destination: IP_ADDRESS_75/28
+                next-hop-address: IP_ADDRESS_76
+                next-hop-interface: bond0.142
+  ########################################################
+    - hostName: "DOMAIN_EXAMPLE_35.COM"
+      role: "master"
+      bmcAddress: "redfish-virtualmedia://IP_ADDRESS_77/redfish/v1/Systems/1"
+      bmcCredentialsName:
+        name: "bmc-secret"
+      bootMACAddress: "d4:f5:ef:b1:f3:04"
+      bootMode: "UEFI"
+      templateRefs:
+        - name: ai-node-templates-v1
+          namespace: open-cluster-management
+      rootDeviceHints:
+        hctl: "2:1:0:0"
+      nodeNetwork:
+        interfaces:
+          - name: "ens4f0"
+            macAddress: "d4:f5:ef:b1:f3:04"
+          - name: "ens6f1"
+            macAddress: "d4:f5:ef:b1:f2:61"
+        config:
+          interfaces:
+            - description: "Bond 0"
+              name: bond0
+              type: bond
+              state: up
+              mtu: 8950
+              link-aggregation:
+                mode: '802.3ad'
+                options:
+                  miimon: "100"
+                  lacp_rate: "0"
+                port:
+                  - ens4f0
+                  - ens6f1
+            - name: bond0.140
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 140
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_78
+                    prefix-length: 28
+              mtu: 8950
+            - name: bond0.142
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 142
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_79
+                    prefix-length: 28
+              mtu: 8950
+          dns-resolver:
+            config:
+              server:
+                - IP_ADDRESS_3
+                - IP_ADDRESS_45
+          routes:
+            config:
+              - destination: 0.0.0.0/0
+                next-hop-address: IP_ADDRESS_74
+                next-hop-interface: bond0.140
+              - destination: IP_ADDRESS_75/28
+                next-hop-address: IP_ADDRESS_76
+                next-hop-interface: bond0.142
+  ########################################################
+    - hostName: "DOMAIN_EXAMPLE_36.COM"
+      role: "master"
+      bmcAddress: "redfish-virtualmedia://IP_ADDRESS_80/redfish/v1/Systems/1"
+      bmcCredentialsName:
+        name: "bmc-secret"
+      bootMACAddress: "d4:f5:ef:b0:d4:1c"
+      bootMode: "UEFI"
+      templateRefs:
+        - name: ai-node-templates-v1
+          namespace: open-cluster-management
+      rootDeviceHints:
+        hctl: "2:1:0:0"
+      nodeNetwork:
+        interfaces:
+          - name: "ens4f0"
+            macAddress: "d4:f5:ef:b0:d4:1c"
+          - name: "ens6f1"
+            macAddress: "d4:f5:ef:b0:cf:99"
+        config:
+          interfaces:
+            - description: "Bond 0"
+              name: bond0
+              type: bond
+              state: up
+              mtu: 8950
+              link-aggregation:
+                mode: '802.3ad'
+                options:
+                  miimon: "100"
+                  lacp_rate: "0"
+                port:
+                  - ens4f0
+                  - ens6f1
+            - name: bond0.140
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 140
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_81
+                    prefix-length: 28
+              mtu: 8950
+            - name: bond0.142
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 142
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_82
+                    prefix-length: 28
+              mtu: 8950
+          dns-resolver:
+            config:
+              server:
+                - IP_ADDRESS_3
+                - IP_ADDRESS_45
+          routes:
+            config:
+              - destination: 0.0.0.0/0
+                next-hop-address: IP_ADDRESS_74
+                next-hop-interface: bond0.140
+              - destination: IP_ADDRESS_75/28
+                next-hop-address: IP_ADDRESS_76
+                next-hop-interface: bond0.142
+  ########################################################
+    - hostName: "DOMAIN_EXAMPLE_37.COM"
+      role: "worker"
+      bmcAddress: "redfish-virtualmedia://IP_ADDRESS_83/redfish/v1/Systems/1"
+      bmcCredentialsName:
+        name: "bmc-secret"
+      bootMACAddress: "d4:f5:ef:b0:ed:2c"
+      bootMode: "UEFI"
+      templateRefs:
+        - name: ai-node-templates-v1
+          namespace: open-cluster-management
+      nodeLabels:
+        is_edge: "true"
+        is_worker: "true"
+        node-role.kubernetes.io/worker-gw : ""
+        k8s.ovn.org/egress-assignable: ""
+      rootDeviceHints:
+        hctl: "2:1:0:0"
+      nodeNetwork:
+        interfaces:
+          - name: "ens4f0"
+            macAddress: "d4:f5:ef:b0:ed:2c"
+          - name: "ens6f1"
+            macAddress: "d4:f5:ef:b0:e9:59"
+        config:
+          interfaces:
+            - description: "Bond 0"
+              name: bond0
+              type: bond
+              state: up
+              mtu: 8950
+              link-aggregation:
+                mode: '802.3ad'
+                options:
+                  miimon: "100"
+                  lacp_rate: "0"
+                port:
+                  - ens4f0
+                  - ens6f1
+            - name: bond0.140
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 140
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_84
+                    prefix-length: 28
+              mtu: 8950
+            - name: bond0.142
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 142
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_85
+                    prefix-length: 28
+              mtu: 8950
+          dns-resolver:
+            config:
+              server:
+                - IP_ADDRESS_3
+                - IP_ADDRESS_45
+          routes:
+            config:
+              - destination: 0.0.0.0/0
+                next-hop-address: IP_ADDRESS_74
+                next-hop-interface: bond0.140
+              - destination: IP_ADDRESS_75/28
+                next-hop-address: IP_ADDRESS_76
+                next-hop-interface: bond0.142
+  ########################################################
+    - hostName: "DOMAIN_EXAMPLE_38.COM"
+      role: "worker"
+      bmcAddress: "redfish-virtualmedia://IP_ADDRESS_86/redfish/v1/Systems/1"
+      bmcCredentialsName:
+        name: "bmc-secret"
+      bootMACAddress: "d4:f5:ef:b1:ed:70"
+      bootMode: "UEFI"
+      templateRefs:
+        - name: ai-node-templates-v1
+          namespace: open-cluster-management
+      nodeLabels:
+        is_edge: "true"
+        is_worker: "true"
+        node-role.kubernetes.io/worker-gw : ""
+        k8s.ovn.org/egress-assignable: ""
+      rootDeviceHints:
+        hctl: "2:1:0:0"
+      nodeNetwork:
+        interfaces:
+          - name: "ens4f0"
+            macAddress: "d4:f5:ef:b1:ed:70"
+          - name: "ens6f1"
+            macAddress: "d4:f5:ef:b1:f3:71"
+        config:
+          interfaces:
+            - description: "Bond 0"
+              name: bond0
+              type: bond
+              state: up
+              mtu: 8950
+              link-aggregation:
+                mode: '802.3ad'
+                options:
+                  miimon: "100"
+                  lacp_rate: "0"
+                port:
+                  - ens4f0
+                  - ens6f1
+            - name: bond0.140
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 140
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_87
+                    prefix-length: 28
+              mtu: 8950
+            - name: bond0.142
+              type: vlan
+              state: up
+              vlan:
+                base-iface: bond0
+                id: 142
+              ipv4:
+                enabled: true
+                dhcp: false
+                address:
+                  - ip: IP_ADDRESS_88
+                    prefix-length: 28
+              mtu: 8950
+          dns-resolver:
+            config:
+              server:
+                - IP_ADDRESS_3
+                - IP_ADDRESS_45
+          routes:
+            config:
+              - destination: 0.0.0.0/0
+                next-hop-address: IP_ADDRESS_74
+                next-hop-interface: bond0.140
+              - destination: IP_ADDRESS_75/28
+                next-hop-address: IP_ADDRESS_76
+                next-hop-interface: bond0.142
+  ########################################################

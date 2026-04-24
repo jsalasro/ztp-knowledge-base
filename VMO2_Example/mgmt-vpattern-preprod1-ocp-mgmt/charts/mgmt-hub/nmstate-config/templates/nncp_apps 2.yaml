@@ -1,0 +1,47 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: mgmt-apps
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ''
+  desiredState:
+    interfaces:
+    - name: bond1 
+      description: Bond enslaving {{ .Values.mgmt.nmstate.appsNetworks.nic1 }} and {{ .Values.mgmt.nmstate.appsNetworks.nic2 }}
+      type: bond
+      state: up 
+      ipv4:
+        dhcp: false 
+        enabled: false 
+      ipv6:
+        dhcp: false
+        enabled: false
+      link-aggregation:
+        port: 
+          - "{{ .Values.mgmt.nmstate.appsNetworks.nic1 }}"
+          - "{{ .Values.mgmt.nmstate.appsNetworks.nic2 }}"
+        mode: 802.3ad
+        options:
+          miimon: '100' 
+          lacp_rate: 'fast'
+    - name: br-bond1
+      type: linux-bridge
+      state: up
+      ipv4:
+        dhcp: false
+        enabled: false
+      ipv6:
+        dhcp: false
+        enabled: false
+      mtu: "{{ .Values.mgmt.nmstate.appsNetworks.mtu }}"
+      bridge:
+        options:
+          stp:
+            enabled: false
+        port:
+          - name: bond1
+...

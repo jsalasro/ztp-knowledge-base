@@ -1,0 +1,166 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure ACM OADP protection
+  name: acm-oadp-prerequisites
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # ACM multiclusterhub ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: acm-mch
+    namespace: policies-mano
+  policy-templates:
+  # Verify ODAP required CRDs are installed with no conflicts
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: acm-oadp-prepare-crds
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              name: backups.velero.io
+            status:
+              conditions:
+              - status: "True"
+                type: NamesAccepted
+              - status: "True"
+                type: Established
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              name: backupstoragelocations.velero.io
+            status:
+              conditions:
+              - status: "True"
+                type: NamesAccepted
+              - status: "True"
+                type: Established
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              name: restores.velero.io
+            status:
+              conditions:
+              - status: "True"
+                type: NamesAccepted
+              - status: "True"
+                type: Established
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              name: schedules.velero.io
+            status:
+              conditions:
+              - status: "True"
+                type: NamesAccepted
+              - status: "True"
+                type: Established
+  # Copy preloaded connection secret
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: copy-azure-connection-bundle
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: cloud-credentials-azure
+              namespace: open-cluster-management-backup
+            data: '{{ copySecretData "policies-mano" "azure-blob-connection-bundle" }}'
+  # Create Data Protection Application
+  - extraDependencies:
+    - name: copy-azure-connection-bundle
+      namespace: ""
+      apiVersion: policy.open-cluster-management.io/v1
+      compliance: Compliant
+      kind: ConfigurationPolicy
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: acm-backup-application-acm
+      spec:
+        remediationAction: enforce
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: oadp.openshift.io/v1alpha1
+              kind: DataProtectionApplication
+              metadata:
+                name: dpa-acm
+                namespace: open-cluster-management-backup
+              spec:
+                backupLocations:
+                  - name: azure-acm
+                    velero:
+                      config:
+                        resourceGroup: '{{ fromSecret "policies-mano" "azure-blob-connection" "az_resource_group" | base64dec }}'
+                        storageAccount: '{{ fromSecret "policies-mano" "azure-blob-connection" "az_storage_account" | base64dec }}'
+                        subscriptionId: '{{ fromSecret "policies-mano" "azure-blob-connection" "az_subscription" | base64dec }}'
+                        storageAccountKeyEnvVar: AZURE_STORAGE_ACCOUNT_ACCESS_KEY
+                      credential:
+                        key: cloud
+                        name: cloud-credentials-azure
+                      default: true
+                      objectStorage:
+                        bucket: '{{ fromConfigMap "policies-mano" "cluster-settings" "acm_backup_target" }}'
+                        prefix: oadp
+                      provider: azure
+                configuration:
+                  restic:
+                    enable: true
+                  velero:
+                    defaultPlugins:
+                      - openshift
+                      - azure
+  # Check cloud storage connection is ready
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: acm-backup-storagelocation-check
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: velero.io/v1
+              kind: BackupStorageLocation
+              metadata:
+                name: azure-acm
+                namespace: open-cluster-management-backup
+              status:
+                phase: Available
+...

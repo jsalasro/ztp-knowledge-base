@@ -1,0 +1,9 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: TBD
+  namespace: TBD
+status:
+  installedCSV: $csv
+...

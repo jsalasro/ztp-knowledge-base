@@ -1,0 +1,16 @@
+---
+apiVersion: performance.openshift.io/v2
+kind: PerformanceProfile
+metadata:
+  name: systemreservedset-master
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "1"
+    kubeletconfig.experimental: |
+      {"systemReserved": {"cpu": "8000m","memory": "16Gi"},
+       "kubeReserved":{"cpu": "8000m","memory": "16Gi"}}
+spec:
+  cpu:
+    reserved: 0-1,26-27,52-53,78-79
+    isolated: 2-25,28-51,54-77,80-103
+  nodeSelector:
+    node-role.kubernetes.io/master: ""

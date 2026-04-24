@@ -1,0 +1,79 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Create compliance configuration
+  name: util-compliance-baseline
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # Persistent storage needs to be fully ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: util-odf-external
+    namespace: policies-util
+  # Compliance operator installed
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: util-operator-install-compliance
+    namespace: policies-util
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: compliance-policies-bind
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: compliance.openshift.io/v1alpha1
+                kind: ScanSettingBinding
+                metadata:
+                  name: scan-baseline
+                  namespace: openshift-compliance
+                profiles: 
+                  # Node checks
+                  - name: rhcos4-moderate
+                    kind: Profile
+                    apiGroup: compliance.openshift.io/v1alpha1
+                  # Cluster checks
+                  - name: ocp4-cis
+                    kind: Profile
+                    apiGroup: compliance.openshift.io/v1alpha1
+                settingsRef: 
+                  name: default
+                  kind: ScanSetting
+                  apiGroup: compliance.openshift.io/v1alpha1
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: compliance-binding-status
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: compliance.openshift.io/v1alpha1
+                kind: ScanSettingBinding
+                metadata:
+                  name: scan-baseline
+                  namespace: openshift-compliance
+                status:
+                  conditions:
+                    - type: Ready
+                      status: "True"
+...

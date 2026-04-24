@@ -1,0 +1,6 @@
+jmespath
+requests-oauthlib
+jsonpatch
+PyYAML >= 3.11
+# kubernetes >= 12.0.0
+aiohttp

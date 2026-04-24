@@ -1,0 +1,12 @@
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: "{{ .Values.mgmt.apps.imageSourceSecret }}"
+#   namespace: "{{ .Values.mgmt.apps.ns }}"
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "2"
+# type: Opaque
+# stringData:
+#   accessKeyId: "{{ .Values.mgmt.apps.imageSourceAccessKeyID }}"
+#   secretKey: "{{ .Values.mgmt.apps.imageSourceSecretKey }}"

@@ -1,0 +1,529 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Prepare ZTP configuration for workloads in the cluster
+  name: ztp-setup-active-preparation
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+      # Create base policies namespace
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-create-namespaces
+        spec:
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: ztp-policies
+                  labels:
+                    argocd.argoproj.io/managed-by: openshift-gitops
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: policies-cwl
+                  labels:
+                    argocd.argoproj.io/managed-by: openshift-gitops
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: policies-util
+                  labels:
+                    argocd.argoproj.io/managed-by: openshift-gitops
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+    # render operators version for cwl clusters
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-render-cwl-operators-version-v0
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: operators-version-cwl-v0
+                  namespace: policies-cwl
+                data: '{{ copyConfigMapData "policies-mano" "operators-version-cwl-v0" }}'
+    # render operators version for util clusters
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-render-util-operators-version-v0
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: operators-version-util-v0
+                  namespace: policies-util
+                data: '{{ copyConfigMapData "policies-mano" "operators-version-util-v0" }}'
+    # Configure ArgoCD role for site-policies creation
+    - extraDependencies:
+        - name: ztp-create-namespaces
+          namespace: ""
+          apiVersion: policy.open-cluster-management.io/v1
+          compliance: Compliant
+          kind: ConfigurationPolicy
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-gitops-rbac-role-config
+        spec:
+          remediationAction: enforce
+          severity: high
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - ztp-policies
+              - policies-cwl
+          object-templates:
+            - complianceType: mustonlyhave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: Role
+                metadata:
+                  name: argo-workload-provision-role
+                rules:
+                  - apiGroups:
+                    - policy.open-cluster-management.io
+                    resources:
+                    - policies
+                    - policysets
+                    - placementbindings
+                    verbs:
+                    - get
+                    - list
+                    - patch
+                    - create
+                    - update
+                    - watch
+                    - delete
+                  - apiGroups:
+                    - cluster.open-cluster-management.io
+                    resources:
+                    - placements
+                    verbs:
+                    - get
+                    - list
+                    - patch
+                    - create
+                    - update
+                    - watch
+                    - delete
+                  - apiGroups:
+                    - apps.open-cluster-management.io
+                    resources:
+                    - placementrules
+                    verbs:
+                    - get
+                    - list
+                    - patch
+                    - create
+                    - update
+                    - watch
+                    - delete
+            - complianceType: musthave
+              objectDefinition:
+                kind: RoleBinding
+                apiVersion: rbac.authorization.k8s.io/v1
+                metadata:
+                  name: argo-workload-provision-role-binding
+                subjects:
+                  - kind: ServiceAccount
+                    name: '{{ ( index ( lookup "argoproj.io/v1beta1"  "ArgoCD" "openshift-gitops" "" ).items 0).metadata.name }}-argocd-application-controller'
+                    namespace: openshift-gitops
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: Role
+                  name: argo-workload-provision-role
+    #Create the managed cluster set for workload clusters
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-managed-cluster-set-cwl-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1beta2
+                kind: ManagedClusterSet
+                metadata:
+                  name: cwl-clusters
+                spec:
+                  clusterSelector:
+                    selectorType: ExclusiveClusterSetLabel
+    #Create the managed cluster set bindings
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-managed-cluster-set-bindings-cwl-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - policies-mano
+              - policies-cwl
+              - ztp-policies
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1beta2
+                kind: ManagedClusterSetBinding
+                metadata:
+                  name: cwl-clusters
+                spec:
+                  clusterSet: cwl-clusters
+    # ArgoCD create ZTP apps
+    # ztp site-policies app
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-create-site-policy-app
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: argoproj.io/v1alpha1
+                kind: Application
+                metadata:
+                  name: ztp-site-policies
+                  namespace: openshift-gitops
+                spec:
+                  destination:
+                    server: https://kubernetes.default.svc
+                  project: default
+                  source:
+                    path: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo_policies_path" }}'
+                    repoURL: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo" }}'
+                    targetRevision: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo_target" }}'
+                  syncPolicy:
+                    automated:
+                      prune: true
+                      selfHeal: true
+    # acm policies for cwl app
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-create-acm-policy-app
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          # cwl clusters
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: argoproj.io/v1alpha1
+                kind: Application
+                metadata:
+                  name: cwl-acm-policies
+                  namespace: openshift-gitops
+                spec:
+                  destination:
+                    server: https://kubernetes.default.svc
+                  project: default
+                  source:
+                    kustomize:
+                      namespace: policies-cwl
+                    path: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_acm_policies_path" }}'
+                    repoURL: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo" }}'
+                    targetRevision: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo_target" }}'
+                  syncPolicy:
+                    automated:
+                      prune: true
+                      selfHeal: true
+            # util clusters
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: argoproj.io/v1alpha1
+                kind: Application
+                metadata:
+                  name: util-acm-policies
+                  namespace: openshift-gitops
+                spec:
+                  destination:
+                    server: https://kubernetes.default.svc
+                  project: default
+                  source:
+                    kustomize:
+                      namespace: policies-util
+                    path: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_util_acm_policies_path" }}'
+                    repoURL: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo" }}'
+                    # targetRevision: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo_target" }}'
+                    targetRevision: ch-util-deploy
+                  syncPolicy:
+                    automated:
+                      prune: true
+                      selfHeal: true
+    # cluster site-config apps
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-create-site-config-apps
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: mustonlyhave
+              objectDefinition:
+                apiVersion: argoproj.io/v1alpha1
+                kind: ApplicationSet
+                metadata:
+                  name: ztp-site-config-appset
+                  namespace: openshift-gitops
+                spec:
+                  goTemplate: true
+                  goTemplateOptions: ["missingkey=error"]
+                  generators:
+                  - list:
+                      elements:
+                      - workload_cluster: ch-ocp-cw01-prod
+                      - workload_cluster: jz-ocp-cw01-prod
+                      - workload_cluster: ch-ocp-util-prod
+                  template:
+                    metadata:
+                      name: ztp-site-config-{{ `{{.workload_cluster}}` }}
+                    spec:
+                      project: default
+                      source:
+                        repoURL: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo" }}'
+                        targetRevision: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo_target" }}'
+                        path: '{{ fromConfigMap "policies-mano" "ztp-configuration-reference" "ztp_repo_siteconfig_path" }}/cluster-{{ `{{.workload_cluster}}` }}'
+                      destination:
+                        server: https://kubernetes.default.svc
+                        namespace: openshift-gitops
+                      syncPolicy: {}
+                  syncPolicy:
+                    # Prevents ApplicationSet controller from deleting Applications. Update is allowed
+                    applicationsSync: create-update
+                    # Prevent an Application's child resources from being deleted, when the parent Application is deleted
+                    preserveResourcesOnDeletion: true
+    # Copy ACS certificate secrets for secured clusters
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-copy-acs-certs
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          # Copy secret sensor-tls to CWL
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "stackrox" "sensor-tls" }}'  
+              kind: Secret
+              metadata:
+                labels:
+                  certificate_key_name: sensor-cert.pem
+                name: sensor-tls
+                namespace: policies-cwl
+              type: Opaque
+          # Copy secret collector-tls to CWL         
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "stackrox" "collector-tls" }}'
+              kind: Secret
+              metadata:
+                labels:
+                  certificate_key_name: collector-cert.pem
+                name: collector-tls
+                namespace: policies-cwl
+              type: Opaque
+          # Copy secret admission-control-tls to CWL
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "stackrox" "admission-control-tls" }}'
+              kind: Secret
+              metadata:
+                labels:
+                  certificate_key_name: admission-control-cert.pem
+                name: admission-control-tls
+                namespace: policies-cwl
+              type: Opaque
+          # Copy secret sensor-tls to UTIL
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "stackrox" "sensor-tls" }}'  
+              kind: Secret
+              metadata:
+                labels:
+                  certificate_key_name: sensor-cert.pem
+                name: sensor-tls
+                namespace: policies-util
+              type: Opaque
+          # Copy secret collector-tls to UTIL         
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "stackrox" "collector-tls" }}'
+              kind: Secret
+              metadata:
+                labels:
+                  certificate_key_name: collector-cert.pem
+                name: collector-tls
+                namespace: policies-util
+              type: Opaque
+          # Copy secret admission-control-tls to UTIL
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "stackrox" "admission-control-tls" }}'
+              kind: Secret
+              metadata:
+                labels:
+                  certificate_key_name: admission-control-cert.pem
+                name: admission-control-tls
+                namespace: policies-util
+              type: Opaque
+    # Copy ODF external configuration config for managed clusters
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-copy-odf-external-config
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          # Copy secret ceph ch to cwl
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "policies-mano" "cho-ceph-external-connection" }}'  
+              kind: Secret
+              metadata:
+                name: cho-ceph-external-connection-config
+                namespace: "policies-cwl"
+              type: Opaque
+          # Copy secret ceph ch to util
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "policies-mano" "cho-ceph-external-connection" }}'  
+              kind: Secret
+              metadata:
+                name: cho-ceph-external-connection-config
+                namespace: "policies-util"
+              type: Opaque
+          # Copy secret ceph jz to cwl
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "policies-mano" "jzm-ceph-external-connection" }}'  
+              kind: Secret
+              metadata:
+                name: jzm-ceph-external-connection-config
+                namespace: "policies-cwl"
+              type: Opaque
+           # Copy secret ceph jz to util
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data: '{{ copySecretData "policies-mano" "jzm-ceph-external-connection" }}'  
+              kind: Secret
+              metadata:
+                name: jzm-ceph-external-connection-config
+                namespace: "policies-util"
+              type: Opaque
+    #################################### UTIL Clusters ##########################################
+    #Create the managed cluster set for util clusters
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-managed-cluster-set-util-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1beta2
+                kind: ManagedClusterSet
+                metadata:
+                  name: util-clusters
+                spec:
+                  clusterSelector:
+                    selectorType: ExclusiveClusterSetLabel
+    #Create the managed cluster set bindings
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ztp-managed-cluster-set-bindings-util-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - policies-mano
+              - policies-util
+              # - ztp-policies
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1beta2
+                kind: ManagedClusterSetBinding
+                metadata:
+                  name: util-clusters
+                spec:
+                  clusterSet: util-clusters
+    
+...

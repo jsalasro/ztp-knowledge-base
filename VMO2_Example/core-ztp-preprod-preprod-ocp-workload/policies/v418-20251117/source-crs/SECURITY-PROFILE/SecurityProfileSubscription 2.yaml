@@ -1,0 +1,18 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: security-profiles-operator-subscription
+  namespace: openshift-security-profiles
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  channel: release-alpha-rhel-8
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  name: security-profiles-operator
+  source: redhat-operator-index
+  sourceNamespace: openshift-marketplace
+  startingCSV: security-profiles-operator.v0.8.6
+#status:
+#  state: AtLatestKnown
+...

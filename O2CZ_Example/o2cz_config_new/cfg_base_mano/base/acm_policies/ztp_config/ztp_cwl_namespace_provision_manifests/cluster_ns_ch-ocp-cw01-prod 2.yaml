@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ch-ocp-cw01-prod
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+...

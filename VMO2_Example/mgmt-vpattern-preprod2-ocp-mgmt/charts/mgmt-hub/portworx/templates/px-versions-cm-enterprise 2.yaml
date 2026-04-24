@@ -1,0 +1,40 @@
+# ---
+# kind: ConfigMap
+# apiVersion: v1
+# metadata:
+#   name: px-versions
+#   namespace: portworx
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "1"
+# data:
+#   versions.yaml: |
+#     version: 3.4.1
+#     components:
+#       stork: {{ .Values.mgmt.portworx.customImageRegistry }}/stork:25.4.1
+#       autopilot: {{ .Values.mgmt.portworx.customImageRegistry }}/autopilot:1.3.18
+#       clusterDiags: {{ .Values.mgmt.portworx.customImageRegistry }}/cluster-diags:IP_ADDRESS_21
+#       csiNodeDriverRegistrar: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-node-driver-registrar:v2.14.0
+#       csiProvisioner: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-provisioner:v5.3.0
+#       csiResizer: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-resizer:v1.14.0
+#       csiSnapshotter: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-snapshotter:v8.3.0
+#       csiSnapshotController: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/snapshot-controller:v8.3.0
+#       prometheus: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus/prometheus:v3.4.2
+#       prometheusOperator: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus-operator/prometheus-operator:v0.84.0
+#       prometheusConfigReloader: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus-operator/prometheus-config-reloader:v0.84.0
+#       alertManager: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus/alertmanager:v0.28.1
+#       telemetry: {{ .Values.mgmt.portworx.customImageRegistry }}/ccm-go:1.4.26
+#       pxLibUpdate: {{ .Values.mgmt.portworx.customImageRegistry }}/px-lib:pxfslibs-IP_ADDRESS_22-mver12-update
+#       metricsCollector: {{ .Values.mgmt.portworx.customImageRegistry }}/realtime-metrics:1.0.32
+#       telemetryProxy: {{ .Values.mgmt.portworx.customImageRegistry }}/telemetry-envoy:1.1.16
+#       logUploader: {{ .Values.mgmt.portworx.customImageRegistry }}/log-upload:px-1.1.46
+#       dynamicPlugin: {{ .Values.mgmt.portworx.customImageRegistry }}/portworx-dynamic-plugin:2.0.0
+#       dynamicPluginProxy: {{ .Values.mgmt.portworx.customImageRegistry }}/nginx-unprivileged:alpine-slim
+#       certManagerController: {{ .Values.mgmt.portworx.customImageRegistry }}/jetstack/cert-manager-controller:v1.17.4
+#       certManagerWebhook: {{ .Values.mgmt.portworx.customImageRegistry }}/jetstack/cert-manager-webhook:v1.17.4
+#       certManagerCaInjector: {{ .Values.mgmt.portworx.customImageRegistry }}/jetstack/cert-manager-cainjector:v1.17.4
+#       certManagerAcmeSolver: {{ .Values.mgmt.portworx.customImageRegistry }}/jetstack/cert-manager-acmesolver:v1.17.4
+#       kubeScheduler: {{ .Values.mgmt.portworx.customImageRegistry }}/kube-scheduler-amd64:v1.31.0
+#       kubeControllerManager: {{ .Values.mgmt.portworx.customImageRegistry }}/kube-controller-manager-amd64:v1.31.0
+#       pause: {{ .Values.mgmt.portworx.customImageRegistry }}/pause:3.1
+#       ociMonitor: DOMAIN_EXAMPLE_15.COM/portworx/oci-monitor:IP_ADDRESS_23
+#       pxEnterprise: DOMAIN_EXAMPLE_15.COM/portworx/px-enterprise:IP_ADDRESS_23

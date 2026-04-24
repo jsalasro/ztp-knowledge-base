@@ -1,0 +1,33 @@
+---
+apiVersion: oadp.openshift.io/v1alpha1
+kind: DataProtectionApplication
+metadata:
+  name: oadp-acm
+  namespace: open-cluster-management-backup
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  backupLocations:
+    - velero:
+        config:
+          insecureSkipTLSVerify: 'true'
+          profile: default
+          region: {{ .Values.mgmt.oadp.region }}
+          s3ForcePathStyle: 'True'
+          s3Url: 'https://{{ .Values.mgmt.oadp.s3_url }}'
+        credential:
+          key: cloud
+          name: fb-s3-credentials
+        default: true
+        objectStorage:
+          bucket: {{ .Values.mgmt.oadp.bucket }}
+          prefix: {{ .Values.mgmt.oadp.prefix }}
+        provider: aws
+  configuration:
+    nodeAgent:
+      enable: true
+      uploaderType: kopia
+    velero:
+      defaultPlugins:
+        - openshift
+        - aws

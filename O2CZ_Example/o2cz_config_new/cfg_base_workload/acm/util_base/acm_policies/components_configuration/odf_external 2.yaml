@@ -1,0 +1,295 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Create ODF External Storage cluster
+  name: util-odf-external
+  namespace: policies-util
+spec:
+  disabled: false
+  policy-templates:
+  # Validate ODF operator is installed
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-operator-ready
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "odf-startingCSV" hub}}'
+              namespace: openshift-storage
+            status:
+              phase: Succeeded
+  # Render ODF rook configmap
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: odf-operator-ready
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-render-cm
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: rook-ceph-operator-config
+              namespace: openshift-storage
+            data:
+              # CSI_SIDECAR_LOG_LEVEL: "5"
+              # The logging level for the operator: INFO | DEBUG
+              # ROOK_LOG_LEVEL: DEBUG
+              CSI_PLUGIN_TOLERATIONS: |-
+                - operator: Exists
+              ROOK_CSI_ENABLE_CEPHFS: 'true'
+  # Render ODF connection secret
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: odf-operator-ready
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-render-secret
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: rook-ceph-external-cluster-details
+                  namespace: openshift-storage
+                type: Opaque
+                data: '{{hub copySecretData "policies-util" (printf "%s-ceph-external-connection-config" .ManagedClusterLabels.cluster_site) hub}}'
+  # Create external storage cluster
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: odf-external-render-cm
+      namespace: ""
+      compliance: Compliant
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: odf-external-render-secret
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-storagecluster-create
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: ocs.openshift.io/v1
+            kind: StorageCluster
+            metadata:
+              name: ocs-external-storagecluster
+              namespace: openshift-storage
+            spec:
+              externalStorage:
+                enable: true
+              labelSelector: {}
+  # Check Storage Cluster
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-storagecluster-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: ocs.openshift.io/v1
+            kind: StorageCluster
+            metadata:
+              name: ocs-external-storagecluster
+              namespace: openshift-storage
+            status:
+              phase: Ready
+              conditions:
+                - status: "True"
+                  type: Available
+                - status: "False"
+                  type: Progressing
+                - status: "False"
+                  type: Degraded
+  # Check for ceph external storage classes
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-sc-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: ocs-external-storagecluster-ceph-rbd
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: ocs-external-storagecluster-cephfs
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: openshift-storage.noobaa.io
+  # Set ceph rdb storage class as default
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: odf-external-sc-check
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-sc-default
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: ocs-external-storagecluster-ceph-rbd
+              annotations:
+                storageclass.kubernetes.io/is-default-class: "true"
+  # Set any other storage class as non default
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: odf-external-sc-check
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-sc-non-default
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "storage.k8s.io/v1" "StorageClass" "" "").items }}
+            {{- if not (eq .metadata.name "ocs-external-storagecluster-ceph-rbd") }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: storage.k8s.io/v1
+                kind: StorageClass
+                metadata:
+                  name: {{ .metadata.name }}
+                  annotations:
+                    storageclass.kubernetes.io/is-default-class: "false"
+            {{- end }}
+          {{- end }}
+  # Scale MCG volumes
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-mgc-scale
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: noobaa.io/v1alpha1
+            kind: BackingStore
+            metadata:
+              name: noobaa-default-backing-store
+              namespace: openshift-storage
+            spec:
+                pvPool:
+                  numVolumes: 5
+                  resources:
+                    limits:
+                      cpu: 1000m
+                      memory: 4000Mi
+                    requests:
+                      cpu: 800m
+                      memory: 800Mi
+                      storage: 100Gi
+                  storageClass: ocs-external-storagecluster-ceph-rbd
+                type: pv-pool
+  # Verify MCG is healthy
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-external-mgc-health
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: noobaa.io/v1alpha1
+            kind: BackingStore
+            metadata:
+              name: noobaa-default-backing-store
+              namespace: openshift-storage
+            status:
+              conditions:
+              - status: "True"
+                type: Available
+              - status: "False"
+                type: Progressing
+              - status: "False"
+                type: Degraded
+              - status: "True"
+                type: Upgradeable
+              phase: Ready
+...

@@ -1,0 +1,29 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: px-versions
+  namespace: portworx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+data:
+  versions.yaml: |
+    version: 25.8.1
+    components:
+      csiNodeDriverRegistrar: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-node-driver-registrar:v2.13.0
+      csiProvisioner: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-provisioner:v5.2.0
+      csiLivenessProbe: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/livenessprobe:v2.14.0
+      csiResizer: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-resizer:v1.13.2
+      csiSnapshotter: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/csi-snapshotter:v8.2.1
+      csiSnapshotController: {{ .Values.mgmt.portworx.customImageRegistry }}/sig-storage/snapshot-controller:v8.2.1
+      prometheus: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus/prometheus:v3.5.0
+      prometheusOperator: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus-operator/prometheus-operator:v0.84.1
+      prometheusConfigReloader: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus-operator/prometheus-config-reloader:v0.84.1
+      alertManager: {{ .Values.mgmt.portworx.customImageRegistry }}/prometheus/alertmanager:v0.28.1
+      telemetry: {{ .Values.mgmt.portworx.customImageRegistry }}/ccm-go:1.4.26
+      telemetryProxy: {{ .Values.mgmt.portworx.customImageRegistry }}/edge-envoy:2.0.59
+      logUploader: {{ .Values.mgmt.portworx.customImageRegistry }}/log-upload:px-1.1.40
+      csiPlugin: {{ .Values.mgmt.portworx.customImageRegistry }}/portworx/px-pure-csi-driver:25.8.1
+      csiTelemetry: {{ .Values.mgmt.portworx.customImageRegistry }}/portworx/px-pure-csi-telemetry:25.8.1
+      csiMigrator: {{ .Values.mgmt.portworx.customImageRegistry }}/portworx/px-pure-csi-migrator:25.8.1
+      csiAttacher: {{ .Values.mgmt.portworx.customImageRegistry }}/portworx/px-pure-csi-attacher:25.8.1

@@ -1,0 +1,46 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure ACM OADP protection backup for primary HUB
+  name: acm-oadp-backup-schedule
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # ACM OADP configuration ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: acm-oadp-prerequisites
+    namespace: policies-mano
+  policy-templates:
+  # Schedule ACM backups
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: acm-backup-schedule
+      spec:
+        remediationAction: enforce
+        pruneObjectBehaviour: DeleteAll
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: cluster.open-cluster-management.io/v1beta1
+              kind: BackupSchedule
+              metadata:
+                name: acm-backup
+                namespace: open-cluster-management-backup
+              spec:
+                noBackupOnStart: true
+                useManagedServiceAccount: true
+                #managedServiceAccountTTL: 120h
+                veleroSchedule: 0 */2 * * *
+                veleroTtl: '{{ printf "%sh" (fromConfigMap "policies-mano" "cluster-settings" "acm_backup_retention_hours") }}'
+...

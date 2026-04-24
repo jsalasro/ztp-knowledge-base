@@ -1,0 +1,30 @@
+---
+kind: StorageCluster
+apiVersion: core.libopenstorage.org/v1
+metadata:
+  name: px-cluster
+  namespace: portworx
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "20"
+    portworx.io/is-openshift: "true"
+    portworx.io/misc-args: "--oem px-csi"
+    portworx.io/disable-storage-class: "true"
+spec:
+  image: portworx/px-pure-csi-driver:25.8.1
+  imagePullPolicy: IfNotPresent
+  #customImageRegistry: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "portworx-customImageRegistry") hub}}'
+  preserveFullCustomImageRegistry: true
+  imagePullSecret: px-image-repository
+  # network:
+  #   dataInterface: bond0.141
+  #   mgmtInterface: bond0.140
+  csi:
+    enabled: true
+  monitoring:
+    telemetry: {}
+    prometheus:
+      # enabled: true
+      exportMetrics: true
+  env:
+  - name: PURE_FLASHARRAY_SAN_TYPE
+    value: "ISCSI"

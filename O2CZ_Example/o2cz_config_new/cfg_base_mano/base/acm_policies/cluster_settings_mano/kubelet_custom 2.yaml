@@ -1,0 +1,189 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Kubelet custom resource reservation
+  name: kubelet-custom
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # Wait until storage has been configured to restart nodes
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: odf-internal
+    namespace: policies-mano
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: apply-kubelet-customizations
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: medium
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: reserve-cpus-control
+            spec:
+              machineConfigPoolSelector:
+                matchLabels:
+                  pools.operator.machineconfiguration.openshift.io/master: ""
+              kubeletConfig:
+                reservedSystemCPUs: "0,1,32,33,64,65,96,97"
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: reserved-cpus-data
+            spec:
+              machineConfigPoolSelector:
+                matchLabels:
+                  pools.operator.machineconfiguration.openshift.io/worker: ""
+              kubeletConfig:
+                reservedSystemCPUs: "0,1,32,33,64,65,96,97"
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: kubelet-reserve-control
+            spec:
+              machineConfigPoolSelector:
+                matchLabels:
+                  pools.operator.machineconfiguration.openshift.io/master: ""
+              kubeletConfig:
+                systemReserved:
+                  cpu: 8000m
+                  memory: 16Gi
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: kubelet-reserve-data
+            spec:
+              machineConfigPoolSelector:
+                matchLabels:
+                  pools.operator.machineconfiguration.openshift.io/worker: ""
+              kubeletConfig:
+                systemReserved:
+                  cpu: 8000m
+                  memory: 16Gi
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: apply-kubelet-customizations-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: medium
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: reserve-cpus-control
+            status:
+              conditions:
+              - type: Success
+                status: "True"
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: reserved-cpus-data
+            status:
+              conditions:
+              - type: Success
+                status: "True"
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: kubelet-reserve-control
+            status:
+              conditions:
+              - type: Success
+                status: "True"
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: KubeletConfig
+            metadata:
+              name: kubelet-reserve-data
+            status:
+              conditions:
+              - type: Success
+                status: "True"
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: apply-kubelet-customizations-applied-master-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: low
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: MachineConfigPool
+            metadata:
+              name: master
+            status:
+              conditions:
+              - type: RenderDegraded
+                status: "False"
+              - type: NodeDegraded
+                status: "False"
+              - type: Degraded
+                status: "False"
+              - type: Updating
+                status: "False"
+              - type: Updated
+                status: "True"
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: apply-kubelet-customizations-applied-worker-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: low
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: MachineConfigPool
+            metadata:
+              name: worker
+            status:
+              conditions:
+              - type: RenderDegraded
+                status: "False"
+              - type: NodeDegraded
+                status: "False"
+              - type: Degraded
+                status: "False"
+              - type: Updating
+                status: "False"
+              - type: Updated
+                status: "True"
+...

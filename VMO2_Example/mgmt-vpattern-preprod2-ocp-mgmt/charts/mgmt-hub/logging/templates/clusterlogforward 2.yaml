@@ -1,0 +1,482 @@
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+  annotations:
+    argocd.argoproj.io/sync-wave: "-8"
+spec:
+  collector:
+    resources:
+      limits:
+        cpu: 8
+        memory: 12Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+  outputs:
+    - name: mgmt1-ocp-metrics
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt1-ocp-metrics
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt1-infra-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt1-infra-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt1-audit-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt1-audit-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt1-app-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt1-app-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt2-ocp-metrics
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt2-ocp-metrics
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt2-infra-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt2-infra-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt2-audit-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt2-audit-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt2-app-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt2-app-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: mgmt2-collectd
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/mgmt2-collectd
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-cnf-ocp-metrics
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-cnf-ocp-metrics
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-cnf-infra-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-cnf-infra-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-cnf-app-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-cnf-app-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-cnf-audit-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-cnf-audit-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-ocp-metrics
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-ocp-metrics
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-infra-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-infra-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-app-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-app-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-audit-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-audit-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-rhoso-ocp-metrics
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-rhoso-ocp-metrics
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-rhoso-infra-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-rhoso-infra-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-rhoso-app-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-rhoso-app-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+    - name: cwl-vnf-rhoso-audit-logs
+      type: kafka
+      kafka:
+        url: tls://mgmt-kafka-kafka-bootstrap-kafka-cluster.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}:443/cwl-vnf-rhoso-audit-logs
+      tls:
+        insecureSkipVerify: true
+        ca:
+          key: ca-bundle.crt
+          secretName: kafka-secret
+        certificate:
+          key: tls.crt
+          secretName: kafka-secret
+        key:
+          key: tls.key
+          secretName: kafka-secret
+
+  pipelines:
+    - name: mgmt1-ocp-metrics
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - mgmt1-ocp-metrics
+
+    - name: mgmt1-infra-logs
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - mgmt1-infra-logs
+
+    - name: mgmt1-audit-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - mgmt1-audit-logs
+
+    - name: mgmt1-app-logs
+      inputRefs:
+        - application
+      outputRefs:
+        - mgmt1-app-logs
+
+    - name: mgmt2-ocp-metrics
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - mgmt2-ocp-metrics
+
+    - name: mgmt2-infra-logs
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - mgmt2-infra-logs
+
+    - name: mgmt2-audit-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - mgmt2-audit-logs
+
+    - name: mgmt2-app-logs
+      inputRefs:
+        - application
+      outputRefs:
+        - mgmt2-app-logs
+
+    - name: mgmt2-collectd
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - mgmt2-collectd
+
+    - name: cwl-cnf-ocp-metrics
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - cwl-cnf-ocp-metrics
+
+    - name: cwl-cnf-infra-logs
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - cwl-cnf-infra-logs
+
+    - name: cwl-cnf-app-logs
+      inputRefs:
+        - application
+      outputRefs:
+        - cwl-cnf-app-logs
+
+    - name: cwl-cnf-audit-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-cnf-audit-logs
+
+    - name: cwl-vnf-ocp-metrics
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-ocp-metrics
+
+    - name: cwl-vnf-infra-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-infra-logs
+
+    - name: cwl-vnf-app-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-app-logs
+
+    - name: cwl-vnf-audit-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-audit-logs
+
+    - name: cwl-vnf-rhoso-ocp-metrics
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-rhoso-ocp-metrics
+
+    - name: cwl-vnf-rhoso-infra-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-rhoso-infra-logs
+
+    - name: cwl-vnf-rhoso-app-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-rhoso-app-logs
+
+    - name: cwl-vnf-rhoso-audit-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - cwl-vnf-rhoso-audit-logs
+
+  serviceAccount:
+    name: collector

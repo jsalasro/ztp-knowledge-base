@@ -1,0 +1,23 @@
+---
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: sriov-networknodepolicy-100g-ens1f1np1
+  namespace: openshift-sriov-network-operator
+spec:
+  deviceType: netdevice
+  resourceName: appworker100g_ens1f1np1_sriov
+  nodeSelector:
+    node-role.kubernetes.io/appworker100g: ""
+    feature.node.kubernetes.io/network-sriov.capable: "true" 
+  priority: 99
+  isRdma: true
+  mtu: 9000
+  numVfs: 64
+  nicSelector:
+    pfNames: ["ens1f1np1#0-63"]
+    vendor: "15b3"
+    deviceID: "101d"
+    rootDevices:
+    - 0000:12:00.1
+...

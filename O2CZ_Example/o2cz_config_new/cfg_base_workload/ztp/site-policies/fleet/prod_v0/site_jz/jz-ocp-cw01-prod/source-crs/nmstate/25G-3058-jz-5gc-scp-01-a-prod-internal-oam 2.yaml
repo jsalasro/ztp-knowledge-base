@@ -1,0 +1,19 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: jz-5gc-scp-01-a-prod-internal-oam
+spec:
+  desiredState:
+    interfaces:
+      - description: jz-5gc-scp-01-a-prod-internal-oam vlan sub-interface
+        mtu: 9000
+        name: bond2.3058
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond2
+          id: 3058
+  nodeSelector:
+    node-role.kubernetes.io/appworker25g: ""
+...

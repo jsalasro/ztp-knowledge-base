@@ -1,0 +1,79 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Customize OCP console
+  name: console-customization
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  # Create custom logo config map and use it
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: console-customization-config-map-set
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: console-custom-logo
+              namespace: openshift-config
+            binaryData:
+              console-custom-logo.png: '{{hub index (lookup "v1" "ConfigMap" "policies-mano" (printf "console-custom-logo-%s" .ManagedClusterName)).binaryData (printf "%s.png" .ManagedClusterName) hub}}'
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operator.openshift.io/v1
+            kind: Console
+            metadata:
+              name: cluster
+            spec:
+              customization:
+                customLogoFile:
+                  key: console-custom-logo.png
+                  name: console-custom-logo
+                customProductName: '{{ (lookup "config.openshift.io/v1" "DNS" "" "cluster").spec.baseDomain }}'
+  # Custom logo rendered to console namespace
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: console-customization-operator-rendered-config-map
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operator.openshift.io/v1
+            kind: Console
+            metadata:
+              name: cluster
+            status:
+              conditions:
+              - status: "False"
+                type: CustomLogoSyncDegraded
+              - status: "False"
+                type: CustomLogoSyncProgressing
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: custom-logo
+              namespace: openshift-console
+            binaryData:
+              console-custom-logo.png: '{{hub index (lookup "v1" "ConfigMap" "policies-mano" (printf "console-custom-logo-%s" .ManagedClusterName)).binaryData (printf "%s.png" .ManagedClusterName) hub}}'
+...

@@ -1,0 +1,4540 @@
+# SiteConfig file for cluster: DOMAIN_EXAMPLE_94.COM
+---
+apiVersion: ran.openshift.io/v1
+kind: SiteConfig
+metadata:
+  name: "jz-ocp-cw01-prod"
+  namespace: "workload-clusters"
+spec:
+  baseDomain: "DOMAIN_EXAMPLE_95.COM"
+  pullSecretRef:
+    name: "pull-secret"
+  # Set the correct image version at cluster installation time, later it cannot be changed even if cluster is updated
+  clusterImageSetNameRef: "img4.14.35-x86-64-appsub"
+  sshPublicKey: "SSH_PUBLIC_KEY_1"
+  clusters:
+  - clusterName: "jz-ocp-cw01-prod"
+    installConfigOverrides: "{\"capabilities\":{\"baselineCapabilitySet\": \"None\", \"additionalEnabledCapabilities\": [ \"baremetal\", \"Console\", \"MachineAPI\", \"marketplace\", \"Build\", \"NodeTuning\", \"CSISnapshot\", \"Storage\" ] }}"
+# Active capabilities:
+#   - baremetal
+#   - Console
+#   - MachineAPI
+#   - marketplace
+#   - Build
+#   - NodeTuning
+#   - CSISnapshot
+#   - Storage
+    extraManifests:
+      searchPaths:
+      - ../extra-manifests
+      - ../custom-manifests
+      filter:
+        inclusionDefault: include
+      exclude:
+      # adapt to initial site deployment
+      - 99-zz-custom-registries-master-ch.yaml
+      - 99-zz-custom-registries-worker-ch.yaml
+    networkType: "OVNKubernetes"
+    clusterLabels:
+      cluster_site: jzm
+      cluster_scope: production
+      cluster_type: cwl
+      configuration_version: base-414-v0
+      openshiftTargetVersion: "4.14.35"
+      # This cluster is part of the cwl-clusters managedclusterset
+      cluster.open-cluster-management.io/clusterset: cwl-clusters
+      # GitOps status
+      gitops_acm_config: Active
+      gitops_ztp_config: Active
+      # Disable TALM on deployment
+      ztp-done: ''
+    apiVIPs:
+      - IP_ADDRESS_217
+      - 2001:41d8:2:501::9
+    ingressVIPs:
+      - IP_ADDRESS_218
+      - 2001:41d8:2:501::10
+    clusterNetwork:
+      - cidr: IP_ADDRESS_7/14
+        hostPrefix: 23
+      - cidr: 2001:41d8:000f::/48
+        hostPrefix: 64
+    machineNetwork:
+      - cidr: IP_ADDRESS_3/24
+      - cidr: 2001:41d8:2:501::/64
+    serviceNetwork:
+      - IP_ADDRESS_8/16
+      - 2001:41d8:2:50f::/112
+    additionalNTPSources:
+      - IP_ADDRESS_219
+      - IP_ADDRESS_220
+      - IP_ADDRESS_221
+    crTemplates:
+      KlusterletAddonConfig: "klusterletaddonconfigoverride.yaml"
+    nodes:
+      # Control plane nodes
+      - hostName: "DOMAIN_EXAMPLE_86.COM"
+        role: "master"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_222/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:34:0c"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:34:0c
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:34:0d
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_223
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::11
+                      prefix-length: 64
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_88.COM"
+        role: "master"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_227/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:33:a6"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:33:a6
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:33:a7
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_228
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::12
+                      prefix-length: 64
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_87.COM"
+        role: "master"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_229/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:34:42"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:34:42
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:34:43
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_230
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::13
+                      prefix-length: 64
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      # Gateway nodes
+      - hostName: "DOMAIN_EXAMPLE_47.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_231/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:01:ba"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:01:ba
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:01:bb
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:95:92:fc
+            - name: ens1f1np0
+              macAddress: a0:88:c2:95:92:fd
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:91:dc
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:91:dd
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_232
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::21
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+              # # Nokia VLAN config
+              # - name: bond2.3004
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3004
+              # - name: bond2.3054
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3054
+              # - name: bond2.3055
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3055
+              # - name: bond2.3056
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3056
+              # - name: bond2.3060
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3060
+              # - name: bond2.3065
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3065
+              # - name: bond2.3066
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3066
+              # - name: bond2.3011
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3011
+              # - name: bond2.3012
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3012
+              # - name: bond2.3013
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3013
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_61.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_233/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "a0:88:c2:2b:12:78"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: a0:88:c2:2b:12:78
+            - name: ens15f1np1
+              macAddress: a0:88:c2:2b:12:79
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: 58:a2:e1:ad:fa:8c
+            - name: ens1f1np0
+              macAddress: 58:a2:e1:ad:fa:8d
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: 58:a2:e1:ad:fa:7c
+            - name: ens3f1np0
+              macAddress: 58:a2:e1:ad:fa:7d
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_234
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::52
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      # 25G workers
+      - hostName: "DOMAIN_EXAMPLE_80.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_235/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:01:c0"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:01:c0
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:01:c1
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:95:92:e4
+            - name: ens1f1np0
+              macAddress: a0:88:c2:95:92:e5
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:92:18
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:92:19
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_236
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::22
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+              # # Nokia VLAN config
+              # - name: bond2.3002
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3002
+              # - name: bond2.3003
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3003
+              # - name: bond2.3005
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3005
+              # - name: bond2.3052
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3052
+              # - name: bond2.3053
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3053
+              # - name: bond2.3057
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3057
+              # - name: bond2.3058
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3058
+              # - name: bond2.3059
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3059
+              # - name: bond2.3006
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3006
+              # - name: bond2.3007
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3007
+              # - name: bond2.3008
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3008
+              # - name: bond2.3061
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3061
+              # - name: bond2.3062
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3062
+              # - name: bond2.3063
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3063
+              # - name: bond2.3064
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3064
+              # - name: bond2.3009
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3009
+              # - name: bond2.3010
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3010
+              # - name: bond2.3067
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3067
+              # - name: bond2.3068
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3068
+              # - name: bond2.3069
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3069
+              # - name: bond2.3070
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3070
+              # - name: bond2.3071
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3071
+              # - name: bond2.3014
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3014
+              # - name: bond2.2729
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 2729
+              # - name: bond2.2730
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 2730
+              # - name: bond2.3029
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3029
+              # - name: bond2.3073
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3073
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_79.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_237/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:01:cc"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:01:cc
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:01:cd
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:95:92:f0
+            - name: ens1f1np0
+              macAddress: a0:88:c2:95:92:f1
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:91:fc
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:91:fd
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_238
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::23
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_71.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_239/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:22:a8"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:22:a8
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:22:a9
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:95:93:14
+            - name: ens1f1np0
+              macAddress: a0:88:c2:95:93:15
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:91:d8
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:91:d9
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_240
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::24
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_66.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_241/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:33:e8"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:33:e8
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:33:e9
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:95:93:a4
+            - name: ens1f1np0
+              macAddress: a0:88:c2:95:93:a5
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:92:08
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:92:09
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_242
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::25
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_62.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_243/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:33:e2"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:33:e2
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:33:e3
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:95:93:1c
+            - name: ens1f1np0
+              macAddress: a0:88:c2:95:93:1d
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:91:c8
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:91:c9
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_244
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::26
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_54.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_245/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:22:c0"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:22:c0
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:22:c1
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:8f:94:42
+            - name: ens1f1np0
+              macAddress: a0:88:c2:8f:94:43
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:91:e0
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:91:e1
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_246
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::27
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_69.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_247/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:21:a0"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:21:a0
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:21:a1
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:8f:94:36
+            - name: ens1f1np0
+              macAddress: a0:88:c2:8f:94:37
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:8f:8d:3a
+            - name: ens3f1np0
+              macAddress: a0:88:c2:8f:8d:3b
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_248
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::28
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_68.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_249/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:1d:ec"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:1d:ec
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:1d:ed
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:8f:93:de
+            - name: ens1f1np0
+              macAddress: a0:88:c2:8f:93:df
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:8f:94:1a
+            - name: ens3f1np0
+              macAddress: a0:88:c2:8f:94:1b
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_250
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::29
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_55.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_251/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "a0:88:c2:2b:0b:16"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: a0:88:c2:2b:0b:16
+            - name: ens15f1np1
+              macAddress: a0:88:c2:2b:0b:17
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:6a:08:32
+            - name: ens1f1np0
+              macAddress: a0:88:c2:6a:08:33
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:6a:08:8a
+            - name: ens3f1np0
+              macAddress: a0:88:c2:6a:08:8b
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_252
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::53
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_72.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_253/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "a0:88:c2:2a:42:3a"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: a0:88:c2:2a:42:3a
+            - name: ens15f1np1
+              macAddress: a0:88:c2:2a:42:3b
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: 58:a2:e1:ad:fa:00
+            - name: ens1f1np0
+              macAddress: 58:a2:e1:ad:fa:01
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: 58:a2:e1:ad:f9:dc
+            - name: ens3f1np0
+              macAddress: 58:a2:e1:ad:f9:dd
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_254
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::54
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_65.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_255/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:6b:1a"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:6b:1a
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:6b:1b
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:8f:8d:0e
+            - name: ens1f1np0
+              macAddress: a0:88:c2:8f:8d:0f
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:95:91:90
+            - name: ens3f1np0
+              macAddress: a0:88:c2:95:91:91
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_256
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::55
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_81.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_257/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:6b:20"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:6b:20
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:6b:21
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:8f:94:fe
+            - name: ens1f1np0
+              macAddress: a0:88:c2:8f:94:ff
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:8f:94:22
+            - name: ens3f1np0
+              macAddress: a0:88:c2:8f:94:23
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_258
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::56
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_78.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_259/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:56:02"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:56:02
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:56:03
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:95:96:c8
+            - name: ens1f1np0
+              macAddress: a0:88:c2:95:96:c9
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:8f:94:3e
+            - name: ens3f1np0
+              macAddress: a0:88:c2:8f:94:3f
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_260
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::57
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_53.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_261/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:54:0a"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:54:0a
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:54:0b
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: a0:88:c2:8f:95:2e
+            - name: ens1f1np0
+              macAddress: a0:88:c2:8f:95:2f
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: a0:88:c2:8f:92:a6
+            - name: ens3f1np0
+              macAddress: a0:88:c2:8f:92:a7
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_262
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::58
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_48.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_263/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "a0:88:c2:2b:0b:34"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: a0:88:c2:2b:0b:34
+            - name: ens15f1np1
+              macAddress: a0:88:c2:2b:0b:35
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: 58:a2:e1:ad:fa:94
+            - name: ens1f1np0
+              macAddress: 58:a2:e1:ad:fa:95
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: 58:a2:e1:ad:fa:5c
+            - name: ens3f1np0
+              macAddress: 58:a2:e1:ad:fa:5d
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_264
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::59
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_84.COM"
+        role: "worker"
+#        crAnnotations:
+#          add:
+#            BareMetalHost:
+#              bmac.agent-install.openshift.io/remove-agent-and-node-on-delete: true
+#        crSuppression:
+#        - BareMetalHost
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_265/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "a0:88:c2:2b:0b:8e"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: a0:88:c2:2b:0b:8e
+            - name: ens15f1np1
+              macAddress: a0:88:c2:2b:0b:8f
+            # OVN (bond1)
+            - name: ens1f0np0
+              macAddress: 58:a2:e1:ad:fa:10
+            - name: ens1f1np0
+              macAddress: 58:a2:e1:ad:fa:11
+            # OVN (bond2)
+            - name: ens3f0np0
+              macAddress: 58:a2:e1:ad:fa:78
+            - name: ens3f1np0
+              macAddress: 58:a2:e1:ad:fa:79
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_266
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::60
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      # 100G workers
+      - hostName: "DOMAIN_EXAMPLE_60.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_267/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:56:14"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:56:14
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:56:15
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:f8:86
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:f8:87
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:e8:ca
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:e8:cb
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_268
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::31
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+              # # Nokia VLAN config
+              # - name: bond2.3001
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3001
+              # - name: bond2.3034
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3034
+              # - name: bond2.3035
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3035
+              # - name: bond2.3074
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3074
+              # - name: bond2.3036
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3036
+              # - name: bond2.3037
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3037
+              # - name: bond2.3038
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3038
+              # - name: bond2.3039
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3039
+              # - name: bond2.3040
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3040
+              # - name: bond2.3041
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3041
+              # - name: bond2.3042
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3042
+              # - name: bond2.3043
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3043
+              # - name: bond2.3044
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3044
+              # - name: bond2.3045
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3045
+              # - name: bond2.3046
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3046
+              # - name: bond2.3047
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3047
+              # - name: bond2.3048
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3048
+              # - name: bond2.3049
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3049
+              # - name: bond2.3050
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3050
+              # - name: bond2.3051
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3051
+              # - name: bond2.3024
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3024
+              # - name: bond2.3025
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3025
+              # - name: bond2.3026
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3026
+              # - name: bond2.3027
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3027
+              # - name: bond2.3028
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3028
+              # - name: bond2.3030
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3030
+              # - name: bond2.3031
+              #   type: vlan
+              #   state: up
+              #   mtu: 9000
+              #   vlan:
+              #     base-iface: bond2
+              #     id: 3031
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_64.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_269/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:55:e4"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:55:e4
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:55:e5
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:19:3e
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:19:3f
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:f8:0e
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:f8:0f
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_270
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::32
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_73.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_271/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6b:f1:d6"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6b:f1:d6
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6b:f1:d7
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:f8:7a
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:f8:7b
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:f8:56
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:f8:57
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_272
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::33
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_77.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_273/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:6a:e4"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:6a:e4
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:6a:e5
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:09:0e
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:09:0f
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:f8:ea
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:f8:eb
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_274
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::34
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_82.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_275/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:6b:44"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:6b:44
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:6b:45
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:09:2a
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:09:2b
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:09:36
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:09:37
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_276
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::35
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_49.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_277/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:7e:c4"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:7e:c4
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:7e:c5
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:f8:52
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:f8:53
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:09:32
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:09:33
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_278
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::36
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_52.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_279/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:33:fa"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:33:fa
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:33:fb
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:09:3a
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:09:3b
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:09:4a
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:09:4b
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_280
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::37
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_75.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_281/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:56:26"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:56:26
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:56:27
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:09:8a
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:09:8b
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:09:c2
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:09:c3
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_282
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::38
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_85.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_283/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:54:1c"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:54:1c
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:54:1d
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:b3:7c:18
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:b3:7c:19
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:09:92
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:09:93
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_284
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::39
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_50.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_285/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:36:d0"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:36:d0
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:36:d1
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:09:56
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:09:57
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:b3:3c:f4
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:b3:3c:f5
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_286
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::40
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_51.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_287/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:55:a8"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:55:a8
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:55:a9
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:09:ba
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:09:bb
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:f8:5a
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:f8:5b
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_288
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::41
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_76.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_289/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:5f:80"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:5f:80
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:5f:81
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:b3:5c:18
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:b3:5c:19
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:f8:62
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:f8:63
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_290
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::42
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_83.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_291/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:5f:7a"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:5f:7a
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:5f:7b
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:f8:92
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:f8:93
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:e8:52
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:e8:53
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_292
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::43
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_63.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_293/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:60:7c"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:60:7c
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:60:7d
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:19:8a
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:19:8b
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:19:6e
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:19:6f
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_294
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::44
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_74.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_295/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:2f:2c"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:2f:2c
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:2f:2d
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:19:ba
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:19:bb
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:19:f2
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:19:f3
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_296
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::45
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_56.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_297/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:6b:68"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:6b:68
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:6b:69
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:19:c6
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:19:c7
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:19:a2
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:19:a3
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_298
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::46
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_59.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_299/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:31:a2"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:31:a2
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:31:a3
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:f8:06
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:f8:07
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:19:e6
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:19:e7
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_300
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::47
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_67.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_301/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:2f:86"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:2f:86
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:2f:87
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:19:ca
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:19:cb
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:19:e2
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:19:e3
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_302
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::48
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_70.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_303/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:2f:14"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:2f:14
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:2f:15
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:29:ca
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:29:cb
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:19:de
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:19:df
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_304
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::49
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_57.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_305/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:5c:98"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:5c:98
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:5c:99
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:09:1a
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:09:1b
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:f8:f6
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:f8:f7
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_306
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::50
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_58.COM"
+        role: "worker"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_307/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:6b:62"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFI"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:6b:62
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:6b:63
+            # OVN + SRIOV (bond1)
+            - name: ens1f0np0
+              macAddress: 88:e9:a4:d2:19:4e
+            - name: ens1f1np0
+              macAddress: 88:e9:a4:d2:19:4f
+            # OVN + SRIOV (bond1)
+            - name: ens3f0np0
+              macAddress: 88:e9:a4:d2:19:4a
+            - name: ens3f1np0
+              macAddress: 88:e9:a4:d2:19:4b
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_308
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:501::51
+                      prefix-length: 64
+              - name: bond1
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens1f0np0
+                    - ens1f1np0
+              - name: bond2
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: active-backup
+                  port:
+                    - ens3f0np0
+                    - ens3f1np0
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_94.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_226
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:501::1
+                  next-hop-interface: bond0
+                  table-id: 254
+#      - hostName: "DOMAIN_EXAMPLE_96.COM"
+#        role: "worker"
+#        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_309/redfish/v1/systems/1"
+#        bmcCredentialsName:
+#          name: bmc-creds-workload
+#        bootMACAddress: "b8:3f:d2:6c:6a:12"
+#        # Use UEFISecureBoot to enable secure boot for this node
+#        bootMode: "UEFI"
+#        rootDeviceHints:
+#          vendor: HPE
+#        nodeNetwork:
+#          interfaces:
+#            # machineNet + storage (bond0)
+#            - name: ens15f0np0
+#              macAddress: b8:3f:d2:6c:6a:12
+#            - name: ens15f1np1
+#              macAddress: b8:3f:d2:6c:6a:13
+#            # OVN + SRIOV (bond1)
+#            - name: ens1f0np0
+#              macAddress: 88:e9:a4:d2:f8:36
+#            - name: ens1f1np0
+#              macAddress: 88:e9:a4:d2:f8:37
+#            # OVN + SRIOV (bond1)
+#            - name: ens3f0np0
+#              macAddress: 88:e9:a4:d2:09:1e
+#            - name: ens3f1np0
+#              macAddress: 88:e9:a4:d2:09:1f
+#          config:
+#            interfaces:
+#              - name: bond0
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: 802.3ad
+#                  port:
+#                    - ens15f0np0
+#                    - ens15f1np1
+#                ipv4:
+#                  enabled: true
+#                  dhcp: false
+#                  address:
+#                  - ip: IP_ADDRESS_310
+#                    prefix-length: 24
+#                ipv6:
+#                  enabled: true
+#                  dhcp: false
+#                  autoconf: false
+#                  address:
+#                    - ip: 2001:41d8:2:501::61
+#                      prefix-length: 64
+#              - name: bond1
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens1f0np0
+#                    - ens1f1np0
+#              - name: bond2
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens3f0np0
+#                    - ens3f1np0
+#            dns-resolver:
+#              config:
+#                search:
+#                  - cz.o2
+#                  - DOMAIN_EXAMPLE_94.COM
+#                server:
+#                  - IP_ADDRESS_224
+#                  - IP_ADDRESS_225
+#            routes:
+#              config:
+#                - destination: 0.0.0.0/0
+#                  next-hop-address: IP_ADDRESS_226
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#                - destination: ::/0
+#                  next-hop-address: 2001:41d8:2:501::1
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#      - hostName: "DOMAIN_EXAMPLE_97.COM"
+#        role: "worker"
+#        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_311/redfish/v1/systems/1"
+#        bmcCredentialsName:
+#          name: bmc-creds-workload
+#        bootMACAddress: "b8:3f:d2:6c:69:a6"
+#        # Use UEFISecureBoot to enable secure boot for this node
+#        bootMode: "UEFI"
+#        rootDeviceHints:
+#          vendor: HPE
+#        nodeNetwork:
+#          interfaces:
+#            # machineNet + storage (bond0)
+#            - name: ens15f0np0
+#              macAddress: b8:3f:d2:6c:69:a6
+#            - name: ens15f1np1
+#              macAddress: b8:3f:d2:6c:69:a7
+#            # OVN + SRIOV (bond1)
+#            - name: ens1f0np0
+#              macAddress: 88:e9:a4:d2:f8:4a
+#            - name: ens1f1np0
+#              macAddress: 88:e9:a4:d2:f8:4b
+#            # OVN + SRIOV (bond1)
+#            - name: ens3f0np0
+#              macAddress: 88:e9:a4:d2:09:52
+#            - name: ens3f1np0
+#              macAddress: 88:e9:a4:d2:09:53
+#          config:
+#            interfaces:
+#              - name: bond0
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: 802.3ad
+#                  port:
+#                    - ens15f0np0
+#                    - ens15f1np1
+#                ipv4:
+#                  enabled: true
+#                  dhcp: false
+#                  address:
+#                  - ip: IP_ADDRESS_312
+#                    prefix-length: 24
+#                ipv6:
+#                  enabled: true
+#                  dhcp: false
+#                  autoconf: false
+#                  address:
+#                    - ip: 2001:41d8:2:501::62
+#                      prefix-length: 64
+#              - name: bond1
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens1f0np0
+#                    - ens1f1np0
+#              - name: bond2
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens3f0np0
+#                    - ens3f1np0
+#            dns-resolver:
+#              config:
+#                search:
+#                  - cz.o2
+#                  - DOMAIN_EXAMPLE_94.COM
+#                server:
+#                  - IP_ADDRESS_224
+#                  - IP_ADDRESS_225
+#            routes:
+#              config:
+#                - destination: 0.0.0.0/0
+#                  next-hop-address: IP_ADDRESS_226
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#                - destination: ::/0
+#                  next-hop-address: 2001:41d8:2:501::1
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#      - hostName: "DOMAIN_EXAMPLE_98.COM"
+#        role: "worker"
+#        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_313/redfish/v1/systems/1"
+#        bmcCredentialsName:
+#          name: bmc-creds-workload
+#        bootMACAddress: "b8:3f:d2:6c:6a:de"
+#        # Use UEFISecureBoot to enable secure boot for this node
+#        bootMode: "UEFI"
+#        rootDeviceHints:
+#          vendor: HPE
+#        nodeNetwork:
+#          interfaces:
+#            # machineNet + storage (bond0)
+#            - name: ens15f0np0
+#              macAddress: b8:3f:d2:6c:6a:de
+#            - name: ens15f1np1
+#              macAddress: b8:3f:d2:6c:6a:df
+#            # OVN + SRIOV (bond1)
+#            - name: ens1f0np0
+#              macAddress: 88:e9:a4:d2:09:22
+#            - name: ens1f1np0
+#              macAddress: 88:e9:a4:d2:09:23
+#            # OVN + SRIOV (bond1)
+#            - name: ens3f0np0
+#              macAddress: 88:e9:a4:d2:f8:7e
+#            - name: ens3f1np0
+#              macAddress: 88:e9:a4:d2:f8:7f
+#          config:
+#            interfaces:
+#              - name: bond0
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: 802.3ad
+#                  port:
+#                    - ens15f0np0
+#                    - ens15f1np1
+#                ipv4:
+#                  enabled: true
+#                  dhcp: false
+#                  address:
+#                  - ip: IP_ADDRESS_314
+#                    prefix-length: 24
+#                ipv6:
+#                  enabled: true
+#                  dhcp: false
+#                  autoconf: false
+#                  address:
+#                    - ip: 2001:41d8:2:501::63
+#                      prefix-length: 64
+#              - name: bond1
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens1f0np0
+#                    - ens1f1np0
+#              - name: bond2
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens3f0np0
+#                    - ens3f1np0
+#            dns-resolver:
+#              config:
+#                search:
+#                  - cz.o2
+#                  - DOMAIN_EXAMPLE_94.COM
+#                server:
+#                  - IP_ADDRESS_224
+#                  - IP_ADDRESS_225
+#            routes:
+#              config:
+#                - destination: 0.0.0.0/0
+#                  next-hop-address: IP_ADDRESS_226
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#                - destination: ::/0
+#                  next-hop-address: 2001:41d8:2:501::1
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#      - hostName: "DOMAIN_EXAMPLE_99.COM"
+#        role: "worker"
+#        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_315/redfish/v1/systems/1"
+#        bmcCredentialsName:
+#          name: bmc-creds-workload
+#        bootMACAddress: "b8:3f:d2:6c:34:00"
+#        # Use UEFISecureBoot to enable secure boot for this node
+#        bootMode: "UEFI"
+#        rootDeviceHints:
+#          vendor: HPE
+#        nodeNetwork:
+#          interfaces:
+#            # machineNet + storage (bond0)
+#            - name: ens15f0np0
+#              macAddress: b8:3f:d2:6c:34:00
+#            - name: ens15f1np1
+#              macAddress: b8:3f:d2:6c:34:01
+#            # OVN + SRIOV (bond1)
+#            - name: ens1f0np0
+#              macAddress: 88:e9:a4:d2:09:02
+#            - name: ens1f1np0
+#              macAddress: 88:e9:a4:d2:09:03
+#            # OVN + SRIOV (bond1)
+#            - name: ens3f0np0
+#              macAddress: 88:e9:a4:d2:f8:3a
+#            - name: ens3f1np0
+#              macAddress: 88:e9:a4:d2:f8:3b
+#          config:
+#            interfaces:
+#              - name: bond0
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: 802.3ad
+#                  port:
+#                    - ens15f0np0
+#                    - ens15f1np1
+#                ipv4:
+#                  enabled: true
+#                  dhcp: false
+#                  address:
+#                  - ip: IP_ADDRESS_316
+#                    prefix-length: 24
+#                ipv6:
+#                  enabled: true
+#                  dhcp: false
+#                  autoconf: false
+#                  address:
+#                    - ip: 2001:41d8:2:501::64
+#                      prefix-length: 64
+#              - name: bond1
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens1f0np0
+#                    - ens1f1np0
+#              - name: bond2
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens3f0np0
+#                    - ens3f1np0
+#            dns-resolver:
+#              config:
+#                search:
+#                  - cz.o2
+#                  - DOMAIN_EXAMPLE_94.COM
+#                server:
+#                  - IP_ADDRESS_224
+#                  - IP_ADDRESS_225
+#            routes:
+#              config:
+#                - destination: 0.0.0.0/0
+#                  next-hop-address: IP_ADDRESS_226
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#                - destination: ::/0
+#                  next-hop-address: 2001:41d8:2:501::1
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#      - hostName: "DOMAIN_EXAMPLE_100.COM"
+#        role: "worker"
+#        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_317/redfish/v1/systems/1"
+#        bmcCredentialsName:
+#          name: bmc-creds-workload
+#        bootMACAddress: "b8:3f:d2:6c:53:ec"
+#        # Use UEFISecureBoot to enable secure boot for this node
+#        bootMode: "UEFI"
+#        rootDeviceHints:
+#          vendor: HPE
+#        nodeNetwork:
+#          interfaces:
+#            # machineNet + storage (bond0)
+#            - name: ens15f0np0
+#              macAddress: b8:3f:d2:6c:53:ec
+#            - name: ens15f1np1
+#              macAddress: b8:3f:d2:6c:53:ed
+#            # OVN + SRIOV (bond1)
+#            - name: ens1f0np0
+#              macAddress: 88:e9:a4:b3:5c:10
+#            - name: ens1f1np0
+#              macAddress: 88:e9:a4:b3:5c:11
+#            # OVN + SRIOV (bond1)
+#            - name: ens3f0np0
+#              macAddress: 88:e9:a4:b3:2c:9c
+#            - name: ens3f1np0
+#              macAddress: 88:e9:a4:b3:2c:9d
+#          config:
+#            interfaces:
+#              - name: bond0
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: 802.3ad
+#                  port:
+#                    - ens15f0np0
+#                    - ens15f1np1
+#                ipv4:
+#                  enabled: true
+#                  dhcp: false
+#                  address:
+#                  - ip: IP_ADDRESS_318
+#                    prefix-length: 24
+#                ipv6:
+#                  enabled: true
+#                  dhcp: false
+#                  autoconf: false
+#                  address:
+#                    - ip: 2001:41d8:2:501::65
+#                      prefix-length: 64
+#              - name: bond1
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens1f0np0
+#                    - ens1f1np0
+#              - name: bond2
+#                type: bond
+#                state: up
+#                mtu: 9000
+#                link-aggregation:
+#                  mode: active-backup
+#                  port:
+#                    - ens3f0np0
+#                    - ens3f1np0
+#            dns-resolver:
+#              config:
+#                search:
+#                  - cz.o2
+#                  - DOMAIN_EXAMPLE_94.COM
+#                server:
+#                  - IP_ADDRESS_224
+#                  - IP_ADDRESS_225    
+#            routes:
+#              config:
+#                - destination: 0.0.0.0/0
+#                  next-hop-address: IP_ADDRESS_226
+#                  next-hop-interface: bond0
+#                  table-id: 254
+#                - destination: ::/0
+#                  next-hop-address: 2001:41d8:2:501::1
+#                  next-hop-interface: bond0
+#                  table-id: 254

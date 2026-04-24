@@ -1,0 +1,86 @@
+---
+- name: "Satellite capsule installation"
+  hosts: "all"
+  gather_facts: false
+  # remote_user: "ansible"
+  # become: true
+  # vars_files:
+  #   - ../vault_satellite_capsule_install_preprod1.yaml
+  tasks:
+    - block:
+      - name: "Register hostname command output"
+        ansible.builtin.command: "hostname -f"
+        register: "actual_fqdn_output"
+        changed_when: false
+
+      - name: "Ensure FQDN is correctly defined"
+        ansible.builtin.assert:
+          that:
+            - actual_fqdn_output.stdout | trim == capsule_fqdn
+          fail_msg: >
+            FQDN error! FQDN is not the same defined by the capsule_fqdn var.
+            expected: {{ capsule_fqdn }} |
+            received: {{ actual_fqdn_output.stdout | trim }}
+          success_msg: "OK: current FQDN corresponding exected value: {{ capsule_fqdn }}"
+
+    - block:       
+      - name: "Copy custom certs to trusted store"
+        ansible.builtin.copy:
+          src: "../files/{{ custom_ca_file }}"
+          dest: /etc/pki/ca-trust/source/anchors/{{ custom_ca_file }}
+          remote_src: no
+  
+      - name: "Update trusted store"
+        ansible.builtin.command:
+          cmd: "update-ca-trust"
+
+    - block:
+      - name: "Register satellite client using activationkey"
+        ansible.builtin.shell: "{{ registration_command }}"
+        args:
+          executable: "/bin/bash"
+        register: "shell_register_exec"
+        ignore_errors: true # added to move forward with until vmo2 team solve the issue with insights
+      
+      # - name: "Ensures the registration script executed successfully" 
+      #   ansible.builtin.assert:
+      #     that:
+      #       - shell_register_exec.rc == 0
+      #     fail_msg: "Register process failed! ReturnCode: {{ shell_register_exec.rc }}. Output error: {{ shell_register_exec.stderr }}"
+      #     success_msg: "Register successfull completed!"
+
+      - name: "Disable all RHSM repositories configured currently on the client"
+        redhat.rhel_system_roles.rhsm_repository:
+          name: '*'
+          state: "disabled"
+
+      - name: "Configure Satellite Capsule repositories"
+        redhat.rhel_system_roles.rhsm_repository:
+          purge: true
+          state: "enabled"
+          name:
+            - "rhel-9-for-x86_64-baseos-rpms"
+            - "rhel-9-for-x86_64-appstream-rpms"
+            - "satellite-capsule-6.17-for-rhel-9-x86_64-rpms"
+            - "satellite-maintenance-6.17-for-rhel-9-x86_64-rpms"
+           
+      - name: "Upgrade all system packets"
+        ansible.builtin.dnf:
+          name: "*"
+          state: "latest"
+
+    - block:
+      - name: "Copy capsule files to {{ capsule_tar_file_path + '/' + capsule_tar_file }}"
+        ansible.builtin.copy:
+          src: "../files/{{ capsule_tar_file }}"
+          dest: "{{ capsule_tar_file_path + '/' + capsule_tar_file }}"
+          # remote_src: no
+
+      - name: "Run capsule installer"
+        ansible.builtin.import_role:
+          name: "redhat.satellite_operations.installer"
+        vars:
+          satellite_installer_package: "satellite-capsule"
+          satellite_installer_scenario: "capsule"
+          satellite_installer_options: "{{ capsule_install_options }}"
+...

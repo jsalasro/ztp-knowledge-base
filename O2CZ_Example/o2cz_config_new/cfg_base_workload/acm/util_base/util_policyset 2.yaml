@@ -1,0 +1,23 @@
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: util-base-config-policies
+  namespace: policies
+spec:
+  description: "Policies for base util clusters configuration"
+  policies: []
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: util-components-config
+  namespace: policies
+spec:
+  description: "Policies for util clusters component configuration"
+  policies:
+    - rhacs-secured-cluster-managed
+    - rhacs-secured-cluster-cert-expiration-check
+    - util-compliance-baseline
+    - util-odf-external
+...

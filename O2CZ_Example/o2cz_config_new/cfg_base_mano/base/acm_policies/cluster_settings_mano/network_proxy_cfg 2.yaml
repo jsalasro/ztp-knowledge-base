@@ -1,0 +1,61 @@
+---
+# This policy configure the cluster proxy
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Cluster Proxy configuration
+  name: proxy-configuration
+  namespace: policies-mano
+spec:
+  disabled: false
+  policy-templates:
+  # Check that the config map containing the proxy configuration exists
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: proxy-configuration-cm-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: proxy-config-mano
+                namespace: policies-mano
+  # Apply Proxy configuration
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: proxy-configuration-cm-check
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: proxy-configure
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: config.openshift.io/v1
+            kind: Proxy
+            metadata:
+              name: cluster
+            spec:
+              httpProxy: '{{ fromConfigMap "policies-mano" "proxy-config-mano" "httpProxy" }}'
+              httpsProxy: '{{ fromConfigMap "policies-mano" "proxy-config-mano" "httpsProxy" }}'
+              noProxy: '{{ (trim (fromConfigMap "policies-mano" "proxy-config-mano" "noProxy")) | replace "\n" "," }}'
+...

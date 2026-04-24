@@ -1,0 +1,55 @@
+---
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  name: basic
+  namespace: istio-system
+spec:
+  version: v2.5
+  gateways:
+    openshiftRoute:
+      enabled: true
+    ingress:
+      runtime:
+        deployment:
+          replicas: 2
+        pod:
+          nodeSelector:
+            node-role.kubernetes.io/gateway: ""
+      service:
+        type: LoadBalancer
+        loadBalancerIP: IP_ADDRESS_136
+        externalTrafficPolicy: Local
+        ports:
+        - name: status-port
+          port: 15021
+          targetPort: 15021
+        - name: http2-nrd
+          port: 8080
+          targetPort: 8080
+        - name: http2
+          port: 80
+          targetPort: 80
+        - name: https
+          port: 443
+          targetPort: 8443
+  tracing:
+    type: Jaeger
+    sampling: 10000
+  policy:
+    type: Istiod
+  addons:
+    grafana:
+      enabled: true
+    jaeger:
+      install:
+        storage:
+          type: Memory
+    kiali:
+      enabled: true
+    prometheus:
+      enabled: true
+  telemetry:
+    type: Istiod
+  mode: MultiTenant
+...

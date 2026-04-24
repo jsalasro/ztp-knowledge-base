@@ -1,0 +1,24 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-worker-multipath-portworx-worker
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  config:
+    ignition:
+      version: 3.4.0
+    storage:
+      files:
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,IyAvZXRjL211bHRpcGF0aC5jb25mCiAKZGVmYXVsdHMgewogICAgdXNlcl9mcmllbmRseV9uYW1lcyBubwogICAgZW5hYmxlX2ZvcmVpZ24gIl4kIgogICAgcG9sbGluZ19pbnRlcnZhbCAxMAogICAgZmluZF9tdWx0aXBhdGhzIHllcwp9CiAKYmxhY2tsaXN0X2V4Y2VwdGlvbnMgewogICAgcHJvcGVydHkgIihTQ1NJX0lERU5UX3xJRF9XV04pIgp9CiAKYmxhY2tsaXN0IHsKICAgIGRldm5vZGUgIl5weGRbMC05XSoiCiAgICBkZXZub2RlICJecHhkKiIKICAgIGRldmljZSB7CiAgICAgICAgdmVuZG9yICJWTXdhcmUiCiAgICAgICAgcHJvZHVjdCAiVmlydHVhbCBkaXNrIgogICAgfQp9CiAKZGV2aWNlcyB7CiAKICAgIGRldmljZSB7CiAgICAgICAgdmVuZG9yICJQVVJFIgogICAgICAgIHByb2R1Y3QgIkZsYXNoQXJyYXkiCiAgICAgICAgcGF0aF9zZWxlY3RvciAic2VydmljZS10aW1lIDAiCiAgICAgICAgaGFyZHdhcmVfaGFuZGxlciAiMSBhbHVhIgogICAgICAgIHBhdGhfZ3JvdXBpbmdfcG9saWN5IGdyb3VwX2J5X3ByaW8KICAgICAgICBwcmlvIGFsdWEKICAgICAgICBmYWlsYmFjayBpbW1lZGlhdGUKICAgICAgICBwYXRoX2NoZWNrZXIgdHVyCiAgICAgICAgZmFzdF9pb19mYWlsX3RtbyAxMAogICAgICAgIHVzZXJfZnJpZW5kbHlfbmFtZXMgbm8KICAgICAgICBub19wYXRoX3JldHJ5IDAKICAgICAgICBmZWF0dXJlcyAwCiAgICAgICAgZGV2X2xvc3NfdG1vIDYwMAogICAgfQp9
+        filesystem: root
+        mode: 0644
+        overwrite: true
+        path: /etc/multipath.conf
+    systemd:
+      units:
+      - enabled: true
+        name: iscsid.service
+      - enabled: true
+        name: multipathd.service

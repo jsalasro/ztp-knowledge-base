@@ -1,0 +1,17 @@
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultStaticSecret
+metadata:
+  name: vso-ansible-vault-password
+  namespace: imperative
+spec:
+  type: kv-v2 
+  mount: {{ .Values.mgmt.vault.vault_engine }}
+  path: preprod/{{ splitList "-" .Values.mgmt.cluster.name | first }}/vault/encrypted-inventory
+  destination:
+    name: ansible-vault-password
+    create: true
+    labels:
+      argocd.argoproj.io/secret-type: repository
+  refreshAfter: 30s
+  vaultAuthRef: vault-secrets-operator/default

@@ -1,0 +1,55 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-provision-clusterclaim-clusterrole
+rules:
+- apiGroups:
+  - cluster.open-cluster-management.io
+  resources:
+  - clusterclaims
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+  - update
+    #- apiGroups:
+    #  - hive.openshift.io
+    #  resources:
+    #  - clusterclaims
+    #  verbs:
+    #  - create
+    #  - get
+    #  - list
+    #  - watch
+    #  - patch
+    #  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: test-clusterclaim-argo-provision-bind
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argo-provision-clusterclaim-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: openshift-gitops-argocd-application-controller
+  namespace: openshift-gitops
+#---
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: ClusterRoleBinding
+#metadata:
+#  name: test-cluster-admin-argo-provision-bind
+#roleRef:
+#  apiGroup: rbac.authorization.k8s.io
+#  kind: ClusterRole
+#  name: cluster-admin
+#subjects:
+#- kind: ServiceAccount
+#  name: openshift-gitops-argocd-application-controller
+#  namespace: openshift-gitops
+...

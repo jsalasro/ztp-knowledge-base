@@ -1,0 +1,165 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: AMQ Streams Operator Installation
+  name: operator-install-amq
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  # Create the namespace for the operator installation
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: amq-namespace
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: amq-streams-kafka
+  # Create the namespace to deploy the kafka cluster (needs to exist for namespaced operator)
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-namespace
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: kafka-cluster
+  # Create the operator group, when the namespace is ready
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: amq-namespace
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: amq-operator-group
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1
+            kind: OperatorGroup
+            metadata:
+              name: amq-operator-group
+              namespace: amq-streams-kafka
+            spec:
+              targetNamespaces:
+                - kafka-cluster
+  # Create the subscription when the operator group is ready
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: amq-operator-group
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: amq-subscription
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: Subscription
+            metadata:
+              name: amq-subscription
+              namespace: amq-streams-kafka
+            spec:
+              channel: '{{hub fromConfigMap "policies-mano" "operators-version" "amq-channel" hub}}'
+              installPlanApproval: Manual
+              name: amq-streams
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+              startingCSV: '{{hub fromConfigMap "policies-mano" "operators-version" "amq-startingCSV" hub}}'
+  # Approve the Install plan when it has been detected
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: amq-subscription
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: amq-installplan-approve
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range $installplan := (lookup "operators.coreos.com/v1alpha1" "InstallPlan" "amq-streams-kafka" "").items }}
+            {{- range $installplan.spec.clusterServiceVersionNames }}
+            {{- if eq . "{{hub fromConfigMap "policies-mano" "operators-version" "amq-startingCSV" hub}}" }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: operators.coreos.com/v1alpha1
+                kind: InstallPlan
+                metadata:
+                  namespace: amq-streams-kafka
+                  name: '{{ $installplan.metadata.name }}'
+                spec:
+                  approved: true
+            {{- end }}
+            {{- end }}
+          {{- end }}
+  # Check the CSV
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: amq-installplan-approve
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: amq-csv-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{hub fromConfigMap "policies-mano" "operators-version" "amq-startingCSV" hub}}'
+              namespace: amq-streams-kafka
+            status:
+              phase: Succeeded
+...

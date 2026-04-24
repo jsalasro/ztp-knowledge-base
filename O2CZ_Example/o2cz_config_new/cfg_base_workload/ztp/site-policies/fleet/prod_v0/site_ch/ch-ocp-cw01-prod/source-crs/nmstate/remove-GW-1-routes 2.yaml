@@ -1,0 +1,24 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: remove-gateway-1-routes
+spec:
+  nodeSelector: 
+    kubernetes.io/hostname: "DOMAIN_EXAMPLE_5.COM"
+  desiredState:
+    routes:
+      config:
+      - destination: IP_ADDRESS_42/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_44/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+...

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Node
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: appworker25g
+    node-role.kubernetes.io/appworker25g: ""
+    node-role.kubernetes.io/Appworker: ""
+    is_edge: "true"
+    is_worker: "true"
+  name: DOMAIN_EXAMPLE_6.COM
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "1"
+spec: {}
+...

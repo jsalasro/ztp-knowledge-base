@@ -1,0 +1,252 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Manage CGU for workload clusters upgrades
+  name: cluster-upgrade-cwl-trigger-cgu
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  # CGU prerequisites
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: cluster-upgrade-cwl-prereqs
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{hub fromConfigMap "policies-mano" "operators-version" "talm-startingCSV" hub}}'
+              namespace: openshift-operators
+            status:
+              phase: Succeeded
+  # Create SA and RBAC for the job
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: cluster-upgrade-cwl-job-sa
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+              name: upgrade-job-sa
+              namespace: policies-mano
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: Role
+            metadata:
+              name: upgrade-job-role
+              namespace: policies-mano
+            rules:
+            - apiGroups:
+              - "*"
+              resources:
+              - configmaps
+              verbs:
+              - get
+              - list
+              - create
+              - patch
+              - update
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: RoleBinding
+            metadata:
+              name: upgrade-job-rolebinding
+              namespace: policies-mano
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: Role
+              name: upgrade-job-role
+            subjects:
+            - kind: ServiceAccount
+              name: upgrade-job-sa
+              namespace: policies-mano
+  # Render required CMs for disconnected upgrade
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: cluster-upgrade-cwl-job-sa
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: cluster-upgrade-cwl-disconnected-cm
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl").items }}
+          {{- $current_version := .metadata.labels.openshiftVersion }}
+          {{- $target_version := default $current_version .metadata.labels.openshiftTargetVersion }}
+          {{- if ne $current_version $target_version }}
+          {{- $cm_reference := printf "ocp-version-%s" $target_version }}
+          {{- if not (lookup "v1" "ConfigMap" "policies-mano" $cm_reference) }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: batch/v1
+                kind: Job
+                metadata:
+                  name: ocp-disconnected-digest
+                  namespace: policies-mano
+                spec:
+                  backoffLimit: 2
+                  completions: 1
+                  parallelism: 1
+                  template:
+                    metadata:
+                      name: get-ocp-version-digest
+                    spec:
+                      serviceAccountName: upgrade-job-sa
+                      hostNetwork: false
+                      securityContext:
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      containers:
+                      - name: oc-tool
+                        image: registry.redhat.io/openshift4/ose-cli:v4.14
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          capabilities:
+                            drop: ["ALL"]
+                          readOnlyRootFilesystem: true
+                        env:
+                          - name: OCP_TARGET_VERSION
+                            value: {{ $target_version }}
+                          - name: OCP_CHANNEL
+                            value: stable-4.14
+                          - name: OCP_ARCHITECTURE
+                            value: x86_64
+                          - name: HTTP_PROXY
+                            value: {{ (lookup "config.openshift.io/v1" "Proxy" "" "cluster").spec.httpProxy }}
+                          - name: HTTPS_PROXY
+                            value: {{ (lookup "config.openshift.io/v1" "Proxy" "" "cluster").spec.httpsProxy }}
+                          - name: NO_PROXY
+                            value: 'IP_ADDRESS_12'
+                          - name: CM_REFERENCE_NAME
+                            value: {{ $cm_reference }}
+                        command:
+                          - /bin/bash
+                          - -c
+                          - |
+                            VERSION_DIGEST=$(oc adm release info -o 'jsonpath={.digest}{"\n"}' quay.io/openshift-release-dev/ocp-release:${OCP_TARGET_VERSION}-${OCP_ARCHITECTURE})
+                            if [[ -n $VERSION_DIGEST ]]; \
+                            then oc create configmap -n policies-mano ${CM_REFERENCE_NAME} \
+                              --from-literal=channel=${OCP_CHANNEL} \
+                              --from-literal=version=${OCP_TARGET_VERSION} \
+                              --from-literal=src_image=quay.io/openshift-release-dev/ocp-release@${VERSION_DIGEST} \
+                              -o yaml; fi
+                      restartPolicy: Never
+                      terminationGracePeriodSeconds: 30
+                      activeDeadlineSeconds: 300
+                      dnsPolicy: "ClusterFirst"
+            {{- end }}
+            {{- end }}
+            {{- end }}
+  # Create the CGU object for OCP cluster upgrade
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: cluster-upgrade-cwl-prereqs
+      namespace: ""
+      compliance: Compliant
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: cluster-upgrade-cwl-disconnected-cm
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: cluster-upgrade-cwl-remediate
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl,upgrade_healthcheck=Compliant").items }}
+          {{- $current_cluster := .metadata.name }}
+          {{- $current_version := .metadata.labels.openshiftVersion }}
+          {{- $target_version := default $current_version .metadata.labels.openshiftTargetVersion }}
+          {{- if ne $current_version $target_version }}          
+          {{- $target_version := .metadata.labels.openshiftTargetVersion }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: ran.openshift.io/v1alpha1
+                kind: ClusterGroupUpgrade
+                metadata:
+                  name: cgu-{{ $target_version }}-{{ $current_cluster }}
+                  namespace: ztp-policies
+                spec:
+                  actions:
+                    afterCompletion: 
+                      addClusterLabels:
+                        ocp-upgrade-done: ""
+                      deleteClusterLabels:
+                        ocp-upgrade-running: ""
+                      deleteObjects: true
+                    beforeEnable: 
+                      addClusterLabels:
+                        ocp-upgrade-running: ""
+                      deleteClusterLabels:
+                        ocp-upgrade-done: ""
+                  backup: false
+                  enable: true 
+                  managedPolicies: 
+                    - ztp-cwl-upgrade-version-{{ $target_version }}
+                  preCaching: false
+                  remediationStrategy: 
+                    maxConcurrency: 1 
+                    timeout: 420
+                  clusterLabelSelectors: 
+                    - matchExpressions:
+                      - key: gitops_ztp_config
+                        operator: In
+                        values:
+                        - Active
+                      - key: openshiftTargetVersion
+                        operator: In
+                        values:
+                        - {{ $target_version }}
+                      - key: openshiftVersion
+                        operator: In
+                        values:
+                        - {{ $current_version }}
+                      - key: upgrade_healthcheck
+                        operator: In
+                        values:
+                        - Compliant
+                      - key: name
+                        operator: In
+                        values:
+                        - {{ $current_cluster }}
+                  batchTimeoutAction: Abort
+          {{- end }}
+          {{- end }}
+...

@@ -1,0 +1,19 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: ch-5gc-udm-01-a-prod-hsm-lan-2
+spec:
+  desiredState:
+    interfaces:
+      - description: ch-5gc-udm-01-a-prod-hsm-lan-2 vlan sub-interface
+        mtu: 9000
+        name: bond2.2830
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond2
+          id: 2830
+  nodeSelector:
+    node-role.kubernetes.io/appworker25g: ""
+...

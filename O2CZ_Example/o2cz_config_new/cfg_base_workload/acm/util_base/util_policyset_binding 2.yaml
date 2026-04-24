@@ -1,0 +1,29 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: util-base-config-binding
+  namespace: policies
+placementRef:
+  name: util-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: util-base-config-policies
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: util-components-config-binding
+  namespace: policies
+placementRef:
+  name: util-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: util-components-config
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+...

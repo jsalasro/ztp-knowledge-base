@@ -1,0 +1,20 @@
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfigPool
+metadata:
+  labels:
+    pools.operator.machineconfiguration.openshift.io/appworker100g: ""
+    nokia-role/appworkerconfig: ""
+  name: appworker100g
+spec:
+  machineConfigSelector:
+    matchExpressions:
+      - key: machineconfiguration.openshift.io/role
+        operator: In
+        values:
+        - appworker100g
+        - worker
+  nodeSelector:
+    matchLabels:
+      node-role.kubernetes.io/appworker100g: ""
+...

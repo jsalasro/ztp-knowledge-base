@@ -1,0 +1,148 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure cluster logging
+  name: logging-clusterlogging
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: logging-lokistack
+    namespace: policies-mano
+  policy-templates:
+  # Create Cluster Logging Custom Resource
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: clusterlogging-custom-resource
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: logging.openshift.io/v1
+            kind: ClusterLogging
+            metadata:
+              name: instance
+              namespace: openshift-logging
+            spec:
+              managementState: Managed
+              logStore:
+                type: lokistack
+                lokistack:
+                  name: logging-loki
+              visualization:
+                type: ocp-console
+                ocpConsole:
+                  timeout: 190s
+              collection:
+                type: vector
+                resources:
+                  limits:
+                    cpu: 600m
+                    memory: 4096Mi
+                  requests:
+                    cpu: 200m
+                    memory: 128Mi
+  # Check Cluster Logging Custom Resource
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: clusterlogging-custom-resource
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: clusterlogging-custom-resource-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: logging.openshift.io/v1
+            kind: ClusterLogging
+            metadata:
+              name: instance
+              namespace: openshift-logging
+            status:
+              conditions:
+              - status: "True"
+                type: Ready
+  # Configure logging metrics export
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: clusterlogging-custom-resource-check
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: clusterlogging-metrics-exporter
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: logging.openshift.io/v1alpha1
+            kind: LogFileMetricExporter
+            metadata:
+              name: instance
+              namespace: openshift-logging
+            spec:
+              nodeSelector: {} 
+              resources: 
+                limits:
+                  cpu: 500m
+                  memory: 256Mi
+                requests:
+                  cpu: 200m
+                  memory: 128Mi
+              tolerations: []
+  # Enable Logging Console Plugin
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: clusterlogging-custom-resource
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: clusterlogging-console-plugin
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operator.openshift.io/v1
+            kind: Console
+            metadata:
+              annotations:
+                logging.openshift.io/ocp-console-migration-target: "lokistack-dev"
+              name: cluster
+            spec:
+              plugins:
+              - logging-view-plugin
+...

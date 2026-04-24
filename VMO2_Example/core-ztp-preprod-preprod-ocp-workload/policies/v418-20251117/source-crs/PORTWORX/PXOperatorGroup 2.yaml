@@ -1,0 +1,13 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: portworx-operator-group
+  namespace: portworx
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  targetNamespaces:
+    - portworx
+  upgradeStrategy: Default
+...

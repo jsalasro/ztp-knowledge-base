@@ -1,0 +1,29 @@
+---
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: 5gc-nef-01-internet-egressip-dual
+spec:
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: 5gc-nef-01-a-ns
+  podSelector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - analytics
+      - analytics-collector
+      - devicetriggering
+      - fiveglan
+      - bdt
+      - nidd
+      - niddcdr
+      - mashup-py
+      - mashup-studio
+  egressIPs:
+  - IP_ADDRESS_18
+  - IP_ADDRESS_19
+  - 2001:41d8:1:b100:0:24:0:48
+  - 2001:41d8:1:b100:0:24:0:49
+...

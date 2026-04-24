@@ -1,0 +1,14 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: cwl-base-config-binding
+  namespace: policies-mano
+placementRef:
+  name: cwl-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: cwl-base-config-policies
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet

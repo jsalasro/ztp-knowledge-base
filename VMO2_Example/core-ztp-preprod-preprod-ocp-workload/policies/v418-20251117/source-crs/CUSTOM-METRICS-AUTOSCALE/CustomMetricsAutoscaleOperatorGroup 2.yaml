@@ -1,0 +1,11 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-keda-operator
+  namespace: openshift-keda
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  upgradeStrategy: Default
+...

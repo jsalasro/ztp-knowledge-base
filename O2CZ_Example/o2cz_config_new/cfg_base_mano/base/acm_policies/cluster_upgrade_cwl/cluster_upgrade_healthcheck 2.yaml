@@ -1,0 +1,216 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Health Check in order to upgrade a cluster
+  name: cluster-upgrade-healthcheck
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+    # Check clusterversion operator status
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: upgrade-cluster-check-cvo
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: config.openshift.io/v1
+                kind: ClusterVersion
+                metadata:
+                  name: version
+                status:
+                  conditions:
+                  - status: "True"
+                    type: Available
+                  - status: "False"
+                    type: Progressing
+    # Check node readiness
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: upgrade-cluster-check-nodes
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates-raw: |
+            {{- range (lookup "v1" "Node" "" "").items }}
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: v1
+                kind: Node
+                status:
+                  conditions:
+                  - status: "False"
+                    type: Ready
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: v1
+                kind: Node
+                status:
+                  conditions:
+                  - status: Unknown
+                    type: Ready
+            {{- end }}
+    # Check CO readiness
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: upgrade-cluster-check-co
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates-raw: |
+            {{- range (lookup "config.openshift.io/v1" "ClusterOperator" "" "").items }}
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: config.openshift.io/v1
+                kind: ClusterOperator
+                status:
+                  conditions:
+                      conditions:
+                      - status: "True"
+                        type: Degraded
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: config.openshift.io/v1
+                kind: ClusterOperator
+                status:
+                  conditions:
+                      conditions:
+                      - status: "True"
+                        type: Progressing
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: config.openshift.io/v1
+                kind: ClusterOperator
+                status:
+                  conditions:
+                      conditions:
+                      - status: "False"
+                        type: Available
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: config.openshift.io/v1
+                kind: ClusterOperator
+                status:
+                  conditions:
+                      conditions:
+                      - status: "False"
+                        type: Upgradeable
+            {{- end }}
+    # Check MCP readiness
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: upgrade-cluster-check-mcp
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates-raw: |
+            {{- range (lookup "machineconfiguration.openshift.io/v1" "MachineConfigPool" "" "").items }}
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfigPool
+                status:
+                  conditions:
+                  - status: "True"
+                    type: RenderDegraded
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfigPool
+                status:
+                  conditions:
+                  - status: "True"
+                    type: NodeDegraded
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfigPool
+                status:
+                  conditions:
+                  - status: "True"
+                    type: Degraded
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfigPool
+                status:
+                  conditions:
+                  - status: "False"
+                    type: Updated
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfigPool
+                status:
+                  conditions:
+                  - status: "True"
+                    type: Updating
+            {{- end }}
+    # Check blocking PDB
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: upgrade-cluster-check-blocking-pdb
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates-raw: |
+            {{- range (lookup "policy/v1" "PodDisruptionBudget" "" "").items }}
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: policy/v1
+                kind: PodDisruptionBudget
+                metadata:
+                  namespace: {{ .metadata.namespace }}
+                status:
+                  conditions:
+                  - status: "False"
+                    type: DisruptionAllowed
+            {{- end }}
+    # Set CWL managed clusters readiness for upgrade
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: cluster-upgrade-compliant-set
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates-raw: |
+            {{hub if eq .ManagedClusterName "local-cluster" hub}}
+            {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl").items }}
+            {{- $health_status := (default "NA" (lookup "policy.open-cluster-management.io/v1" "Policy" .metadata.name "policies-mano.cluster-upgrade-healthcheck").status.compliant) }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1
+                kind: ManagedCluster
+                metadata:
+                  name: {{ .metadata.name }}
+                  labels:
+                    upgrade_healthcheck: {{ $health_status }}
+            {{- end }}
+            {{hub end hub}}
+...

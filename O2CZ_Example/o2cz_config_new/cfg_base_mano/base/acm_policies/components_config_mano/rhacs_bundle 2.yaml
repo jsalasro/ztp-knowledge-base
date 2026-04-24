@@ -1,0 +1,267 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Create RHACS Init Bundle for secured clusters
+  name: rhacs-bundle-init
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # RHACS central running
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: rhacs-central
+    namespace: policies-mano
+  # Create service account to manage ACS API
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-bundle-init-sa
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: bundle-init-sa
+                namespace: stackrox
+    # Create specific role
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-bundle-init-role
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: Role
+              metadata:
+                name: bundle-init-role
+                namespace: stackrox
+              rules:
+              - apiGroups:
+                - "*"
+                resources:
+                - secrets
+                verbs:
+                - get
+                - list
+                - create
+                - patch
+                - update
+              - apiGroups:
+                - platform.stackrox.io
+                resources:
+                - securedcluster
+                verbs:
+                - get
+                - list
+                - patch
+                - update
+    # Bind new role to service account
+    - extraDependencies:
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-bundle-init-sa
+          namespace: ""
+          compliance: Compliant
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-bundle-init-role
+          namespace: ""
+          compliance: Compliant
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-bundle-init-rolebinding
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: RoleBinding
+              metadata:
+                name: bundle-init-rolebinding
+                namespace: stackrox
+              roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: Role
+                name: bundle-init-role
+              subjects:
+              - kind: ServiceAccount
+                name: bundle-init-sa
+                namespace: stackrox
+    # Create script for token creation
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-bundle-init-script
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: rhacs-bundle-init-script
+                namespace: stackrox
+              data:
+                bundle-init.sh: |
+                  #!/bin/bash
+
+                  echo "Prepare credentials"
+                  ADMIN_PWD=$(cat /etc/creds/password)
+                  AUTH=$(echo "admin:$ADMIN_PWD" | tr -d \\n | base64)
+
+                  echo "Check current bundles..."
+                  CURRENT_BUNDLE=$(curl -X POST -ks --header "Authorization: Basic ${AUTH}" https://central/v1/cluster-init/init-bundles | grep ${BUNDLE_NAME} )
+
+                  if [[ -n "${CURRENT_BUNDLE}" ]]
+                  then
+                    echo "Generating the init-bundle..."
+                    INIT_BUNDLE=$(curl -X POST -ks --header "Authorization: Basic ${AUTH}" https://central/v1/cluster-init/init-bundles --data '{"name": "'"${BUNDLE_NAME}"'"}')
+                    echo $INIT_BUNDLE | python3 -c "import sys, json; print(json.load(sys.stdin)['kubectlBundle'])" | base64 -d > /tmp/init-bundle.yaml
+                    echo "Applying the init bundle secrets..."
+                    oc apply -f /tmp/init-bundle.yaml
+                  else
+                    echo "Bundle ${BUNDLE_NAME} already exists"
+                  fi
+    # Create bundle job
+    - extraDependencies:
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-bundle-init-rolebinding
+          namespace: ""
+          compliance: Compliant
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-bundle-init-script
+          namespace: ""
+          compliance: Compliant
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-bundle-init-job-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: rhacs-init-bundle
+                namespace: stackrox
+              spec:
+                template:
+                  spec:
+                    volumes:
+                      - name: credentials
+                        secret:
+                          secretName: central-htpasswd
+                      - name: script
+                        configMap:
+                          name: rhacs-bundle-init-script
+                          defaultMode: 0755
+                    containers:
+                      - name: acs-bundle-init-create
+                        image: registry.redhat.io/openshift4/ose-cli:v4.14
+                        imagePullPolicy: Always
+                        volumeMounts:
+                          - name: credentials
+                            readOnly: true
+                            mountPath: /etc/creds
+                          - name: script
+                            mountPath: "/script"
+                        env:
+                          - name: BUNDLE_NAME
+                            value: generic-bundle
+                        command:
+                          - /script/bundle-init.sh
+                    restartPolicy: OnFailure
+                    serviceAccount: bundle-init-sa
+                    serviceAccountName: bundle-init-sa
+                    terminationGracePeriodSeconds: 30
+    # Check job result
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-bundle-init-job-check
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: rhacs-init-bundle
+                namespace: stackrox
+            status:
+              conditions:
+              - status: "True"
+                type: Complete
+              succeeded: 1
+    # Check bundle secrets
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-init-bundle-secrets-check
+        spec:
+          remediationAction: inform
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: sensor-tls
+                namespace: stackrox
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: collector-tls
+                namespace: stackrox
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: admission-control-tls
+                namespace: stackrox
+...

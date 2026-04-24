@@ -1,0 +1,210 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "25"
+  name: DOMAIN_EXAMPLE_44.COM
+spec:
+  desiredState:
+    routes:
+      config:
+        - destination: IP_ADDRESS_75/28
+          next-hop-address: IP_ADDRESS_76
+          next-hop-interface: bond0.142
+    interfaces:
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_110
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.141
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 141
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_73
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.142
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 142
+  nodeSelector:
+    kubernetes.io/hostname: DOMAIN_EXAMPLE_34.COM
+...
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "25"
+  name: DOMAIN_EXAMPLE_45.COM
+spec:
+  desiredState:
+    routes:
+      config:
+        - destination: IP_ADDRESS_75/28
+          next-hop-address: IP_ADDRESS_76
+          next-hop-interface: bond0.142
+    interfaces:
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_111
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.141
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 141
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_79
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.142
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 142
+  nodeSelector:
+    kubernetes.io/hostname: DOMAIN_EXAMPLE_35.COM
+...
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "25"
+  name: DOMAIN_EXAMPLE_46.COM
+spec:
+  desiredState:
+    routes:
+      config:
+        - destination: IP_ADDRESS_75/28
+          next-hop-address: IP_ADDRESS_76
+          next-hop-interface: bond0.142
+    interfaces:
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_112
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.141
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 141
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_82
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.142
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 142
+  nodeSelector:
+    kubernetes.io/hostname: DOMAIN_EXAMPLE_36.COM
+...
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "25"
+  name: DOMAIN_EXAMPLE_47.COM
+spec:
+  desiredState:
+    routes:
+      config:
+        - destination: IP_ADDRESS_75/28
+          next-hop-address: IP_ADDRESS_76
+          next-hop-interface: bond0.142
+    interfaces:
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_113
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.141
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 141
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_85
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.142
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 142
+  nodeSelector:
+    kubernetes.io/hostname: DOMAIN_EXAMPLE_37.COM
+...
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "25"
+  name: DOMAIN_EXAMPLE_48.COM
+spec:
+  desiredState:
+    routes:
+      config:
+        - destination: IP_ADDRESS_75/28
+          next-hop-address: IP_ADDRESS_76
+          next-hop-interface: bond0.142
+    interfaces:
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_114
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.141
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 141
+      - ipv4:
+          address:
+            - ip: IP_ADDRESS_73
+              prefix-length: 28
+          dhcp: false
+          enabled: true
+        name: bond0.142
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 142
+  nodeSelector:
+    kubernetes.io/hostname: DOMAIN_EXAMPLE_38.COM
+...

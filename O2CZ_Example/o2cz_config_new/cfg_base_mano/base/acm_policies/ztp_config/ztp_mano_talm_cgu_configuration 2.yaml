@@ -1,0 +1,532 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Policy to enforce workload cluster configuration using TALM CGUs
+  name: ztp-setup-cwl-config-remediation
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  # CGU prerequisites
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-cwl-config-prereqs
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: policy.open-cluster-management.io/v1beta1
+            kind: PolicySet
+            metadata:
+              name: cwl-install-operator-policies
+              namespace: policies-cwl
+            status:
+              compliant: Compliant
+  # ZTP TALM policies config map
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-cwl-config-cm
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: mustonlyhave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: talm-ztp-policies
+              namespace: policies-mano
+            data:
+              base_config: |
+                common-config
+              cluster_policies: |
+                egress
+                metallb
+                nmstate
+                node-labels
+                nokia-ns
+                rlbin-rolebindings
+                ingress-controller
+                sriov
+                istio-config
+  # CWL ZTP base config compliance
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-cwl-config-base-compliance-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl,gitops_ztp_config=Active").items }}
+            {{- $current_cluster := .metadata.name }}
+            {{- range (fromConfigMap "policies-mano" "talm-ztp-policies" "base_config" | trim | split "\n") }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: policy.open-cluster-management.io/v1
+                kind: Policy
+                metadata:
+                  name: {{ printf "ztp-policies.ztp-cwl-base-%s" . }}
+                  namespace: {{ $current_cluster }}
+                status:
+                  compliant: Compliant
+            {{- end }}
+          {{- end }}
+  # Create the Cluster Group Upgrade Objects for common configuration
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-cwl-config-prereqs
+       namespace: ""
+       compliance: Compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-cwl-config-base-compliance-check
+       namespace: ""
+       compliance: NonCompliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-cwl-config-common-remediate
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          - complianceType: mustonlyhave
+            objectDefinition:
+              apiVersion: ran.openshift.io/v1alpha1
+              kind: ClusterGroupUpgrade
+              metadata:
+                name: ztp-cwl-common-config
+                namespace: ztp-install
+              spec:
+                enable: true
+                backup: false
+                preCaching: false
+                managedPolicies:
+                  {{- range (fromConfigMap "policies-mano" "talm-ztp-policies" "base_config" | trim | split "\n") }}
+                  - {{ printf "ztp-cwl-base-%s" . }}
+                  {{- end }}
+                actions:
+                  afterCompletion:
+                    addClusterLabels:
+                      ztp-common-cfg-done: ""
+                    deleteClusterLabels:
+                      ztp-common-cfg-running: ""
+                    deleteObjects: true
+                  beforeEnable:
+                    addClusterLabels:
+                      ztp-common-cfg-running: ""
+                    deleteClusterLabels:
+                      ztp-common-cfg-done: ""
+                remediationStrategy:
+                  maxConcurrency: {{ (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl,gitops_ztp_config=Active").items | len }}
+                  timeout: 240
+                clusterLabelSelectors:
+                  - matchExpressions:
+                    - key: gitops_ztp_config
+                      operator: In
+                      values:
+                        - Active
+                    - key: cluster_type
+                      operator: In
+                      values:
+                        - cwl
+                    - key: cluster_scope
+                      operator: In
+                      values:
+                        - production
+                    - key: configuration_version
+                      operator: In
+                      values:
+                        - base-414-v0
+  # CWL ZTP cluster config compliance
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-cwl-config-cluster-compliance-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl,gitops_ztp_config=Active").items }}
+            {{- $current_cluster := .metadata.name }}
+            {{- range (fromConfigMap "policies-mano" "talm-ztp-policies" "cluster_policies" | trim | split "\n") }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: policy.open-cluster-management.io/v1
+                kind: Policy
+                metadata:
+                  name: {{ printf "ztp-policies.ztp-cwl-%s-%s" $current_cluster . }}
+                  namespace: {{ $current_cluster }}
+                status:
+                 compliant: Compliant
+            {{- end }}
+          {{- end }}
+  # Create the Cluster Group Upgrade Objects for cluster configuration
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-cwl-config-prereqs
+       namespace: ""
+       compliance: Compliant
+    # Apply only if the common config is compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-cwl-config-base-compliance-check
+       namespace: ""
+       compliance: Compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-cwl-config-cluster-compliance-check
+       namespace: ""
+       compliance: NonCompliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-cwl-config-cluster-remediate
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl,gitops_ztp_config=Active").items }}
+          {{- $current_cluster := .metadata.name }}
+          - complianceType: mustonlyhave
+            objectDefinition:
+              apiVersion: ran.openshift.io/v1alpha1
+              kind: ClusterGroupUpgrade
+              metadata:
+                name: ztp-cwl-cluster-{{ $current_cluster }}-config
+                namespace: ztp-install
+              spec:
+                enable: true
+                backup: false
+                preCaching: false
+                managedPolicies:
+                  {{- range (fromConfigMap "policies-mano" "talm-ztp-policies" "cluster_policies" | trim | split "\n") }}
+                  - {{ printf "ztp-cwl-%s-%s" $current_cluster . }}
+                  {{- end }}
+                actions:
+                  afterCompletion:
+                    addClusterLabels:
+                      ztp-cluster-cfg-done: ""
+                    deleteClusterLabels:
+                      ztp-cluster-cfg-running: ""
+                    deleteObjects: true
+                  beforeEnable:
+                    addClusterLabels:
+                      ztp-cluster-cfg-running: ""
+                    deleteClusterLabels:
+                      ztp-cluster-cfg-done: ""
+                remediationStrategy:  
+                  maxConcurrency: 1
+                  timeout: 240
+                clusterLabelSelectors:
+                  - matchExpressions:
+                    - key: gitops_ztp_config
+                      operator: In
+                      values:
+                        - Active
+                    - key: cluster_type
+                      operator: In
+                      values:
+                        - cwl
+                    - key: cluster_scope
+                      operator: In
+                      values:
+                        - production
+                    - key: configuration_version
+                      operator: In
+                      values:
+                        - base-414-v0
+                    - key: name
+                      operator: In
+                      values:
+                        - {{ $current_cluster }}
+          {{- end }}
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Policy to enforce util cluster configuration using TALM CGUs
+  name: ztp-setup-util-config-remediation
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  # CGU prerequisites
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-util-config-prereqs
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: policy.open-cluster-management.io/v1beta1
+            kind: PolicySet
+            metadata:
+              name: util-install-operator-policies
+              namespace: policies-util
+            status:
+              compliant: Compliant
+  # ZTP TALM policies config map
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-util-config-cm
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: mustonlyhave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: talm-ztp-util-policies
+              namespace: policies-mano
+            data:
+              base_config: |
+                common-config
+              cluster_policies: |
+                nmstate
+                ns-ns
+                rlbin-rolebindings
+                ingress-controller
+  # UTIL ZTP base config compliance
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-util-config-base-compliance-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=util,gitops_ztp_config=Active").items }}
+            {{- $current_cluster := .metadata.name }}
+            {{- range (fromConfigMap "policies-mano" "talm-ztp-util-policies" "base_config" | trim | split "\n") }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: policy.open-cluster-management.io/v1
+                kind: Policy
+                metadata:
+                  name: {{ printf "ztp-policies.ztp-util-base-%s" . }}
+                  namespace: {{ $current_cluster }}
+                status:
+                  compliant: Compliant
+            {{- end }}
+          {{- end }}
+  # Create the Cluster Group Upgrade Objects for common configuration
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-util-config-prereqs
+       namespace: ""
+       compliance: Compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-util-config-base-compliance-check
+       namespace: ""
+       compliance: NonCompliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-util-config-common-remediate
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          - complianceType: mustonlyhave
+            objectDefinition:
+              apiVersion: ran.openshift.io/v1alpha1
+              kind: ClusterGroupUpgrade
+              metadata:
+                name: ztp-util-common-config
+                namespace: ztp-install
+              spec:
+                enable: true
+                backup: false
+                preCaching: false
+                managedPolicies:
+                  {{- range (fromConfigMap "policies-mano" "talm-ztp-util-policies" "base_config" | trim | split "\n") }}
+                  - {{ printf "ztp-util-base-%s" . }}
+                  {{- end }}
+                actions:
+                  afterCompletion:
+                    addClusterLabels:
+                      ztp-common-cfg-done: ""
+                    deleteClusterLabels:
+                      ztp-common-cfg-running: ""
+                    deleteObjects: true
+                  beforeEnable:
+                    addClusterLabels:
+                      ztp-common-cfg-running: ""
+                    deleteClusterLabels:
+                      ztp-common-cfg-done: ""
+                remediationStrategy:
+                  maxConcurrency: {{ (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=util,gitops_ztp_config=Active").items | len }}
+                  timeout: 240
+                clusterLabelSelectors:
+                  - matchExpressions:
+                    - key: gitops_ztp_config
+                      operator: In
+                      values:
+                        - Active
+                    - key: cluster_type
+                      operator: In
+                      values:
+                        - util
+                    - key: cluster_scope
+                      operator: In
+                      values:
+                        - production
+                    - key: configuration_version
+                      operator: In
+                      values:
+                        - base-414-v0
+  # util ZTP cluster config compliance
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-util-config-cluster-compliance-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=util,gitops_ztp_config=Active").items }}
+            {{- $current_cluster := .metadata.name }}
+            {{- range (fromConfigMap "policies-mano" "talm-ztp-util-policies" "cluster_policies" | trim | split "\n") }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: policy.open-cluster-management.io/v1
+                kind: Policy
+                metadata:
+                  name: {{ printf "ztp-policies.ztp-util-%s-%s" $current_cluster . }}
+                  namespace: {{ $current_cluster }}
+                status:
+                 compliant: Compliant
+            {{- end }}
+          {{- end }}
+  # Create the Cluster Group Upgrade Objects for cluster configuration
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-util-config-prereqs
+       namespace: ""
+       compliance: Compliant
+    # Apply only if the common config is compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-util-config-base-compliance-check
+       namespace: ""
+       compliance: Compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: ztp-util-config-cluster-compliance-check
+       namespace: ""
+       compliance: NonCompliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ztp-util-config-cluster-remediate
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=util,gitops_ztp_config=Active").items }}
+          {{- $current_cluster := .metadata.name }}
+          - complianceType: mustonlyhave
+            objectDefinition:
+              apiVersion: ran.openshift.io/v1alpha1
+              kind: ClusterGroupUpgrade
+              metadata:
+                name: ztp-util-cluster-{{ $current_cluster }}-config
+                namespace: ztp-install
+              spec:
+                enable: true
+                backup: false
+                preCaching: false
+                managedPolicies:
+                  {{- range (fromConfigMap "policies-mano" "talm-ztp-util-policies" "cluster_policies" | trim | split "\n") }}
+                  - {{ printf "ztp-util-%s-%s" $current_cluster . }}
+                  {{- end }}
+                actions:
+                  afterCompletion:
+                    addClusterLabels:
+                      ztp-cluster-cfg-done: ""
+                    deleteClusterLabels:
+                      ztp-cluster-cfg-running: ""
+                    deleteObjects: true
+                  beforeEnable:
+                    addClusterLabels:
+                      ztp-cluster-cfg-running: ""
+                    deleteClusterLabels:
+                      ztp-cluster-cfg-done: ""
+                remediationStrategy:  
+                  maxConcurrency: 1
+                  timeout: 240
+                clusterLabelSelectors:
+                  - matchExpressions:
+                    - key: gitops_ztp_config
+                      operator: In
+                      values:
+                        - Active
+                    - key: cluster_type
+                      operator: In
+                      values:
+                        - util
+                    - key: cluster_scope
+                      operator: In
+                      values:
+                        - production
+                    - key: configuration_version
+                      operator: In
+                      values:
+                        - base-414-v0
+                    - key: name
+                      operator: In
+                      values:
+                        - {{ $current_cluster }}
+          {{- end }}
+...

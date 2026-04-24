@@ -1,0 +1,16 @@
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: default
+  namespace: vault-secrets-operator
+spec:
+  namespace: {{ .Values.mgmt.vault.vaultNamespace }}
+  allowedNamespaces:
+    - "*"
+  method: appRole
+  mount: {{ .Values.mgmt.vault.vaultMount }}
+  appRole:
+    roleId: {{ .Values.mgmt.vault.vault_roleID }}
+    secretRef: approle-creds
+  vaultConnectionRef: default

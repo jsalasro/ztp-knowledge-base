@@ -1,0 +1,94 @@
+---
+- name: Playbook to onboard Validated Pattern operator
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    kubeconfig: "{{ install_dir }}/auth/kubeconfig"
+  tasks:
+    - name: Pause MachineConfigPools to avoid reboots during the configuration
+      ansible.builtin.shell: "oc patch --kubeconfig={{ kubeconfig }} --type=merge --patch='{\"spec\":{\"paused\": true}}' machineconfigpool/{{ item }}"
+      with_items:
+      - master
+      - worker
+
+    - name: Create namespaces
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        name: "{{ item }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+      loop: 
+        - mgmt-vpatterns-hub
+        - openshift-gitops
+
+    - name: Create a Gitlab certificate to argocd-tls-certs-cm
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition: "{{ lookup('ansible.builtin.template', 'templates/argocd-tls-certs-cm.j2') | from_yaml }}"
+      register: vpattern_argocd_tls_certs_cm_result
+
+    - name: Create a subscription resource
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition: "{{ lookup('ansible.builtin.template', 'templates/pattern-subscription.j2') | from_yaml }}"
+      register: subscription_result
+
+    - name: Wait for vpattern InstallPlan to be created
+      ansible.builtin.shell: "oc --kubeconfig={{ kubeconfig }} get subscriptions patterns-operator -n openshift-operators -o jsonpath='{.status.installplan.name}'"
+      register: installplan_status
+      until: installplan_status.stdout != ""
+      retries: 60
+      delay: 5
+      changed_when: false
+      when: subscription_result.changed
+
+    - name: Approve pattern pending installplans       
+      ansible.builtin.shell: "oc patch --kubeconfig={{ kubeconfig }} installplan $( oc --kubeconfig={{ kubeconfig }} get installplan -n openshift-operators | grep {{ vpatterns['startingCSV'] }} | grep 'false' | awk '{ print $1 }' | head -n 1 ) --namespace openshift-operators --type merge --patch '{\"spec\":{\"approved\":true}}'"
+      when: subscription_result.changed
+
+    - name: Wait for pattern csv
+      ansible.builtin.wait_for:
+        timeout: 10
+      when: subscription_result.changed
+   
+    - name: Wait for VPatterns to be installed
+      ansible.builtin.shell: "oc --kubeconfig={{ kubeconfig }} get csv {{ vpatterns['startingCSV'] }} -o=jsonpath='{.status.phase}' -n openshift-operators"
+      register: pattern_status
+      until: pattern_status.stdout == "Succeeded"
+      retries: 150
+      delay: 5
+
+    - name: Create a Pattern Secret resource
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition: "{{ lookup('ansible.builtin.template', 'templates/pattern-creds.j2') | from_yaml }}"
+      register: vpattern_secret_result
+
+    - name: Create Gitops CM resource
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition: "{{ lookup('ansible.builtin.template', 'templates/cm-patterns-operator-config.j2') | from_yaml }}"
+      register: patterns_operator_config_result
+
+    - name: Create a Pattern resource
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition: "{{ lookup('ansible.builtin.template', 'templates/pattern-cr.j2') | from_yaml }}"
+      register: pattern_result
+
+    - name: Wait for Pattern csv
+      ansible.builtin.wait_for:
+        timeout: 60
+      when: pattern_result.changed
+
+    - name: Approve openshift-gitops pending installplan
+      ansible.builtin.shell: "oc --kubeconfig={{ kubeconfig }} patch installplan $( oc --kubeconfig={{ kubeconfig }} get installplan -n openshift-operators | grep openshift-gitops-operator* | grep 'false' | awk '{ print $1 }' | head -n 1 ) --namespace openshift-operators --type merge --patch '{\"spec\":{\"approved\":true}}'"
+      when: pattern_result.changed
+...

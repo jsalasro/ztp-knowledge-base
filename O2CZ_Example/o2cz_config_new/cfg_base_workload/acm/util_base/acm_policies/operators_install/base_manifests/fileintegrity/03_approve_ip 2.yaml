@@ -1,0 +1,27 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: ConfigurationPolicy
+metadata:
+  name: util-operator-install-approve-fileintegrity
+spec:
+  pruneObjectBehavior: None
+  remediationAction: enforce
+  severity: high
+  object-templates-raw: |
+    {{- $operatorCSV := "{{hub fromConfigMap "policies-util" "operators-version-util-v0" "fileintegrity-startingCSV" hub}}" }}
+    {{- range $installplan := (lookup "operators.coreos.com/v1alpha1" "InstallPlan" "openshift-file-integrity" "").items }}
+      {{- range $installplan.spec.clusterServiceVersionNames }}
+      {{- if eq . $operatorCSV }}
+      - complianceType: musthave
+        objectDefinition:
+          apiVersion: operators.coreos.com/v1alpha1
+          kind: InstallPlan
+          metadata:
+            namespace: '{{ $installplan.metadata.namespace }}'
+            name: '{{ $installplan.metadata.name }}'
+          spec:
+            approved: true
+      {{- end }}
+      {{- end }}
+    {{- end }}
+...

@@ -1,0 +1,597 @@
+# File name depends clusterGroupName in values-global.yaml
+
+clusterGroup:
+  name: hub
+  isHubCluster: true
+
+  imperative:
+    # Use cluster-admin privilege level for imperative to approve install plans
+    # verbosity: "-vvv"
+    clusterRoleYaml:
+    - apiGroups:
+      - '*'
+      resources:
+      - '*'
+      verbs:
+      - '*'
+    - nonResourceURLs:
+      - '*'
+      verbs:
+      - '*'
+
+  # Add storage labels to OpenShift nodes if needed
+  # nodes:
+  # - DOMAIN_EXAMPLE_1.COM:
+  #     labels:
+  #       example: ""
+  # - DOMAIN_EXAMPLE_2.COM:
+  #     labels:
+  #       example: ""
+  # - DOMAIN_EXAMPLE_3.COM:
+  #     labels:
+  #       example: ""
+  # - DOMAIN_EXAMPLE_4.COM:
+  #     labels:
+  #       example: ""
+
+  # Set masters schedulables
+  mastersSchedulable: true
+
+  namespaces:
+  - prom-kafka-adapter
+  - mano-apps
+  - ztp
+  - ansible-automation-platform:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - talm-operator:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+      targetNamespaces: null
+  - metallb-system:
+      operatorGroup: true
+      targetNamespaces: null
+      labels:
+        openshift.io/cluster-monitoring: "true"
+  - open-cluster-management:
+      operatorGroup: true
+  - multicluster-engine:
+      operatorGroup: true
+      labels:
+        openshift.io/cluster-monitoring: "true"
+  - openshift-nmstate:
+      operatorGroup: true
+  - openshift-local-storage:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - openshift-storage:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - openshift-cnv:
+      operatorGroup: true
+  - quay-enterprise:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - kafka-cluster:
+      operatorGroup: true
+  - openshift-logging:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - openshift-cluster-observability-operator:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+      targetNamespaces: null
+  - service-telemetry:
+      operatorGroup: true
+  - cert-manager-operator:
+      operatorGroup: true
+  - portworx:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - openshift-update-service:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - openshift-adp:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+  - rhacs-operator:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+      targetNamespaces: null
+  - vault-secrets-operator:
+      labels:
+        openshift.io/cluster-monitoring: "true"
+      operatorGroup: true
+      targetNamespaces: null
+  - open-cluster-management-backup
+  - cert-manager
+
+  operatorgroupExcludes:
+  - open-cluster-management-backup
+  - cert-manager
+
+  subscriptions:
+    advanced-cluster-management:
+      name: advanced-cluster-management
+      namespace: open-cluster-management
+      source: cs-redhat-operator-index-v4-18
+      channel: release-2.13
+      csv: advanced-cluster-management.v2.13.4
+
+    ansible-automation-platform-operator:
+      name: ansible-automation-platform-operator
+      namespace: ansible-automation-platform 
+      source: cs-redhat-operator-index-v4-18
+      channel: stable-2.6-cluster-scoped
+      csv: aap-operator.v2.6.0-0.1763137355
+
+    multicluster-engine:
+      name: multicluster-engine
+      namespace: multicluster-engine
+      source: cs-redhat-operator-index-v4-18
+      channel: stable-2.8
+      csv: multicluster-engine.v2.8.3
+
+    openshift-cert-manager-operator:
+      name: openshift-cert-manager-operator
+      namespace: cert-manager-operator
+      source: cs-redhat-operator-index-v4-18
+      channel: stable-v1.15
+      csv: cert-manager-operator.v1.15.1
+
+    kubernetes-nmstate-operator:
+      name: kubernetes-nmstate-operator
+      namespace: openshift-nmstate  
+      source: cs-redhat-operator-index-v4-18
+      channel: stable
+      csv: kubernetes-nmstate-operator.4.18.0-202509101149
+
+    kubevirt-hyperconverged:
+      name: kubevirt-hyperconverged
+      namespace: openshift-cnv
+      source: cs-redhat-operator-index-v4-18
+      channel: stable
+      csv: kubevirt-hyperconverged-operator.v4.18.13
+
+    quay-operator:
+      name: quay-operator
+      namespace: quay-enterprise
+      source: cs-redhat-operator-index-v4-18
+      channel: stable-3.14
+      csv: quay-operator.v3.14.5
+
+    cluster-observability-operator:
+      name: cluster-observability-operator
+      namespace: openshift-cluster-observability-operator
+      source: cs-redhat-operator-index-v4-18
+      channel: stable
+      csv: cluster-observability-operator.v1.1.1
+
+    amq-streams:
+      name: amq-streams
+      namespace: kafka-cluster
+      source: cs-redhat-operator-index-v4-18
+      channel: amq-streams-2.9.x
+      csv: amqstreams.v2.9.2-1
+
+    openshift-logging:
+      namespace: openshift-logging
+      name: cluster-logging
+      source: cs-redhat-operator-index-v4-18
+      channnel: stable-6.2
+      csv: cluster-logging.v6.2.5
+
+    topology-aware-lifecycle-manager:
+      name: topology-aware-lifecycle-manager
+      namespace: talm-operator 
+      source: cs-redhat-operator-index-v4-18
+      channel: stable
+      csv: topology-aware-lifecycle-manager.v4.18.0
+
+    cincinnati-operator:
+      name: cincinnati-operator
+      namespace: openshift-update-service
+      source: cs-redhat-operator-index-v4-18
+      channel: v1
+      csv: update-service-operator.v5.0.3
+
+    metallb-operator:
+      name: metallb-operator
+      namespace: metallb-system
+      source: cs-redhat-operator-index-v4-18
+      channel: stable
+      csv: metallb-operator.v4.18.0-202509100344
+
+    rhacs-operator:
+      name: rhacs-operator
+      namespace: rhacs-operator
+      source: cs-redhat-operator-index-v4-18
+      channel: stable
+      csv: rhacs-operator.v4.7.6
+
+    ## Even if OADP is deployed through ACM it is necessary to define here the operator to approve the installplan.
+    redhat-oadp-operator:
+      name: redhat-oadp-operator-subscription
+      namespace: open-cluster-management-backup
+      source: cs-redhat-operator-index-v4-18
+      channel: stable-1.4
+      csv: oadp-operator.v1.4.6
+
+    portworx-certified:
+      name: portworx-certified
+      namespace: portworx
+      source: cs-certified-operator-index-v4-18
+      channel: stable
+      csv: portworx-operator.v25.4.0
+
+    vault-secrets-operator:
+      name: vault-secrets-operator
+      namespace: vault-secrets-operator
+      source: cs-certified-operator-index-v4-18
+      channel: stable
+      csv: vault-secrets-operator.v1.0.1
+
+  projects:
+  - hub
+
+  applications:
+    cert-manager:
+      name: cert-manager
+      path: charts/mgmt-hub/cert-manager
+      project: hub
+
+    authentication:
+      name: authentication
+      namespace: openshift-config
+      path: charts/mgmt-hub/authentication
+      project: hub
+
+    vault:
+      name: vault
+      path: charts/mgmt-hub/vault
+      project: hub
+
+    ansible:
+      name: ansible
+      path: charts/mgmt-hub/ansible
+      project: hub
+
+    nmstate:
+      name: nmstate
+      namespace: openshift-nmstate
+      path: charts/mgmt-hub/nmstate 
+      project: hub
+
+    mcp-update:
+      name: mcp-update
+      namespace: imperative
+      path: charts/mgmt-hub/mcp-update 
+      project: hub
+
+    nmstate-config:
+      name: nmstate-config
+      namespace: openshift-nmstate
+      path: charts/mgmt-hub/nmstate-config 
+      project: hub
+
+    cnv:
+      name: kubevirt-hyperconverged
+      namespace: openshift-cnv
+      path: charts/mgmt-hub/cnv  
+      project: hub
+
+    logging:
+      name: logging
+      namespace: openshift-logging
+      path: charts/mgmt-hub/logging
+      project: hub
+
+    vms:
+      name: vms
+      namespace: mgmt-apps 
+      project: hub
+      path: charts/mgmt-hub/vm-on-bm
+
+    quay:
+      name: quay
+      path: charts/mgmt-hub/quay
+      project: hub
+
+    perf-profile:
+      name: perf-profile
+      project: hub
+      path: charts/mgmt-hub/perf-profile
+
+    acm:
+      name: acm
+      namespace: open-cluster-management
+      project: hub
+      path: charts/mgmt-hub/acm
+      ignoreDifferences:
+      - group: internal.open-cluster-management.io
+        kind: ManagedClusterInfo
+        jsonPointers:
+        - /spec/loggingCA
+
+    kafka:
+      name: kafka
+      namespace: kafka-cluster
+      path: charts/mgmt-hub/kafka
+      project: hub
+
+    monitoring:
+      name: monitoring
+      namespace: prom-kafka-adapter
+      path: charts/mgmt-hub/monitoring
+      project: hub
+ 
+    gitops:
+      name: gitops
+      path: charts/mgmt-hub/gitops
+      project: hub
+
+    ztp:
+      name: ztp
+      namespace: multicluster-engine
+      path: charts/mgmt-hub/ztp
+      project: hub
+
+    metallb:
+      name: metallb
+      namespace: metallb-system
+      path: charts/mgmt-hub/metallb
+      project: hub
+
+    portworx:
+      name: portworx
+      namespace: portworx
+      path: charts/mgmt-hub/portworx
+      project: hub
+
+    oadp:
+      name: oadp
+      namespace: open-cluster-management-backup
+      path: charts/mgmt-hub/oadp
+      project: hub
+
+  # Required if managed clusters are disconnected and are going to perform an OCP upgrade
+    osus:
+      name: osus
+      namespace: openshift-update-service
+      path: charts/mgmt-hub/osus
+      project: hub
+
+# Variables for Charts/Playbooks
+  # Go to README.md to get expected variables and examples
+
+mgmt:
+  cluster:
+    name: preprod2-ocp-mgmt
+    location: yate
+    domain: DOMAIN_EXAMPLE_5.COM
+    mgmt_location: yate
+    # enableUnsealVault: false
+
+  authentication:
+    ldap:
+      crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZsVENDQTMyZ0F3SUJBZ0lRWDRpeHdJMUJOS0ZHbHF3eEsxRGdqREFOQmdrcWhraUc5dzBCQVFzRkFEQTgKTVFzd0NRWURWUVFHRXdKSFFqRWJNQmtHQTFVRUNoTVNWR1ZzWldadmJtbGpZU0JWU3lBb1R6SXBNUkF3RGdZRApWUVFERXdkUE1pMVNiMjkwTUI0WERURXpNVEF3T0RBNU1USXlObG9YRFRNek1UQXdPREE1TWpJeU5Gb3dQREVMCk1Ba0dBMVVFQmhNQ1IwSXhHekFaQmdOVkJBb1RFbFJsYkdWbWIyNXBZMkVnVlVzZ0tFOHlLVEVRTUE0R0ExVUUKQXhNSFR6SXRVbTl2ZERDQ0FpSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnSVBBRENDQWdvQ2dnSUJBSmVsdDRSZQowN1JUK2JuK2FiTUdWVGVIYUtja2QyaUlJdUtnZVJMQkNlT2IxNndUVGYzd0FoZ0lOR0x0U2xnakV3QndpQTE1CjBFNWxabGZEeG5ZR1htNjZIQ3ByODhvcURKcDhjVnJITlFrQlZ6c0RESVpIa1FCV0MxTC9pYjZJV2JKMmdwNUMKKyttQjZ2cytUZkQ4U3ZDaHI4TURpV3FwMDd3TmtJeFFrcWw5ZnU0azhnS3F6Z3c5dXJ3M0JieFV4MUtmR3ZQdwpiT1N1dU9tZVRTTUFKRGIvL0d2b3ZZWGhJeVNIQlc5ODB6L1VxdXJHNml0Slk3cnMycDNEd0dpTHpwbi9pTDFxCmU1TlNIb01tVVVpRWZKa1hUalBySjlMTzMyOG1EQ1FRSk5SbXZKbTNVK2RCUDdCVit4M2dlTC91SFhhUXkxZDYKdkNrTkc1T0FwTmNIQ2NUajRLeFk3QU5jTy8xNW15U3Y0YXZ1YmdQaGMrS3NJNkdYRnYrYmIweWEydTFMNG8wLwpWSVVhaFkrcTVUSHFEKzVEMnZuVVE3UFhsSmlMdXAxWGpPekkwbk5vRmRnR3RzZ3VjVDNvMlhTUGh2ZVRVZjVaCk1NTW96aFh4OXQ4QTMxUUxGV0hVcEE5c0RuTyt0b0pyUyswaTlVYWNTUDdQMUFXR285aWZIRlBneXQxYWNaSzEKSHp4a0xmVVBKNmYyY0RROHEyZElMSk5Lckd0NFN2c3VjZnVuR2NxQVhScTlybFlCZER1cjZZeFBEZDdSVUZZdgp3OW82SitXQkx1YzdXVlByTTBTRXl0M2ZZNjhLdTdiaTBvV1R5MmtqSWpRUm1BZEdKUExQMUpWbExwOGZNdFRrCmQ2WThtdE1aVndURy9qOUNWSngzWi9iUkJ1K25aeG54d1k2UEFnTUJBQUdqZ1pJd2dZOHdDd1lEVlIwUEJBUUQKQWdHR01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZORUJZbkVUZDBDeERRdWFCSXVrSzdNaAo3ejNHTUJBR0NTc0dBUVFCZ2pjVkFRUURBZ0VBTUQ0R0ExVWRJQVEzTURVd013WUVWUjBnQURBck1Da0dDQ3NHCkFRVUZCd0lCRmgxb2RIUndPaTh2YlhOakxuQnlhUzV2TWk1amIyMHZZM0J6TG1oMGJUQU5CZ2txaGtpRzl3MEIKQVFzRkFBT0NBZ0VBRUxaQTdsVTlSS1lSdDNwSHN6elA3WVJlc1ZkMjhzVTRhNUlqNjcwMjlEa2FudHpSZUVhSgoyMHl5VW9sRE03a2ZISExUbFNwaHovYUkzeWZzQk5ERHpPdEhYVm5mS0RqaTAwVkFNaHJiakRWdVNISVFJZDBIClpFZ3k5d3lHdnI3K1JFRHZnVWVPcUl1RDJWYnY2VzRQeHJsZ09pQ1QySkJmZ2dzSXk3ZHlIeXkxcEZyU1E1dWIKR3F3VFIxaHR6UFlxQlZ6RzVycjVudFlCZmRuQmdJOG1KV0hya1NiOHZXSzgvZmtiWWsxcTZoVEtsN0lyRm9qTQpBZUErTkFZQnNXNUgyVGdSSjN6S2xYbjg4L0lqZ2F4Y3pFTFY3WXpKMktzWEN5ZDUvRHp1clNUZVNOTFV6T0FICjYrSlE5RGEwOWNWNWNaTG4zSFhEQnBiTVVKUVFYbnkyZnRzYnAvRkU1NzZROFVwL0VZRUtpNFFBTk5RV1FLNWIKNmNwR3BoUGFFaGpTeDV0RXhQYUpXNUd1WmQyRGVkUUY5MjJHdXFuVllOYmxITFlLbVJxQS9EMUNjWUdTRDFIcQo0NlI4bG1MVXdxRm5Idy9zcFJEdmpLM2Y2czNnMEZyVmI0NVZyc1ZjYkRSd2NxVWVzckMrVE5ocWt5UVN2aWdXClF0cHZoTm4vTnVpZ09MZzIzMkJHdGExMGl2OThmREIxZXRkaHFPTnZZNVRXTmNQV29lV2dlSmo1NWc5Y05SdjYKYm9aQ2VIL0taeDk3cmlIMWlGcWp4ZFYvaVo5enhPWHYwdEVlUEZMUDJaVFR1ZXU3bjdGajRrMkVqU2hLMUp4egpFa2t3RzRDc2JOdCtodThsZEo0c1R6R3JNM1V5azFTSzVySmZ0dkFPeS8xQnd0MVU0ZFFQNFM4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCi0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpNSUlHMURDQ0JMeWdBd0lCQWdJS1FEQm8wUUFCQUFBQUNUQU5CZ2txaGtpRzl3MEJBUXNGQURBOE1Rc3dDUVlEClZRUUdFd0pIUWpFYk1Ca0dBMVVFQ2hNU1ZHVnNaV1p2Ym1sallTQlZTeUFvVHpJcE1SQXdEZ1lEVlFRREV3ZFAKTWkxU2IyOTBNQjRYRFRJeE1EVXhNREV5TVRReU1Wb1hEVEkyTURVeE1ERXlNalF5TVZvd2FERVRNQkVHQ2dtUwpKb21UOGl4a0FSa1dBMk52YlRFU01CQUdDZ21TSm9tVDhpeGtBUmtXQW04eU1STXdFUVlLQ1pJbWlaUHlMR1FCCkdSWURjSEpwTVJJd0VBWUtDWkltaVpQeUxHUUJHUllDZFdzeEZEQVNCZ05WQkFNVEMwOHlMVVZ1ZEVOQkxUQXgKTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFwMk5lOTNLWWtxdnorLzJBS1dBNApnZzVkYmNPUUlKbXNxUzErdVVTU1dlRmwwS3BBK3huZXRRR1BDYUx4czNURFgwUEFOZjNIdTNpL1lvVTZTVHdLCmMycHU0N0VJdlZaNElqeUo4ajQrV2NVWGcyVEpkTjhzbDRDelNrd05UVjRkSUF6V1kyQS8xWkc1ZmFqcGwyWU8KQzROelVSenpNSU9FNDVYTHp3Z3JsVUlnTk9xR1UrZngzb2NCeXorMW5HblFDajJRVjhZNTZOVTkxeXpNaFpQVwpONmlwaGNDSGYvRWJVaVlUREd0YVZNUjFnM3V0VUE2WFQvQkhNS2VBQVovYlZZZzFxdWVXR25Jd3JUYXVhdXY3CkEyYjI5aFlOblZWbFZpWEMvS2R0dEZMUnBnNWlJdXdVcjBJL1dFamVkSDBPTFNxL0JpMHVWV2hpRVkvYXdTY1QKOVFJREFRQUJvNElDcWpDQ0FxWXdFQVlKS3dZQkJBR0NOeFVCQkFNQ0FRSXdJd1lKS3dZQkJBR0NOeFVDQkJZRQpGT3JyYVRKSkc1TXJmc0pwZjl1elBuUnF0enBUTUIwR0ExVWREZ1FXQkJTeUNLTWcxNlRmdVg4R1BkRGZJTm5PCnFGZU9iakFaQmdrckJnRUVBWUkzRkFJRURCNEtBRk1BZFFCaUFFTUFRVEFMQmdOVkhROEVCQU1DQVlZd0R3WUQKVlIwVEFRSC9CQVV3QXdFQi96QWZCZ05WSFNNRUdEQVdnQlRSQVdKeEUzZEFzUTBMbWdTTHBDdXpJZTg5eGpDQgorZ1lEVlIwZkJJSHlNSUh2TUlIc29JSHBvSUhtaG9HM2JHUmhjRG92THk5RFRqMVBNaTFTYjI5MExFTk9QVkJTClNWVkxVMVJJVFZORE1EQXlMRU5PUFVORVVDeERUajFRZFdKc2FXTWxNakJMWlhrbE1qQlRaWEoyYVdObGN5eEQKVGoxVFpYSjJhV05sY3l4RFRqMURiMjVtYVdkMWNtRjBhVzl1TEVSRFBYQnlhU3hFUXoxdk1peEVRejFqYjIwLwpZMlZ5ZEdsbWFXTmhkR1ZTWlhadlkyRjBhVzl1VEdsemREOWlZWE5sUDI5aWFtVmpkRU5zWVhOelBXTlNURVJwCmMzUnlhV0oxZEdsdmJsQnZhVzUwaGlwb2RIUndPaTh2YlhOakxuQnlhUzV2TWk1amIyMHZRMlZ5ZEVSaGRHRXYKVHpJdFVtOXZkQzVqY213d2dmWUdDQ3NHQVFVRkJ3RUJCSUhwTUlIbU1JR29CZ2dyQmdFRkJRY3dBb2FCbTJ4awpZWEE2THk4dlEwNDlUekl0VW05dmRDeERUajFCU1VFc1EwNDlVSFZpYkdsakpUSXdTMlY1SlRJd1UyVnlkbWxqClpYTXNRMDQ5VTJWeWRtbGpaWE1zUTA0OVEyOXVabWxuZFhKaGRHbHZiaXhFUXoxd2Nta3NSRU05YnpJc1JFTTkKWTI5dFAyTkJRMlZ5ZEdsbWFXTmhkR1UvWW1GelpUOXZZbXBsWTNSRGJHRnpjejFqWlhKMGFXWnBZMkYwYVc5dQpRWFYwYUc5eWFYUjVNRGtHQ0NzR0FRVUZCekFDaGkxb2RIUndPaTh2YlhOakxuQnlhUzV2TWk1amIyMHZRMlZ5CmRFUmhkR0V2VHpJdFVtOXZkQ2d4S1M1amNuUXdEUVlKS29aSWh2Y05BUUVMQlFBRGdnSUJBSlZMNDh4RXdKZUoKL05xVG85Tm5jY1psZndMdWR5eDYxK1IwN3RLQ29kaHdHalluZWZxbFVueGt6enN4d0tWZGlsSTdheThpaThVRQpTUktYUFZzSEdTbytpSy9PSTUvRnh3dWwrTGdVTWN1MG5tTHNxQ0Z4QW1EWnZuN3l3R21QYUthMVUyUGVpTDhZCit2Yi9tdDhHSjYybUJRSVpJeWlRUW5USlBLWWtrY0pzZ0pSOWVwTWNNTGdYQXNzTGhrNnVENWRkS0pvczVIbFIKazVRb1Y1VEFYaTRQRnJPZ3RNdGFGMFFrSnNLR1JxVkxYY3JqaEMwR0dRbWRvMkREMm9PMmxpelMyN1k1THZLbApBRWdiWnFaT0NwVVdKSy9zVmlxeDA0Y3pFZTlxVUhZMXNSekQzT3BITk1nZFJ1ZGZ5Mjdia0xCWFRsYXBBblFjCk45MGtjRERwcHFPTlo4Uk5lclI3L3JWa1IxTHpzOGFHYTNEbURicmN1R1I3cnpOWU00OWZsaGcyN2hscmhwMW0KRWxFUXBiRkdrVGRJWG16WFNHZDZBNWRXY1ByUUpqZUdnbXZQODhPRDB5cU9KRHlsSExsQ3lyNFQ5R29EOC9CZQpsbktFSlVxNFoyanpaNzdQTWRmQnhzN3RrNHRjNTQ5Qk50aWtaWEY1U0t0ZjNYMkVEbnFkeE05STZmRmgwVUJiCkkxZTR6NzlJRURmN1M2cU1OU0tobHA4Tll4a3RIOGtvdVFSVGlzYlgrdzIrNUlWRTQ1b2pONjZZM25EbG5udngKeUo0aFkveUx2VXdKZkFSbndRQkZ6ZmI5RVdVSlhjYXFPRENJNHRFZVZkbldzTVRHSEYvZjVuRE50TG42Kzk4bwpvWi8wdHV4b0VQcm00MzB4UGVscXhFZmJCcXNxZzFZdAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+      url: DOMAIN_EXAMPLE_6.COM
+      bind_dn: TCsvcPP2-rhoc-ldap@DOMAIN_EXAMPLE_7.COM
+      groups_base_dn: OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com
+      users_base_dn: DC=uk,DC=pri,DC=o2,DC=com
+      group_membership: '%28%7C%28memberOf%3DCN%3Dg-telco-mds13-admin%2COU%3DGlobal+Secure+Groups%2COU%3DSecure+Groups%2CDC%3Duk%2CDC%3Dpri%2CCDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-TelcoCloud-CoreInfra-Admins%2COU%3DGlobal+Secure+Groups%2COU%3DSecure+Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-TelcoCloud-Support-Infra%2COU%3DGlobal+Secure+Groups%2COU%3DSecure+Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-telco-redhat-supplier%2COU%3DGlobal+Secure+Groups%2COU%3DSecure+Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-telcocloud-ICEDAuto%2COU%3DGlobal+Secure+Groups%2COU%3DSecure+Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-telco-wwt-supplier%2COU%3DGlobal+Secure+Groups%2COU%3DSecure+Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%29'
+      groups_whitelist:
+      - "CN=g-telco-mdsl3-admin,OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com"
+      - "CN=g-TelcoCloud-CoreInfra-Admins,OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com"
+      - "CN=g-TelcoCloud-Support-Infra,OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com"
+      - "CN=g-telco-redhat-supplier,OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com"
+      - "CN=g-telcocloud-ICEDAuto,OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com"
+      - "CN=g-telco-wwt-supplier,OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com"
+      sync_schedule: "*/15 * * * *"
+
+  vault:
+    vaultNamespace: Telco_Management_Infra
+    vaultMount: approle
+    vault_engine: ocp
+    vaultURL: https://DOMAIN_EXAMPLE_8.COM:8200
+    vault_roleID: 143a2b77-dbb1-8c2d-c192-27a74d5019a4
+    image: registry.redhat.io/ansible-automation-platform-26/ee-supported-rhel9@sha256:da9d6d4ed8b2b86ca7ef6cd0eeaa996c1e2fe7427f0d31baf7a576248940295d
+
+  provisioner:
+    caCert: BASE64_SECRET_1
+    configMapName: provisioner-ca-cert
+
+  apps:
+    ns: mano-apps
+    nad_name: mgmt-apps
+    subnet: IP_ADDRESS_1
+    subnet_len: 28
+    subnet_gw: IP_ADDRESS_2
+    dns_server_ip: IP_ADDRESS_3
+    # imageSourceRegistry: docker://DOMAIN_EXAMPLE_9.COM/infra/rhel-vm:9.6
+    # imageSourceSecret: example-robot-account
+    # imageSourceAccessKeyID: CHANGEME
+    # imageSourceSecretKey: CHANGEME
+
+  capsule:
+    qcow: rhel-9.6-x86_64-kvm.qcow2
+    nexus_registry: DOMAIN_EXAMPLE_10.COM
+    # capsule uuid should be different between environments to evict duplicity of uuid when registering the host againts satellite server. Run the uuidgen command in any host to generate the value for this attribute.
+    uuid: fb825d66-ed2d-4dcb-bc1f-ff06dc728885
+    app_name: capsule
+    domain: DOMAIN_EXAMPLE_11.COM
+    user: ansible
+    ip: IP_ADDRESS_4
+    hostname: DOMAIN_EXAMPLE_12.COM
+    ssh_authorized_key: SSH_PUBLIC_KEY_1
+    topics:
+      - mgmt1-ocp-metrics
+      - mgmt1-infra-logs
+      - mgmt1-audit-logs
+      - mgmt1-app-logs
+      - mgmt2-ocp-metrics
+      - mgmt2-infra-logs
+      - mgmt2-audit-logs
+      - mgmt2-app-logs
+      - mgmt2-collectd
+      - cwl-cnf-ocp-metrics
+      - cwl-cnf-infra-logs
+      - cwl-cnf-app-logs
+      - cwl-cnf-audit-logs
+      - cwl-vnf-ocp-metrics
+      - cwl-vnf-infra-logs
+      - cwl-vnf-app-logs
+      - cwl-vnf-audit-logs
+      - cwl-vnf-rhoso-ocp-metrics
+      - cwl-vnf-rhoso-infra-logs
+      - cwl-vnf-rhoso-app-logs
+      - cwl-vnf-rhoso-audit-logs
+
+  gitops:
+    ztp_plugin_image: registry.redhat.io/openshift4/ztp-site-generate-rhel8:v4.18.1-1
+    ztp_instance_ns: ztp
+    openshift_gitops_api_version: argoproj.io/v1alpha1
+    multicluster_operators_subscription: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:v2.13.4
+    repoURL: https://DOMAIN_EXAMPLE_13.COM/vmo2-automation/private-areas/telco-cloud/infra/redhat/core-ztp-preprod.git
+    targetRevision: CHANGEME #preprod-ocp-workload
+    caCerts:
+      gitlabHost: DOMAIN_EXAMPLE_13.COM
+      certificate_b64: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUcxRENDQkx5Z0F3SUJBZ0lLUURCbzBRQUJBQUFBQ1RBTkJna3Foa2lHOXcwQkFRc0ZBREE4TVFzd0NRWUQKVlFRR0V3SkhRakViTUJrR0ExVUVDaE1TVkdWc1pXWnZibWxqWVNCVlN5QW9UeklwTVJBd0RnWURWUVFERXdkUApNaTFTYjI5ME1CNFhEVEl4TURVeE1ERXlNVFF5TVZvWERUSTJNRFV4TURFeU1qUXlNVm93YURFVE1CRUdDZ21TCkpvbVQ4aXhrQVJrV0EyTnZiVEVTTUJBR0NnbVNKb21UOGl4a0FSa1dBbTh5TVJNd0VRWUtDWkltaVpQeUxHUUIKR1JZRGNISnBNUkl3RUFZS0NaSW1pWlB5TEdRQkdSWUNkV3N4RkRBU0JnTlZCQU1UQzA4eUxVVnVkRU5CTFRBeApNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXAyTmU5M0tZa3F2eisvMkFLV0E0CmdnNWRiY09RSUptc3FTMSt1VVNTV2VGbDBLcEEreG5ldFFHUENhTHhzM1REWDBQQU5mM0h1M2kvWW9VNlNUd0sKYzJwdTQ3RUl2Vlo0SWp5SjhqNCtXY1VYZzJUSmROOHNsNEN6U2t3TlRWNGRJQXpXWTJBLzFaRzVmYWpwbDJZTwpDNE56VVJ6ek1JT0U0NVhMendncmxVSWdOT3FHVStmeDNvY0J5eisxbkduUUNqMlFWOFk1Nk5VOTF5ek1oWlBXCk42aXBoY0NIZi9FYlVpWVRER3RhVk1SMWczdXRVQTZYVC9CSE1LZUFBWi9iVllnMXF1ZVdHbkl3clRhdWF1djcKQTJiMjloWU5uVlZsVmlYQy9LZHR0RkxScGc1aUl1d1VyMEkvV0VqZWRIME9MU3EvQmkwdVZXaGlFWS9hd1NjVAo5UUlEQVFBQm80SUNxakNDQXFZd0VBWUpLd1lCQkFHQ054VUJCQU1DQVFJd0l3WUpLd1lCQkFHQ054VUNCQllFCkZPcnJhVEpKRzVNcmZzSnBmOXV6UG5ScXR6cFRNQjBHQTFVZERnUVdCQlN5Q0tNZzE2VGZ1WDhHUGREZklObk8KcUZlT2JqQVpCZ2tyQmdFRUFZSTNGQUlFREI0S0FGTUFkUUJpQUVNQVFUQUxCZ05WSFE4RUJBTUNBWVl3RHdZRApWUjBUQVFIL0JBVXdBd0VCL3pBZkJnTlZIU01FR0RBV2dCVFJBV0p4RTNkQXNRMExtZ1NMcEN1ekllODl4akNCCitnWURWUjBmQklIeU1JSHZNSUhzb0lIcG9JSG1ob0czYkdSaGNEb3ZMeTlEVGoxUE1pMVNiMjkwTEVOT1BWQlMKU1ZWTFUxUklUVk5ETURBeUxFTk9QVU5FVUN4RFRqMVFkV0pzYVdNbE1qQkxaWGtsTWpCVFpYSjJhV05sY3l4RApUajFUWlhKMmFXTmxjeXhEVGoxRGIyNW1hV2QxY21GMGFXOXVMRVJEUFhCeWFTeEVRejF2TWl4RVF6MWpiMjAvClkyVnlkR2xtYVdOaGRHVlNaWFp2WTJGMGFXOXVUR2x6ZEQ5aVlYTmxQMjlpYW1WamRFTnNZWE56UFdOU1RFUnAKYzNSeWFXSjFkR2x2YmxCdmFXNTBoaXBvZEhSd09pOHZiWE5qTG5CeWFTNXZNaTVqYjIwdlEyVnlkRVJoZEdFdgpUekl0VW05dmRDNWpjbXd3Z2ZZR0NDc0dBUVVGQndFQkJJSHBNSUhtTUlHb0JnZ3JCZ0VGQlFjd0FvYUJtMnhrCllYQTZMeTh2UTA0OVR6SXRVbTl2ZEN4RFRqMUJTVUVzUTA0OVVIVmliR2xqSlRJd1MyVjVKVEl3VTJWeWRtbGoKWlhNc1EwNDlVMlZ5ZG1salpYTXNRMDQ5UTI5dVptbG5kWEpoZEdsdmJpeEVRejF3Y21rc1JFTTlieklzUkVNOQpZMjl0UDJOQlEyVnlkR2xtYVdOaGRHVS9ZbUZ6WlQ5dlltcGxZM1JEYkdGemN6MWpaWEowYVdacFkyRjBhVzl1ClFYVjBhRzl5YVhSNU1Ea0dDQ3NHQVFVRkJ6QUNoaTFvZEhSd09pOHZiWE5qTG5CeWFTNXZNaTVqYjIwdlEyVnkKZEVSaGRHRXZUekl0VW05dmRDZ3hLUzVqY25Rd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dJQkFKVkw0OHhFd0plSgovTnFUbzlObmNjWmxmd0x1ZHl4NjErUjA3dEtDb2Rod0dqWW5lZnFsVW54a3p6c3h3S1ZkaWxJN2F5OGlpOFVFClNSS1hQVnNIR1NvK2lLL09JNS9GeHd1bCtMZ1VNY3Uwbm1Mc3FDRnhBbURadm43eXdHbVBhS2ExVTJQZWlMOFkKK3ZiL210OEdKNjJtQlFJWkl5aVFRblRKUEtZa2tjSnNnSlI5ZXBNY01MZ1hBc3NMaGs2dUQ1ZGRLSm9zNUhsUgprNVFvVjVUQVhpNFBGck9ndE10YUYwUWtKc0tHUnFWTFhjcmpoQzBHR1FtZG8yREQyb08ybGl6UzI3WTVMdktsCkFFZ2JacVpPQ3BVV0pLL3NWaXF4MDRjekVlOXFVSFkxc1J6RDNPcEhOTWdkUnVkZnkyN2JrTEJYVGxhcEFuUWMKTjkwa2NERHBwcU9OWjhSTmVyUjcvclZrUjFMenM4YUdhM0RtRGJyY3VHUjdyek5ZTTQ5ZmxoZzI3aGxyaHAxbQpFbEVRcGJGR2tUZElYbXpYU0dkNkE1ZFdjUHJRSmplR2dtdlA4OE9EMHlxT0pEeWxITGxDeXI0VDlHb0Q4L0JlCmxuS0VKVXE0WjJqelo3N1BNZGZCeHM3dGs0dGM1NDlCTnRpa1pYRjVTS3RmM1gyRURucWR4TTlJNmZGaDBVQmIKSTFlNHo3OUlFRGY3UzZxTU5TS2hscDhOWXhrdEg4a291UVJUaXNiWCt3Mis1SVZFNDVvak42NlkzbkRsbm52eAp5SjRoWS95THZVd0pmQVJud1FCRnpmYjlFV1VKWGNhcU9EQ0k0dEVlVmRuV3NNVEdIRi9mNW5ETnRMbjYrOThvCm9aLzB0dXhvRVBybTQzMHhQZWxxeEVmYkJxc3FnMVl0Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZsVENDQTMyZ0F3SUJBZ0lRWDRpeHdJMUJOS0ZHbHF3eEsxRGdqREFOQmdrcWhraUc5dzBCQVFzRkFEQTgKTVFzd0NRWURWUVFHRXdKSFFqRWJNQmtHQTFVRUNoTVNWR1ZzWldadmJtbGpZU0JWU3lBb1R6SXBNUkF3RGdZRApWUVFERXdkUE1pMVNiMjkwTUI0WERURXpNVEF3T0RBNU1USXlObG9YRFRNek1UQXdPREE1TWpJeU5Gb3dQREVMCk1Ba0dBMVVFQmhNQ1IwSXhHekFaQmdOVkJBb1RFbFJsYkdWbWIyNXBZMkVnVlVzZ0tFOHlLVEVRTUE0R0ExVUUKQXhNSFR6SXRVbTl2ZERDQ0FpSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnSVBBRENDQWdvQ2dnSUJBSmVsdDRSZQowN1JUK2JuK2FiTUdWVGVIYUtja2QyaUlJdUtnZVJMQkNlT2IxNndUVGYzd0FoZ0lOR0x0U2xnakV3QndpQTE1CjBFNWxabGZEeG5ZR1htNjZIQ3ByODhvcURKcDhjVnJITlFrQlZ6c0RESVpIa1FCV0MxTC9pYjZJV2JKMmdwNUMKKyttQjZ2cytUZkQ4U3ZDaHI4TURpV3FwMDd3TmtJeFFrcWw5ZnU0azhnS3F6Z3c5dXJ3M0JieFV4MUtmR3ZQdwpiT1N1dU9tZVRTTUFKRGIvL0d2b3ZZWGhJeVNIQlc5ODB6L1VxdXJHNml0Slk3cnMycDNEd0dpTHpwbi9pTDFxCmU1TlNIb01tVVVpRWZKa1hUalBySjlMTzMyOG1EQ1FRSk5SbXZKbTNVK2RCUDdCVit4M2dlTC91SFhhUXkxZDYKdkNrTkc1T0FwTmNIQ2NUajRLeFk3QU5jTy8xNW15U3Y0YXZ1YmdQaGMrS3NJNkdYRnYrYmIweWEydTFMNG8wLwpWSVVhaFkrcTVUSHFEKzVEMnZuVVE3UFhsSmlMdXAxWGpPekkwbk5vRmRnR3RzZ3VjVDNvMlhTUGh2ZVRVZjVaCk1NTW96aFh4OXQ4QTMxUUxGV0hVcEE5c0RuTyt0b0pyUyswaTlVYWNTUDdQMUFXR285aWZIRlBneXQxYWNaSzEKSHp4a0xmVVBKNmYyY0RROHEyZElMSk5Lckd0NFN2c3VjZnVuR2NxQVhScTlybFlCZER1cjZZeFBEZDdSVUZZdgp3OW82SitXQkx1YzdXVlByTTBTRXl0M2ZZNjhLdTdiaTBvV1R5MmtqSWpRUm1BZEdKUExQMUpWbExwOGZNdFRrCmQ2WThtdE1aVndURy9qOUNWSngzWi9iUkJ1K25aeG54d1k2UEFnTUJBQUdqZ1pJd2dZOHdDd1lEVlIwUEJBUUQKQWdHR01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZORUJZbkVUZDBDeERRdWFCSXVrSzdNaAo3ejNHTUJBR0NTc0dBUVFCZ2pjVkFRUURBZ0VBTUQ0R0ExVWRJQVEzTURVd013WUVWUjBnQURBck1Da0dDQ3NHCkFRVUZCd0lCRmgxb2RIUndPaTh2YlhOakxuQnlhUzV2TWk1amIyMHZZM0J6TG1oMGJUQU5CZ2txaGtpRzl3MEIKQVFzRkFBT0NBZ0VBRUxaQTdsVTlSS1lSdDNwSHN6elA3WVJlc1ZkMjhzVTRhNUlqNjcwMjlEa2FudHpSZUVhSgoyMHl5VW9sRE03a2ZISExUbFNwaHovYUkzeWZzQk5ERHpPdEhYVm5mS0RqaTAwVkFNaHJiakRWdVNISVFJZDBIClpFZ3k5d3lHdnI3K1JFRHZnVWVPcUl1RDJWYnY2VzRQeHJsZ09pQ1QySkJmZ2dzSXk3ZHlIeXkxcEZyU1E1dWIKR3F3VFIxaHR6UFlxQlZ6RzVycjVudFlCZmRuQmdJOG1KV0hya1NiOHZXSzgvZmtiWWsxcTZoVEtsN0lyRm9qTQpBZUErTkFZQnNXNUgyVGdSSjN6S2xYbjg4L0lqZ2F4Y3pFTFY3WXpKMktzWEN5ZDUvRHp1clNUZVNOTFV6T0FICjYrSlE5RGEwOWNWNWNaTG4zSFhEQnBiTVVKUVFYbnkyZnRzYnAvRkU1NzZROFVwL0VZRUtpNFFBTk5RV1FLNWIKNmNwR3BoUGFFaGpTeDV0RXhQYUpXNUd1WmQyRGVkUUY5MjJHdXFuVllOYmxITFlLbVJxQS9EMUNjWUdTRDFIcQo0NlI4bG1MVXdxRm5Idy9zcFJEdmpLM2Y2czNnMEZyVmI0NVZyc1ZjYkRSd2NxVWVzckMrVE5ocWt5UVN2aWdXClF0cHZoTm4vTnVpZ09MZzIzMkJHdGExMGl2OThmREIxZXRkaHFPTnZZNVRXTmNQV29lV2dlSmo1NWc5Y05SdjYKYm9aQ2VIL0taeDk3cmlIMWlGcWp4ZFYvaVo5enhPWHYwdEVlUEZMUDJaVFR1ZXU3bjdGajRrMkVqU2hLMUp4egpFa2t3RzRDc2JOdCtodThsZEo0c1R6R3JNM1V5azFTSzVySmZ0dkFPeS8xQnd0MVU0ZFFQNFM4PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+
+  ztp:
+    http_server_certificate_b64: BASE64_SECRET_1
+    jobTerminationGracePeriod: 300
+    serviceAccountName: mce-prereq-sa
+    rbac:
+      roles:
+        - name: mce-prereq
+          createRole: true
+          apiGroups:
+            - '""'
+            - 'metal3.io'
+          scope:
+            cluster: true
+          resources:
+            - namespace
+            - configmaps
+            - provisionings
+            - secrets
+          verbs:
+            - "get"
+            - "list"
+            - "patch"
+            - "update"
+            - "create"
+            - "edit"
+      roleBindings:
+        - name: mce-prereq-rolebinding
+          createBinding: true
+          scope:
+            cluster: true
+            namespace: ""
+          subjects:
+            kind: ServiceAccount
+            name: mce-prereq-sa
+            namespace: multicluster-engine
+            apiGroup: ""
+          roleRef:
+            kind: ClusterRole
+            name: mce-prereq
+  
+  portworx:
+    # Run the following command to get this route: oc get route thanos-querier -n openshift-monitoring -o json | jq -r '.spec.host'
+    thanos_route: DOMAIN_EXAMPLE_14.COM
+    dataInterface: bond0.139
+    mgmtInterface: bond0.136
+    customImageRegistry: DOMAIN_EXAMPLE_15.COM/portworx
+    iscsiImage: DOMAIN_EXAMPLE_15.COM/openshift/rhel9/support-tools:latest
+    base_iscsiIQN: iqn.2026-02.com.o2.pri.uk.tcpp.preprod2-ocp-mgmt
+    pod: pod1-mgmtcl02
+    default_storageclass: px-fa-direct-access-portworx
+
+  oadp:
+    region: us-east-1
+    s3_url: DOMAIN_EXAMPLE_16.COM
+    bucket: oadp-backups
+    prefix: backup
+
+  nmstate:
+    appsNetworks:
+      nic1: ens3f0
+      nic2 : ens3f1
+      mtu: 8950
+    storageNetworks:
+      - nodeName: "DOMAIN_EXAMPLE_1.COM"
+        vlan_id_FB: "137" 
+        ip_FB: "IP_ADDRESS_5" 
+        vlan_id_FA: "139"
+        ip_FA: "IP_ADDRESS_6"
+      - nodeName: "DOMAIN_EXAMPLE_2.COM"
+        vlan_id_FB: "137" 
+        ip_FB: "IP_ADDRESS_7" 
+        vlan_id_FA: "139"
+        ip_FA: "IP_ADDRESS_8"
+      - nodeName: "DOMAIN_EXAMPLE_3.COM"
+        vlan_id_FB: "137" 
+        ip_FB: "IP_ADDRESS_9" 
+        vlan_id_FA: "139"
+        ip_FA: "IP_ADDRESS_10"
+      - nodeName: "DOMAIN_EXAMPLE_4.COM"
+        vlan_id_FB: "137" 
+        ip_FB: "IP_ADDRESS_11" 
+        vlan_id_FA: "139"
+        ip_FA: "IP_ADDRESS_12"
+
+  quay:
+    fqdn: DOMAIN_EXAMPLE_17.COM
+    components:
+    - kind: clair
+      managed: false
+    - kind: postgres
+      managed: true
+      overrides:
+        volumeSize: 500Gi
+    - kind: objectstorage
+      managed: false
+    - kind: redis
+      managed: true
+    - kind: horizontalpodautoscaler
+      managed: true
+    - kind: route
+      managed: true
+    - kind: monitoring
+      managed: false
+    - kind: tls
+      managed: true
+    - kind: mirror
+      managed: true
+      # overrides:
+      #   env:
+      #     - name: IGNORE_VALIDATION
+      #       value: "true"
+    - kind: quay
+      managed: true
+      overrides:
+        env:
+          - name: DEBUGLOG
+            value: "true"
+          # - name: IGNORE_VALIDATION
+          #   value: "true"
+    - kind: clairpostgres	
+      managed: true
+
+  intermediateCA:
+    tls:
+      crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUU3akNDQXRhZ0F3SUJBZ0lVV09zL1lKNGxqSGYrME5lbmdkN3NaNVlHSzA4d0RRWUpLb1pJaHZjTkFRRUwKQlFBd1V6RUxNQWtHQTFVRUJoTUNSMEl4RHpBTkJnTlZCQWNNQmxOc2IzVm5hREVXTUJRR0ExVUVDZ3dOVkdWcwpaV1p2Ym1sallTQlZTekViTUJrR0ExVUVBd3dTVkdWc1pXWnZibWxqWVNCU2IyOTBJRU5CTUI0WERUSTJNREV5Ck16RXlORFF6TlZvWERUTTFNREl5TXpFMU1EQTBObG93Y1RFTE1Ba0dBMVVFQmhNQ1IwSXhEekFOQmdOVkJBY00KQmxOc2IzVm5hREVXTUJRR0ExVUVDZ3dOVkdWc1pXWnZibWxqWVNCVlN6RTVNRGNHQTFVRUF3d3dWR1ZzWldadgpibWxqWVNCSmJuUmxjbTFsWkdsaGRHVWdRMEVnWm05eUlIQnlaWEJ5YjJReUxXOWpjQzF0WjIxME1JSUJJakFOCkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXNqbUcvYVNRWGtXZGJoTmh4a28wejRxU3o0UjIKSnc1UEk0cUV6d0k3ZzdsZ2ZCTXZCUlFmcG5nOUVJWVVucmJuV05KRlAzY1lLU0p3b3BRWVZrNnFjRkFVb1FDMQovOXJudlhPNEFYRHZoTzRadjVyRHdHT1BHMWRaZUxEaVpPUFlNRWgrRXNDUVFkK3J3Qys2Y2lTcXArNGUyK3pVCkJKdmNoa0hJTWU2cFAwRXE3WGlJWHFNOEVQQTJkcWpLbWllZnRSbWdjY3VaYVh3b2dFZmwxL0k4RDZwckkzYTYKb1cxYTFPc01mSzAweWVLdFpWZ2diSFoyeVhNZW9rWVR4T3pEdzlXbys0M2dmRVU1Qmh6ZGRCZkJycUU0TzlSMApsQU1yZUFJL3ZVeWxuV1ROdFY3SlZDMmFkVjI5TmhRa1NGYk9xNS8rdjNiNEZnM3E0VXV1MUZEbUlRSURBUUFCCm80R2JNSUdZTURzR0ExVWRFUVEwTURLQ01GUmxiR1ZtYjI1cFkyRWdTVzUwWlhKdFpXUnBZWFJsSUVOQklHWnYKY2lCd2NtVndjbTlrTWkxdlkzQXRiV2R0ZERBTEJnTlZIUThFQkFNQ0FRWXdEQVlEVlIwVEJBVXdBd0VCL3pBZApCZ05WSFE0RUZnUVVVRkcwaFlLUFZpY1dlamJWZ0krWUptVU1tRmt3SHdZRFZSMGpCQmd3Rm9BVTBsUFlrZThECnc2RnFhUTkyWGJVSFNLSFZpYWN3RFFZSktvWklodmNOQVFFTEJRQURnZ0lCQUVScHhuVjhncDJsdU1jWEtvUGYKTHN5Vzh5cnZ1ZHZ4RW1jeTVhQjJjRmZmY1pNNGZISktMN1BnMnoxUzRJKzZKWERYUHB3dnhuVzFuM0RHTzEzLwpGMk9VcW4zWWtJNUY5MHptdTVGUTV0d3BrQ2MrYkJDbEVna045T2NrQTVXQXhXalBtSDdEQ3R3OUhBSTVDSmpJCi9rWDRiaDY0QVpwQ0ZLTDZDM05CeGFlWFFvR2RhWFg2RHdmZFlVNGx6aWNTYXhuY2NHaWl3Q1lJaEw0ck9hVSsKSzRoUHNicElzenpzeHE1WmxrdlR1N1crMmZNMk80YzVEalJKQnJMb0k4eFdnK2loeWxjY05FSzcyYUpPZWl1UAo4NEFBT24wWGhkc0JINDgxWTYyZ1F6RFZQZVd5SVNjWEdYVUNNUnplK3hYTGFxdXdZUjVBWGE4eXJtdVNRNzEwClIzcXNmUVNSNCtwMzlIMzZCcDRmLzVmZG1WM3BGaklwUS9MNkhiUVhPVWc2VlcvcWZyckRURjNMdzlOVHorbEkKeHFyeFJUQklJMW5Fa2c3VDRtNWIvRXdDN3VMcG1TKzY3NEIxa2xTL1dwd09WMHZFQWYveUNVK2V2YXVoYkE4dApnQmdCM0pZUTdMQ0dRUnlSR25HQ1lOYWZ2RjdtS0QxS3FTb0tyZ3paOWFrZFN6VnJMOEFENzlJa2FxZERLeWhyCktrOWl3emVEMGpuN2JCOGFRUjRCNUhVRklRSkRTNWJGdlpHYW1WeEpsTlV2QUR3V2cxT09QQW1wN0hTVC80QzQKUkdVYjRWdkhwSFhyNk0wemF1Yko0MGFzS1ZYQVMzaW1SZVErekJOSVpZM3J3dmpoSndpbWg0c2k0d3FYeUkweApFVXoxWlV2ZjZEQVRZaGZPN2lyWEl0VTgKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo= 
+      key: BASE64_SECRET_2

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: mcp-update
+description: Update control for machine config pools. First masters and then workers to allow finishing the installation.
+type: application
+version: 0.1.0

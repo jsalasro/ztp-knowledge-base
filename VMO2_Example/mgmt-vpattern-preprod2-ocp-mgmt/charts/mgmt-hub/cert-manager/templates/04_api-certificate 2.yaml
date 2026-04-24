@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-manager-apiserver-custom-certs
+  namespace: openshift-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  secretName: cert-manager-apiserver-custom-certs
+  issuerRef:
+    name: intermediate-ca-issuer
+    kind: ClusterIssuer
+  commonName: "api.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}"
+  dnsNames:
+    - "api.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}"
+  duration: 2160h  # 90 days
+  renewBefore: 360h  # 15 days before expiry
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  usages:
+    - server auth
+    - client auth

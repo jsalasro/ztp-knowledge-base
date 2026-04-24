@@ -1,0 +1,367 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Deploy GitOps (ArgoCD) mano instance
+  name: gitops-argocd-instance
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # Gitops operator installed
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: operator-install-gitops
+    namespace: policies-mano
+  policy-templates:
+    # ArgoCD instance
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: gitops-instance-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: argoproj.io/v1beta1
+                kind: ArgoCD
+                metadata:
+                  name: argocd
+                  namespace: openshift-gitops
+                spec:
+                  server:
+                    autoscale:
+                      enabled: false
+                    grpc:
+                      ingress:
+                        enabled: false
+                    ingress:
+                      enabled: false
+                    resources:
+                      limits:
+                        cpu: 500m
+                        memory: 1Gi
+                      requests:
+                        cpu: 250m
+                        memory: 512Mi
+                    insecure: true
+                    host: gitops-server{{ fromClusterClaim "consoleurl.cluster.open-cluster-management.io" | substr 33 -1 }}
+                    route:
+                      enabled: true
+                      tls:
+                        termination: edge
+                    service:
+                      type: ''
+                  grafana:
+                    enabled: false
+                    ingress:
+                      enabled: false
+                    route:
+                      enabled: false
+                  monitoring:
+                    enabled: false
+                  notifications:
+                    enabled: false
+                  prometheus:
+                    enabled: false
+                    ingress:
+                      enabled: false
+                    route:
+                      enabled: false
+                  initialSSHKnownHosts: {}
+                  sso:
+                    dex:
+                      openShiftOAuth: true
+                      resources:
+                        limits:
+                          cpu: 500m
+                          memory: 256Mi
+                        requests:
+                          cpu: 250m
+                          memory: 128Mi
+                    provider: dex
+                  applicationSet:
+                    resources:
+                      limits:
+                        cpu: '2'
+                        memory: 1Gi
+                      requests:
+                        cpu: 250m
+                        memory: 512Mi
+                    webhookServer:
+                      ingress:
+                        enabled: false
+                      route:
+                        enabled: false
+                  rbac:
+                    defaultPolicy: ''
+                    policy: |
+                      g, system:cluster-admins, role:admin
+                      g, gitops-admin, role:admin
+                      g, system:authenticated, role:readonly
+                    scopes: '[groups]'
+                  repo:
+                    env:
+                      - name: ARGOCD_EXEC_TIMEOUT
+                        value: 360s
+                      - name: KUSTOMIZE_PLUGIN_HOME
+                        value: /.config/kustomize/plugin
+                    initContainers:
+                      - resources: {}
+                        terminationMessagePath: /dev/termination-log
+                        name: kustomize-plugin
+                        command:
+                          - /exportkustomize.sh
+                        imagePullPolicy: Always
+                        volumeMounts:
+                          - mountPath: /.config
+                            name: kustomize
+                        terminationMessagePolicy: File
+                        image: 'registry.redhat.io/openshift4/ztp-site-generate-rhel8:v4.14.4'
+                        args:
+                          - /.config
+                      - args:
+                          - '-c'
+                          - mkdir -p /.config/kustomize/plugin/ && cp -r /etc/kustomize/plugin/policy.open-cluster-management.io /.config/kustomize/plugin/ && mkdir -p /.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator && cp /policy-generator/PolicyGenerator-not-fips-compliant /.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator/PolicyGenerator
+                        command:
+                          - /bin/bash
+                        image: 'registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:v2.10'
+                        imagePullPolicy: Always
+                        name: policy-generator-install
+                        volumeMounts:
+                          - mountPath: /.config
+                            name: kustomize
+                    resources:
+                      limits:
+                        cpu: '8'
+                        memory: 16Gi
+                      requests:
+                        cpu: '1'
+                        memory: 2Gi
+                    volumeMounts:
+                      - mountPath: /.config
+                        name: kustomize
+                    volumes:
+                      - emptyDir: {}
+                        name: kustomize
+                  resourceExclusions: |
+                    - apiGroups:
+                      - tekton.dev
+                      clusters:
+                      - '*'
+                      kinds:
+                      - TaskRun
+                      - PipelineRun
+                    - apiGroups:
+                      - policy.open-cluster-management.io
+                      clusters:
+                      - '*'
+                      kinds:
+                      - CertificatePolicies
+                      - ConfigurationPolicies
+                      - IamPolicies
+                      - OperatorPolicies
+                    - apiGroups:
+                      - cluster.open-cluster-management.io
+                      clusters:
+                      - '*'
+                      kinds:
+                      - PlacementDecision
+                  ha:
+                    enabled: false
+                    resources:
+                      limits:
+                        cpu: 500m
+                        memory: 256Mi
+                      requests:
+                        cpu: 250m
+                        memory: 128Mi
+                  kustomizeBuildOptions: '--enable-alpha-plugins'
+                  redis:
+                    resources:
+                      limits:
+                        cpu: 500m
+                        memory: 256Mi
+                      requests:
+                        cpu: 250m
+                        memory: 128Mi
+                  controller:
+                    processors: {}
+                    resources:
+                      limits:
+                        cpu: '16'
+                        memory: 32Gi
+                      requests:
+                        cpu: '1'
+                        memory: 2Gi
+                    sharding: {}
+                  tls:
+                    ca: {}
+                    initialCerts:
+                      network.git.cz.o2: |
+                        {{ fromConfigMap "policies-mano" "custom-ca-bundle" "CA.cer" | autoindent }}
+    # Check ArgoCD instance available
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: gitops-instance-check
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: argoproj.io/v1beta1
+                kind: ArgoCD
+                metadata:
+                  name: argocd
+                  namespace: openshift-gitops
+                status:
+                  phase: Available
+    # Instance namespaced RBAC
+    - extraDependencies:
+      - apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        name: gitops-instance-check
+        namespace: ""
+        compliance: Compliant
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: gitops-rbac-role-config
+        spec:
+          remediationAction: enforce
+          severity: high
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - policies-mano
+          object-templates:
+            - complianceType: mustonlyhave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: Role
+                metadata:
+                  name: argo-mano-provision-role
+                rules:
+                  - apiGroups:
+                    - policy.open-cluster-management.io
+                    resources:
+                    - policies
+                    - policysets
+                    - placementbindings
+                    verbs:
+                    - get
+                    - list
+                    - patch
+                    - create
+                    - update
+                    - watch
+                    - delete
+                  - apiGroups:
+                    - cluster.open-cluster-management.io
+                    resources:
+                    - placements
+                    - managedclustersets
+                    - managedclustersetbindings
+                    verbs:
+                    - get
+                    - list
+                    - patch
+                    - create
+                    - update
+                    - watch
+                    - delete
+            - complianceType: musthave
+              objectDefinition:
+                kind: RoleBinding
+                apiVersion: rbac.authorization.k8s.io/v1
+                metadata:
+                  name: argo-mano-provision-role-binding
+                subjects:
+                  - kind: ServiceAccount
+                    name: '{{ ( index ( lookup "argoproj.io/v1beta1"  "ArgoCD" "openshift-gitops" "" ).items 0).metadata.name }}-argocd-application-controller'
+                    namespace: openshift-gitops
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: Role
+                  name: argo-mano-provision-role
+    # Instance cluster level RBAC
+    - extraDependencies:
+      - apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        name: gitops-instance-check
+        namespace: ""
+        compliance: Compliant
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: gitops-rbac-clusterrole-config
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            # Allow argo to manage cluster claims
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRole
+                metadata:
+                  name: argo-provision-clusterclaim-clusterrole
+                rules:
+                - apiGroups:
+                  - cluster.open-cluster-management.io
+                  resources:
+                  - clusterclaims
+                  verbs:
+                  - get
+                  - list
+                  - watch
+                  - create
+                  - patch
+                  - update
+                  - delete
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRoleBinding
+                metadata:
+                  name: argo-provision-clusterclaim-clusterrole-binding
+                subjects:
+                  - kind: ServiceAccount
+                    name: '{{ ( index ( lookup "argoproj.io/v1beta1"  "ArgoCD" "openshift-gitops" "" ).items 0).metadata.name }}-argocd-application-controller'
+                    namespace: openshift-gitops
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: argo-provision-clusterclaim-clusterrole
+            # Allow argo to bind clusters to namespace mano
+            - complianceType: musthave
+              objectDefinition:
+                kind: ClusterRoleBinding
+                apiVersion: rbac.authorization.k8s.io/v1
+                metadata:
+                  name: argo-provision-managedclusterset-binding
+                subjects:
+                  - kind: ServiceAccount
+                    name: '{{ ( index ( lookup "argoproj.io/v1beta1"  "ArgoCD" "openshift-gitops" "" ).items 0).metadata.name }}-argocd-application-controller'
+                    namespace: openshift-gitops
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: open-cluster-management:managedclusterset:bind:mano-clusters
+...

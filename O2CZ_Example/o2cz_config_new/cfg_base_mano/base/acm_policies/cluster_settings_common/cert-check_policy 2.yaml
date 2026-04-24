@@ -1,0 +1,31 @@
+---
+# This policy monitors certificates for Ingress and API expiration
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Check expiration date of TLS certificates for ingress and API
+  name: cert-expiration-check
+  namespace: policies-mano
+spec:
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: CertificatePolicy
+      metadata:
+        name: certs-expiration-check
+      spec:
+        namespaceSelector:
+          include:
+            - openshift-ingress
+            - openshift-config
+        labelSelector:
+          issued-for: "o2-cz"
+        remediationAction: inform
+        severity: high
+        minimumDuration: 600h
+...

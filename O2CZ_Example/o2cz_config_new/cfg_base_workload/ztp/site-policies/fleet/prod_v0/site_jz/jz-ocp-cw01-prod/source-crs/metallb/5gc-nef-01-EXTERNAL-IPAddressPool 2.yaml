@@ -1,0 +1,12 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: 5gc-nef-01-external-dual-ipaddresspool
+  namespace: metallb-system
+  annotations:
+    metallb.universe.tf/address-pool: 5gc-nef-01-external-dual-ipaddresspool
+spec:
+  addresses:
+    - IP_ADDRESS_63/27
+    - 2001:41d8:1:a02c::/64
+  autoAssign: false

@@ -1,0 +1,26 @@
+---
+apiVersion: core.libopenstorage.org/v1
+kind: StorageCluster
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    portworx.io/is-openshift: "true"
+    portworx.io/misc-args: "--oem px-csi"
+    portworx.io/disable-storage-class: "true"
+  name: px-cluster
+  namespace: portworx
+spec:
+  csi:
+    enabled: true
+  image: portworx/px-pure-csi-driver:25.8.1
+  #customImageRegistry: {{ .Values.mgmt.portworx.customImageRegistry }}
+  preserveFullCustomImageRegistry: true
+  imagePullSecret: px-image-repository
+  imagePullPolicy: IfNotPresent
+  monitoring: 
+    telemetry: {}
+    prometheus:
+      exportMetrics: true
+  env:
+  - name: PURE_FLASHARRAY_SAN_TYPE
+    value: "ISCSI"

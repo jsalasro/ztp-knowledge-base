@@ -1,0 +1,18 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: sriov-network-operator-subscription
+  namespace: openshift-sriov-network-operator
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  channel: "stable"
+  name: sriov-network-operator
+  source: redhat-operator-index
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  startingCSV: sriov-network-operator.v4.18.0-202509100344
+#status:
+#  state: AtLatestKnown
+...

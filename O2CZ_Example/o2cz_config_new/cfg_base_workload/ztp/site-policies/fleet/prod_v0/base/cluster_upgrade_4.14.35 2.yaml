@@ -1,0 +1,39 @@
+---
+apiVersion: ran.openshift.io/v1
+kind: PolicyGenTemplate
+metadata:
+  name: "ztp-cwl-upgrade"
+  namespace: "ztp-policies"
+spec:
+  bindingRules:
+    openshiftVersion: "4.14.20"
+    openshiftTargetVersion: "4.14.35"
+    upgrade_healthcheck: Compliant
+  remediationAction: inform
+  evaluationInterval:
+    compliant: 200m
+    noncompliant: 10s
+  sourceFiles:
+    # Run cluster upgrade
+    - fileName: cluster_version_upgrade/cluster_version.yaml
+      policyName: version-4.14.35
+      spec:
+        channel: '{{hub fromConfigMap "ztp-policies" "ocp-version-4.14.35" "channel" hub}}'
+        desiredUpdate:
+          force: true
+          image: '{{hub fromConfigMap "ztp-policies" "ocp-version-4.14.35" "src_image" hub}}'
+    - fileName: cluster_version_upgrade/cluster_version_check.yaml
+      policyName: version-4.14.35
+      remediationAction: inform
+      status:
+        conditions:
+        - status: "True"
+          type: Available
+        - status: "False"
+          type: Failing
+        - status: "False"
+          type: Progressing
+        desired:
+          image: '{{hub fromConfigMap "ztp-policies" "ocp-version-4.14.35" "src_image" hub}}'
+          version: '{{hub fromConfigMap "ztp-policies" "ocp-version-4.14.35" "version" hub}}'
+...

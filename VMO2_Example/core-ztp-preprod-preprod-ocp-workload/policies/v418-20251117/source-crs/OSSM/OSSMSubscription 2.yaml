@@ -1,0 +1,16 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: servicemeshoperator3
+  namespace: istio-system
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"    
+spec:
+  channel: stable
+  name: servicemeshoperator3
+  source: redhat-operator-index
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  sourceNamespace: openshift-marketplace
+  startingCSV: servicemeshoperator3.v3.2.1
+...

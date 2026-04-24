@@ -1,0 +1,14 @@
+---
+apiVersion: config.openshift.io/v1
+kind: APIServer
+metadata:
+  name: cluster
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  servingCerts:
+    namedCertificates:
+    - names:
+      - api.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}
+      servingCertificate:
+        name: cert-manager-apiserver-custom-certs

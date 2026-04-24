@@ -1,0 +1,419 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Create RHACS Central
+  name: rhacs-central
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # Persistent storage needs to be fully ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: odf-internal
+    namespace: policies-mano
+  # RHACS operator installed
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: operator-install-rhacs
+    namespace: policies-mano
+  policy-templates:
+  # central namespace
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-stackrox-namespace
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: stackrox
+    # Render custom certificates
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-custom-certificates
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: central-default-tls-cert
+                namespace: stackrox
+              data: '{{hub copySecretData "policies-mano" "central-default-tls-cert" hub}}'
+    # Render declarative config
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-declarative-config
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: declarative-acs-auth
+                namespace: stackrox
+              data:
+                test_acs.yaml: |
+                  name: LDAP-ocp
+                  minimumRole: None
+                  uiEndpoint: https://central.stackrox.svc:443
+                  groups:
+                      - key: groups
+                        value: NAPL-REDHAT-ACS-CZ-PROD_Administrator
+                        role: Admin
+                      - key: groups
+                        value: NAPL-REDHAT-ACS-CZ-PROD_Analyst
+                        role: Analyst
+                      - key: name
+                        value: kube:admin
+                        role: Admin
+                  openshift:
+                      enable: true
+    # central instance
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-instance-create
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: platform.stackrox.io/v1alpha1
+                kind: Central
+                metadata:
+                  name: stackrox-central-services
+                  namespace: stackrox
+                spec:
+                  monitoring:
+                    openshift:
+                      enabled: true
+                  central:
+                    declarativeConfiguration:
+                      configMaps:
+                      - name: declarative-acs-auth
+                    notifierSecretsEncryption:
+                      enabled: false
+                    exposure:
+                      loadBalancer:
+                        enabled: false
+                      nodePort:
+                        enabled: false
+                      route:
+                        enabled: true
+                    telemetry:
+                      enabled: true
+                    db:
+                      persistence:
+                        persistentVolumeClaim:
+                          claimName: central-db
+                    persistence:
+                      persistentVolumeClaim:
+                        claimName: stackrox-db
+                  egress:
+                    connectivityPolicy: Online
+                  scanner:
+                    analyzer:
+                      scaling:
+                        autoScaling: Enabled
+                        maxReplicas: 5
+                        minReplicas: 2
+                        replicas: 3
+    # Check for central ready
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-deployment-check
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: central
+                namespace: stackrox
+              status:
+                conditions:
+                - status: 'True'
+                  type: Available
+    # Check for central DB ready
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-db-deployment-check
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: central-db
+                namespace: stackrox
+              status:
+                conditions:
+                - status: 'True'
+                  type: Available
+    # Create service account to manage ACS API
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-token-management-sa
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: token-management-sa
+                namespace: stackrox
+    # Create specific role
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-token-management-role
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: Role
+              metadata:
+                name: token-management-role
+                namespace: stackrox
+              rules:
+              - apiGroups:
+                - "*"
+                resources:
+                - secrets
+                verbs:
+                - get
+                - list
+                - create
+                - patch
+                - update
+                - delete
+    # Bind new token role to service account
+    - extraDependencies:
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-central-token-management-sa
+          namespace: ""
+          compliance: Compliant
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-central-token-management-role
+          namespace: ""
+          compliance: Compliant
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-token-management-rolebinding
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: RoleBinding
+              metadata:
+                name: token-management-rolebinding
+                namespace: stackrox
+              roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: Role
+                name: token-management-role
+              subjects:
+              - kind: ServiceAccount
+                name: token-management-sa
+                namespace: stackrox
+    # Create script for token creation
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-create-token-script
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: rhacs-create-token-script
+                namespace: stackrox
+              data:
+                token.sh: |
+                  #!/bin/bash
+
+                  ADMIN_PWD=$(cat /etc/creds/password)
+                  AUTH=$(echo "admin:$ADMIN_PWD" | tr -d \\n | base64)
+                  echo "Creating or renewing token $TOKEN_NAME with $TOKEN_ROLE role..."
+                  TOKEN_PAYLOAD=$(curl -X POST -ks --header "Authorization: Basic ${AUTH}" --data '{"name": "'"${TOKEN_NAME}"'","role": "'"${TOKEN_ROLE}"'"}' '{"name": "'"${BUNDLE_NAME}"'"}' https://central/v1/apitokens/generate)
+                  echo $TOKEN_PAYLOAD | python3 -c "import sys, json; print(json.load(sys.stdin)['token'])" > /tmp/access_token.out
+                  echo "Remove any old token secret..."
+                  oc delete secret ${SECRET_NAME} --ignore-not-found=true
+                  echo "Creating the new secret..."
+                  oc create secret generic ${SECRET_NAME} --from-file=api_token=/tmp/access_token.out
+    # Create Job
+    - extraDependencies:
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-central-db-deployment-check
+          namespace: ""
+          compliance: Compliant
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-central-token-management-rolebinding
+          namespace: ""
+          compliance: Compliant
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-central-create-token-script
+          namespace: ""
+          compliance: Compliant
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-admin-token-job-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: rhacs-create-token
+                namespace: stackrox
+              spec:
+                template:
+                  spec:
+                    volumes:
+                      - name: credentials
+                        secret:
+                          secretName: central-htpasswd
+                      - name: script
+                        configMap:
+                          name: rhacs-create-token-script
+                          defaultMode: 0755
+                    containers:
+                      - name: token-create
+                        image: registry.redhat.io/openshift4/ose-cli:v4.14
+                        imagePullPolicy: Always
+                        volumeMounts:
+                          - name: credentials
+                            readOnly: true
+                            mountPath: /etc/creds
+                          - name: script
+                            mountPath: "/script"
+                        env:
+                          - name: TOKEN_NAME
+                            value: automation_token
+                          - name: TOKEN_ROLE
+                            value: Admin
+                          - name: SECRET_NAME
+                            value: automation-api-token
+                        command:
+                          - /script/token.sh
+                    restartPolicy: OnFailure
+                    serviceAccount: token-management-sa
+                    serviceAccountName: token-management-sa
+                    terminationGracePeriodSeconds: 30
+    # Check job result
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-admin-token-job-check
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: rhacs-create-token
+                namespace: stackrox
+              status:
+                conditions:
+                - status: "True"
+                  type: Complete
+                succeeded: 1
+    # Check API token secret
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name:  rhacs-central-admin-token-secret-check
+        spec:
+          remediationAction: inform
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: automation-api-token
+                namespace: stackrox
+...

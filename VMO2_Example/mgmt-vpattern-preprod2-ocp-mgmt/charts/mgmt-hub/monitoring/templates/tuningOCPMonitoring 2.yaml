@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    alertmanagerMain:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 150Gi
+          storageClassName: {{ .Values.mgmt.portworx.default_storageclass }}
+    enableUserWorkload: true
+    prometheusK8s:
+      remoteWrite:
+      - url: http://kafka-adapter-svc.prom-kafka-adapter.svc.cluster.local:8080/receive
+      retention: 7d
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 150Gi
+          storageClassName: {{ .Values.mgmt.portworx.default_storageclass }}

@@ -1,0 +1,155 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure log forwarding for logging stack
+  name: logging-forward
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: logging-clusterlogging
+    namespace: policies-mano
+  policy-templates:
+  # Render kafka certificates
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: logforward-kafka-certs-secret
+      spec:
+        remediationAction: enforce
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: kafka-certs
+                namespace: openshift-logging
+              type: Opaque
+              data: '{{hub copySecretData "policies-mano" "kafka-certs-mano" hub}}'
+  # Configure kafka connection CM
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: logforward-kafka-connection
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: kafka-service-connection
+              namespace: openshift-logging
+            data:
+              url: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} kafka-mano-kafka-brokers.kafka-cluster.svc.cluster.local {{- else -}} {{hub fromConfigMap "policies-mano" "kafka-cluster-info" "url" hub}} {{- end }}'
+              port: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} 9092 {{- else -}} 443 {{- end }}'
+              protocol: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} tcp {{- else -}} tls {{- end }}'
+              topic_prefix: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} mano {{- else -}} {{ fromClusterClaim "name" }} {{- end }}'
+  # Configure forwarder
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: logforward-configure
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- $kafka_url := fromConfigMap "openshift-logging" "kafka-service-connection" "url" }}
+          {{- $kafka_port := fromConfigMap "openshift-logging" "kafka-service-connection" "port"  }}
+          {{- $kafka_protocol := fromConfigMap "openshift-logging" "kafka-service-connection" "protocol" }}
+          {{- $kafka_topic_prefix := fromConfigMap "openshift-logging" "kafka-service-connection" "topic_prefix" }}
+          - complianceType: mustonlyhave
+            objectDefinition:
+              apiVersion: logging.openshift.io/v1
+              kind: ClusterLogForwarder
+              metadata:
+                name: instance
+                namespace: openshift-logging
+              spec:
+                outputs:
+                - name: kafka-apps
+                  type: kafka
+                  url: {{ printf "%s://%s:%s/%s-app-logs" $kafka_protocol $kafka_url $kafka_port $kafka_topic_prefix }}
+          {{- if ne (fromClusterClaim "name") "local-cluster" }}
+                  secret:
+                    name: kafka-certs
+          {{- end }}
+                - name: kafka-infra
+                  type: kafka
+                  url: {{ printf "%s://%s:%s/%s-infra-logs" $kafka_protocol $kafka_url $kafka_port $kafka_topic_prefix }}
+          {{- if ne (fromClusterClaim "name") "local-cluster" }}
+                  secret:
+                    name: kafka-certs
+          {{- end }}
+                - name: kafka-audit
+                  type: kafka
+                  url: {{ printf "%s://%s:%s/%s-audit-logs" $kafka_protocol $kafka_url $kafka_port $kafka_topic_prefix }}
+          {{- if ne (fromClusterClaim "name") "local-cluster" }}
+                  secret:
+                    name: kafka-certs
+          {{- end }}
+                pipelines:
+                - name: app-logs
+                  inputRefs: 
+                  - application
+                  outputRefs: 
+                  - kafka-apps
+                  - default
+                  labels:
+                    logType: "application"
+                - name: infra-logs
+                  inputRefs:
+                  - infrastructure
+                  outputRefs:
+                  - kafka-infra
+                  - default
+                  labels:
+                    logType: "infra"
+                - name: audit-logs
+                  inputRefs:
+                  - audit
+                  outputRefs:
+                  - kafka-audit
+                  - default
+                  labels:
+                    logType: "audit"
+                    sensitive: "true"
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: logforward-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: logging.openshift.io/v1
+            kind: ClusterLogForwarder
+            metadata:
+              name: instance
+              namespace: openshift-logging
+            status:
+              conditions:
+              - status: "True"
+                type: Ready
+...

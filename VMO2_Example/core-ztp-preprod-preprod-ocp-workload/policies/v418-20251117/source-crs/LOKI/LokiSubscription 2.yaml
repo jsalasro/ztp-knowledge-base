@@ -1,0 +1,18 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: loki-operator
+  namespace: openshift-operators-redhat
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  channel: stable-6.2
+  name: loki-operator
+  source: redhat-operator-index
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  startingCSV: loki-operator.v6.2.5
+#status:
+#  state: AtLatestKnown
+...

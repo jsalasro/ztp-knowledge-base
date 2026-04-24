@@ -1,0 +1,32 @@
+---
+version: 3
+images:
+  base_image:
+    name: DOMAIN_EXAMPLE_21.COM/infra/ocp-operators/ansible-automation-platform-26/ee-minimal-rhel9:latest
+options:
+    package_manager_path: /usr/bin/microdnf
+dependencies:
+  python_interpreter:
+    package_system: python3.11
+    python_path: /usr/bin/python3.11
+  ansible_core:
+    package_pip: ansible-core~=2.16
+  ansible_runner:
+    package_pip: ansible-runner~=2.3
+  galaxy: requirements.yml
+  python: requirements.txt
+  system: bindep.txt
+additional_build_steps:
+  prepend_base:
+    - RUN $PYCMD -m pip install --upgrade pip setuptools
+  prepend_galaxy:
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_VALIDATED_URL
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_VALIDATED_AUTH_URL
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_VALIDATED_TOKEN
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_CERTIFIED_URL
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_CERTIFIED_AUTH_URL
+    - ARG ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_CERTIFIED_TOKEN
+    - ARG ANSIBLE_GALAXY_SERVER_UPSTREAM_GALAXY_URL
+    - ARG ANSIBLE_GALAXY_SERVER_LIST
+...

@@ -1,0 +1,8 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: securityprofiles-operator-group
+  namespace: openshift-security-profiles
+spec: {}
+...

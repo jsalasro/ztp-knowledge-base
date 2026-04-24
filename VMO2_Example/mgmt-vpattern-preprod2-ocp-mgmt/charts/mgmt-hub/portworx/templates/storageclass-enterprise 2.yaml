@@ -1,0 +1,13 @@
+# kind: StorageClass
+# apiVersion: storage.k8s.io/v1
+# metadata:
+#   name: px-csi-db
+#   annotations:
+#     storageclass.kubernetes.io/is-default-class: 'true'
+# provisioner: pxd.portworx.com
+# parameters:
+#   io_profile: db_remote
+#   repl: '3'
+# reclaimPolicy: Delete
+# allowVolumeExpansion: true
+# volumeBindingMode: Immediate

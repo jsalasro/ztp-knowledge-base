@@ -1,0 +1,76 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Cluster active management validation for managed clusters
+  name: active-management-validation
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+    # Find hub cluster without active management from ACM policies
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: active-management-acm-mano
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1
+                kind: ManagedCluster
+                metadata:
+                  name: local-cluster
+                  labels:
+                    gitops_acm_config: Active
+    # Find hub clusters without active management from ACM policies
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: active-management-acm-cwl
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates-raw: |
+            {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl").items }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1
+                kind: ManagedCluster
+                metadata:
+                  name: {{ .metadata.name }}
+                  labels:
+                    gitops_acm_config: Active
+            {{- end }}
+    # Find hub clusters without active management from ZTP policies
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: active-management-ztp-cwl
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates-raw: |
+            {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl").items }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1
+                kind: ManagedCluster
+                metadata:
+                  name: {{ .metadata.name }}
+                  labels:
+                    gitops_ztp_config: Active
+            {{- end }}
+...

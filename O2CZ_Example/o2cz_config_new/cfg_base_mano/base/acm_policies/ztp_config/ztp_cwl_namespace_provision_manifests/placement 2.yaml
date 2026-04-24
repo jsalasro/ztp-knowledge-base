@@ -1,0 +1,20 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: ztp-workload-base-config
+  namespace: policies-mano
+spec:
+  predicates:
+  - requiredClusterSelector:
+      claimSelector:
+        matchExpressions:
+          - key: custom.hub-status
+            operator: In
+            values:
+              - active
+      labelSelector:
+        matchLabels:
+          gitops_acm_config: Active
+          name: local-cluster
+...

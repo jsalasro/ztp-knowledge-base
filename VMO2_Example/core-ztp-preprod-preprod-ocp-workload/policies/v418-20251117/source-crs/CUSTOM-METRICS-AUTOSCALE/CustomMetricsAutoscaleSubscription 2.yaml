@@ -1,0 +1,17 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: openshift-custom-metrics-autoscaler-operator
+  namespace: openshift-keda
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  channel: stable
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  name: openshift-custom-metrics-autoscaler-operator
+  source: redhat-operator-index
+  sourceNamespace: openshift-marketplace
+  startingCSV: custom-metrics-autoscaler.v2.15.1-6
+#  state: AtLatestKnown
+...

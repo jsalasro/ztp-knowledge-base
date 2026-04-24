@@ -1,0 +1,11 @@
+---
+controller_hosts:
+  - name: "localhost"
+    description: "Localhost"
+    inventory: "localhost"
+    enabled: true
+  - name: "DOMAIN_EXAMPLE_19.COM"
+    description: "capsule kubevirt vm"
+    inventory: "capsule.preprod1-ocp-mgmt"
+    enabled: true
+...

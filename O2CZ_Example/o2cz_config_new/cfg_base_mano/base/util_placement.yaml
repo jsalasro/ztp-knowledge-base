@@ -1,0 +1,15 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1 
+kind: Placement
+metadata:
+  name: util-placement
+  namespace: policies-mano
+spec:
+  clusterSets:
+    - util-clusters
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            gitops_acm_config: Active
+...

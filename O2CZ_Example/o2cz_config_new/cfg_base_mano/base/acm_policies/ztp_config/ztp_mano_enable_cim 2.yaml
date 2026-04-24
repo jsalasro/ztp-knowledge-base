@@ -1,0 +1,144 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure Central Infrastructure Management
+  name: ztp-setup-acm-cim
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # Persistent storage needs to be fully ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: odf-internal
+    namespace: policies-mano
+  # ACM MultiClusterHub instance ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: acm-mch
+    namespace: policies-mano
+  policy-templates:
+    # render registries config
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: mirror-registries-cm
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: medium
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: assisted-installer-mirror-config
+                  namespace: multicluster-engine
+                data:
+                  ca-bundle.crt: |
+                    # Custom CA bundle
+                    {{ fromConfigMap "policies-mano" "custom-ca-bundle" "ca-bundle.crt" | autoindent }}
+                    {{ fromConfigMap "multicluster-engine" "trusted-ca-bundle" "ca-bundle.crt" | autoindent }}
+                  registries.conf: |
+                    {{- $local_registry := print "registry-quay" (fromClusterClaim "consoleurl.cluster.open-cluster-management.io" | substr 33 -1) }}
+                    {{- $remote_registry := print "registry-quay.apps." (fromConfigMap "policies-mano" "local-mano-config" "remote_mano") }}
+                    unqualified-search-registries = ["{{ $local_registry }}", "{{ $remote_registry }}"]
+
+                    [[registry]]
+                      prefix = ""
+                      location = "quay.io"
+                      mirror-by-digest-only = false
+                      insecure = false
+
+                    [[registry.mirror]]
+                      location = "{{ $local_registry }}/quay_cache"
+
+                    [[registry.mirror]]
+                      location = "{{ $remote_registry }}/quay_cache"
+
+                    [[registry]]
+                      prefix = ""
+                      location = "registry.redhat.io"
+                      mirror-by-digest-only = false
+                      insecure = false
+
+                    [[registry.mirror]]
+                      location = "{{ $local_registry }}/redhat_registry_cache"
+
+                    [[registry.mirror]]
+                      location = "{{ $remote_registry }}/redhat_registry_cache"
+    # enable CIM
+    - extraDependencies:
+      - name: mirror-registries-cm
+        namespace: ""
+        apiVersion: policy.open-cluster-management.io/v1
+        compliance: Compliant
+        kind: ConfigurationPolicy
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: agent-service-config
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: medium
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: agent-install.openshift.io/v1beta1
+                kind: AgentServiceConfig
+                metadata:
+                 name: agent
+                spec:
+                  mirrorRegistryRef:
+                    name: assisted-installer-mirror-config 
+                  databaseStorage:
+                    accessModes:
+                    - ReadWriteOnce
+                    resources:
+                      requests:
+                        storage: 10Gi
+                  filesystemStorage:
+                    accessModes:
+                    - ReadWriteOnce
+                    resources:
+                      requests:
+                        storage: 100Gi
+                  imageStorage:
+                    accessModes:
+                    - ReadWriteOnce
+                    resources:
+                      requests:
+                        storage: 50Gi
+    # Check CIM ready
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: agent-service-config-check
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: medium
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: agent-install.openshift.io/v1beta1
+                kind: AgentServiceConfig
+                metadata:
+                 name: agent
+                status:
+                  conditions:
+                  - type: DeploymentsHealthy
+                    status: "True"
+...

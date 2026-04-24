@@ -1,0 +1,13 @@
+---
+collections:
+  - name: infra.quay_configuration
+  - name: ansible.platform
+  - name: infra.aap_configuration
+  - name: infra.aap_configuration_extended
+  - name: ansible.utils
+  - name: ansible.posix
+  - name: community.general
+  - name: redhat.rhel_system_roles
+  - name: redhat.satellite
+  - name: redhat.satellite_operations
+...

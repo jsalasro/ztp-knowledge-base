@@ -1,0 +1,444 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Loki Stack Custom Resource Creation
+  name: logging-lokistack
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  # Check for loki prerequisites
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-prerequisites
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        # Check for loki operator
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} {{hub fromConfigMap "policies-mano" "operators-version" "loki-startingCSV" hub}} {{- else -}} {{hub fromConfigMap "policies-mano" "operators-version-cwl-v0" "loki-startingCSV" hub}} {{- end }}'
+              namespace: openshift-operators-redhat
+            status:
+              phase: Succeeded
+        # Check for logging operator
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} {{hub fromConfigMap "policies-mano" "operators-version" "logging-startingCSV" hub}} {{- else -}} {{hub fromConfigMap "policies-mano" "operators-version-cwl-v0" "logging-startingCSV" hub}} {{- end }}'
+              namespace: openshift-logging
+            status:
+              phase: Succeeded
+        # Check for healthy Noobaa Backing Store
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: noobaa.io/v1alpha1
+            kind: BackingStore
+            metadata:
+              name: noobaa-default-backing-store
+              namespace: openshift-storage
+            status:
+              conditions:
+              - status: "True"
+                type: Available
+              mode:
+                modeCode: OPTIMAL
+        # Check for existing ODF Object storage class
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: openshift-storage.noobaa.io
+              annotations:
+                description: Provides Object Bucket Claims (OBCs)
+            provisioner: openshift-storage.noobaa.io/obc
+            parameters:
+              bucketclass: noobaa-default-bucket-class
+        # Check for existing ODF block storage class
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} ocs-storagecluster-ceph-rbd {{- else -}} ocs-external-storagecluster-ceph-rbd {{- end }}'
+              annotations:
+                storageclass.kubernetes.io/is-default-class: "true"                
+            provisioner: openshift-storage.rbd.csi.ceph.com
+  # Create Config Map with service CA certificate
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-service-ca-configmap
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: loki-s3-ca
+                namespace: openshift-logging
+              data:
+                service-ca.crt: |
+                  {{ fromSecret "openshift-service-ca" "signing-key" "tls.crt" | base64dec | autoindent }}
+  # Create Object Bucket Claim
+  - extraDependencies:
+      - name: lokistack-prerequisites
+        namespace: ""
+        apiVersion: policy.open-cluster-management.io/v1
+        compliance: Compliant
+        kind: ConfigurationPolicy
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-obc
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: objectbucket.io/v1alpha1
+            kind: ObjectBucketClaim
+            metadata:
+              name: loki-bucket-odf
+              namespace: openshift-logging
+            spec:
+              generateBucketName: loki-bucket-odf
+              storageClassName: openshift-storage.noobaa.io
+  # Check Object Bucket Claim
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: lokistack-obc
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-obc-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+           apiVersion: objectbucket.io/v1alpha1
+           kind: ObjectBucketClaim
+           metadata:
+             name: loki-bucket-odf
+             namespace: openshift-logging
+           spec:
+             generateBucketName: loki-bucket-odf
+             storageClassName: openshift-storage.noobaa.io
+           status:
+             phase: Bound
+  # Create OBC access secret
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: lokistack-obc-check
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-secret-obc
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- $bucket_host := fromConfigMap "openshift-logging" "loki-bucket-odf" "BUCKET_HOST" }}
+          {{- $bucket_port := fromConfigMap "openshift-logging" "loki-bucket-odf" "BUCKET_PORT" }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: lokistack-odf
+                  namespace: openshift-logging
+                type: Opaque
+                data:
+                  access_key_id: '{{ fromSecret "openshift-logging" "loki-bucket-odf" "AWS_ACCESS_KEY_ID" }}'
+                  access_key_secret: '{{ fromSecret "openshift-logging" "loki-bucket-odf" "AWS_SECRET_ACCESS_KEY" }}'
+                  bucketnames: '{{ fromConfigMap "openshift-logging" "loki-bucket-odf" "BUCKET_NAME" | base64enc }}'
+                  endpoint: '{{ (cat "https://" $bucket_host ":" $bucket_port) | replace " " "" | base64enc }}'
+  # Create Loki Stack Custom Resource
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: lokistack-secret-obc
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-custom-resource
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: loki.grafana.com/v1
+            kind: LokiStack
+            metadata:
+              name: logging-loki
+              namespace: openshift-logging
+            spec:
+              limits:
+                global:
+                  ingestion:
+                    ingestionBurstSize: 18
+                    ingestionRate: 10
+              size: 1x.extra-small
+              storage:
+                schemas:
+                  - effectiveDate: '2023-10-15'
+                    version: v13
+                secret:
+                  name: lokistack-odf
+                  type: s3
+                  credentialMode: static
+                tls:
+                  caName: loki-s3-ca
+              storageClassName: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} ocs-storagecluster-ceph-rbd {{- else -}} ocs-external-storagecluster-ceph-rbd {{- end }}'
+              tenants:
+                mode: openshift-logging
+  # Check Loki Stack Custom Resource
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-custom-resource-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: loki.grafana.com/v1
+            kind: LokiStack
+            metadata:
+              name: logging-loki
+              namespace: openshift-logging
+            status:
+              conditions:
+              - reason: PendingComponents
+                status: "False"
+                type: Pending
+              - reason: ReadyComponents
+                status: "True"
+                type: Ready
+  # Job-Set data retention configuration in S3 bucket
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: lokistack-secret-obc
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-data-retention-job
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: batch/v1
+            kind: Job
+            metadata:
+              name: set-data-retention
+              namespace: openshift-logging
+            spec:
+              backoffLimit: 2
+              completions: 1
+              parallelism: 1
+              template:
+                metadata:
+                  name: set-data-retention
+                spec:
+                  containers:
+                  - name: lifecycleload
+                    image: registry.redhat.io/ubi9/toolbox:9.4-12
+                    command:
+                      - /bin/bash
+                      - -c
+                      - |
+                        ACCESS_KEY_ID={{ fromSecret "openshift-logging" "loki-bucket-odf" "AWS_ACCESS_KEY_ID" | base64dec }}
+                        SECRET_ACCESS_KEY={{ fromSecret "openshift-logging" "loki-bucket-odf" "AWS_SECRET_ACCESS_KEY" | base64dec }}
+
+                        HOSTNAME={{ fromConfigMap "openshift-logging" "loki-bucket-odf" "BUCKET_HOST" }}
+                        REGION=""
+                        AWS_SERVICE="s3"
+
+                        HTTP_METHOD="PUT"
+                        CANONICAL_URI="/{{ fromConfigMap "openshift-logging" "loki-bucket-odf" "BUCKET_NAME" }}/"
+                        CANONICAL_QUERY_STRING="lifecycle="
+
+                        LIFECYCLE_CONF=$(cat <<EOF
+                        <LifecycleConfiguration>
+                            <Rule>
+                                <ID>logging-data-expire</ID>
+                                <Filter>
+                                  <Prefix></Prefix>
+                                </Filter>
+                                <Status>Enabled</Status>
+                                <Expiration>
+                                     <Days>1</Days>
+                                </Expiration>
+                            </Rule>
+                        </LifecycleConfiguration>
+                        EOF
+                        )
+
+                        #Retreive current date in appropriate format
+                        DATE_AND_TIME=$(date -u +"%Y%m%dT%H%M%SZ")
+                        DATE=$(date -u +"%Y%m%d")
+                        CONTENT_SHA256=$(echo -n "$LIFECYCLE_CONF" | openssl dgst -sha256 | cut -d ' ' -f 2)
+                        CONTENT_MD5=$(echo -n "$LIFECYCLE_CONF" | openssl dgst -md5 -binary |openssl enc -base64)
+
+                        #Store Canonical request
+                        #The blank line is important according to the schema https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
+                        CANONICAL_REQ=$(cat <<EOF
+                        $HTTP_METHOD
+                        $CANONICAL_URI
+                        $CANONICAL_QUERY_STRING
+                        content-md5:$CONTENT_MD5
+                        host:$HOSTNAME
+                        x-amz-content-sha256:$CONTENT_SHA256
+                        x-amz-date:$DATE_AND_TIME
+
+                        content-md5;host;x-amz-content-sha256;x-amz-date
+                        $CONTENT_SHA256
+                        EOF
+                        )
+
+                        # Generate canonical request hash
+                        CANONICAL_REQUEST_HASH=$(echo -n "$CANONICAL_REQ" | openssl dgst -sha256 | awk -F ' ' '{print $2}')
+
+                        # Function to generate sha256 hash
+                        function hmac_sha256 {
+                          key="$1"
+                          data="$2"
+                          echo -n "$data" | openssl dgst -sha256 -mac HMAC -macopt "$key" | sed 's/^.* //'
+                        }
+
+                        # Compute signing key
+                        DATE_KEY=$(hmac_sha256 key:"AWS4$SECRET_ACCESS_KEY" $DATE)
+                        DATE_REGION_KEY=$(hmac_sha256 hexkey:$DATE_KEY $REGION)
+                        DATE_REGION_SERVICE_KEY=$(hmac_sha256 hexkey:$DATE_REGION_KEY $AWS_SERVICE)
+                        HEX_KEY=$(hmac_sha256 hexkey:$DATE_REGION_SERVICE_KEY "aws4_request")
+
+                        # Store string to sign
+                        SIGN_STRING=$(cat <<EOF
+                        AWS4-HMAC-SHA256
+                        $DATE_AND_TIME
+                        $DATE/$REGION/$AWS_SERVICE/aws4_request
+                        $CANONICAL_REQUEST_HASH
+                        EOF
+                        )
+
+                        # Generate signature
+                        SIGNATURE=$(echo -n "$SIGN_STRING" | openssl dgst -sha256 -mac HMAC -macopt hexkey:$HEX_KEY | awk -F ' ' '{print $2}')
+
+                        # HTTP Request using signature
+                        curl -k --fail-with-body https://${HOSTNAME}${CANONICAL_URI}?lifecycle= \
+                          -X $HTTP_METHOD \
+                          -H "content-md5: $CONTENT_MD5" \
+                          -H "Authorization: AWS4-HMAC-SHA256 Credential=$ACCESS_KEY_ID/$DATE/$REGION/$AWS_SERVICE/aws4_request, SignedHeaders=content-md5;host;x-amz-content-sha256;x-amz-date, Signature=$SIGNATURE" \
+                          -H "x-amz-content-sha256: $CONTENT_SHA256" \
+                          -H "x-amz-date: $DATE_AND_TIME" \
+                          -H "content-type:" \
+                          --data "$LIFECYCLE_CONF"
+                  restartPolicy: Never
+                  terminationGracePeriodSeconds: 30
+                  activeDeadlineSeconds: 300
+                  dnsPolicy: "ClusterFirst"
+  #Delete failing old job
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: lokistack-data-retention-job
+       namespace: ""
+       compliance: NonCompliant
+    ignorePending: true
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-delete-job
+      spec:
+        remediationAction: enforce
+        severity: high
+        evaluationInterval:
+          noncompliant: 30s
+        object-templates:
+          - complianceType: mustnothave
+            objectDefinition:
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: set-data-retention
+                namespace: openshift-logging
+  # Check Job-Set data retention configuration in S3 bucket
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: lokistack-data-retention-job
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: lokistack-data-retention-job-check
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: batch/v1
+            kind: Job
+            metadata:
+              name: set-data-retention
+              namespace: openshift-logging
+            status:
+              conditions:
+                - type: Complete
+                  status: 'True'
+              succeeded: 1
+...

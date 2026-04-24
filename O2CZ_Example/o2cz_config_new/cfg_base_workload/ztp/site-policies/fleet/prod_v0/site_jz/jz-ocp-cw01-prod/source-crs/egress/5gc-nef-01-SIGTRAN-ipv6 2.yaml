@@ -1,0 +1,12 @@
+---
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: 5gc-nef-01-external-ipv6-egressip
+spec:
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: 5gc-nef-01-a-ns
+  egressIPs:
+
+...

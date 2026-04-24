@@ -1,0 +1,43 @@
+---
+apiVersion: aap.ansible.com/v1alpha1
+kind: AnsibleAutomationPlatform
+metadata:
+  name: aap
+  namespace: ansible-automation-platform
+  annotations:
+    argocd.argoproj.io/sync-wave: '5'
+spec:
+  admin_password_secret: "aap-custom-password"
+  bundle_cacert_secret: ca-cert-bundle
+  route_tls_termination_mechanism: Edge
+  no_log: true
+  redis_mode: standalone
+  api:
+    log_level: INFO
+    replicas: 1
+  database:
+    postgres_data_volume_init: false
+    idle_disabled: false
+    resource_requirements:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    storage_requirements:
+      requests:
+        storage: 100Gi
+
+  controller:
+    disabled: false
+
+  eda:
+    disabled: true
+
+  hub:
+    disabled: true
+    ## Using filestorage requires readwritemany
+    # storage_type: file
+    # file_storage_storage_class: {{ .Values.mgmt.portworx.default_storageclass }}
+    # file_storage_size: 10Gi
+    ## Using S3 storage
+    # storage_type: s3
+    # object_storage_s3_secret: aap-s3-storage-secret

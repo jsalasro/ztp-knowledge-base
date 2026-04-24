@@ -1,0 +1,23 @@
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: cwl-base-config-policies
+  namespace: policies
+spec:
+  description: "Policies for base workload clusters configuration"
+  policies: []
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: cwl-components-config
+  namespace: policies
+spec:
+  description: "Policies for workload clusters component configuration"
+  policies:
+    - rhacs-secured-cluster-managed
+    - rhacs-secured-cluster-cert-expiration-check
+    - cwl-compliance-baseline
+    - cwl-odf-external
+...

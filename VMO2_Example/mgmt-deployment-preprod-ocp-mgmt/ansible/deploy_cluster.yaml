@@ -1,0 +1,17 @@
+---
+# ABI Installation tasks
+- name: Create agent ISO and upload it to HPPT server
+  ansible.builtin.import_playbook: playbook_create_iso.yaml
+
+- name: Boot agent ISO in ILOs
+  ansible.builtin.import_playbook: playbook_boot_iso.yaml
+
+- name: Wait for installation to complete
+  ansible.builtin.import_playbook: playbook_wait_install.yaml
+
+- name: Manage Secrets in HashiCorp Vault
+  ansible.builtin.import_playbook: vso_onboarding.yaml
+
+- name: Validated patterns onboarding into OpenSHift cluster
+  ansible.builtin.import_playbook: vpatterns_onboarding.yaml
+...

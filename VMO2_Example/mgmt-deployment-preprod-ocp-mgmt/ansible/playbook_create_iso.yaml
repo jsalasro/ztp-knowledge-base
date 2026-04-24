@@ -1,0 +1,71 @@
+---
+- name: Create agent ISO image following the Agent Based Installer for OpenShift
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: Create install directory
+      ansible.builtin.file:
+        path: "{{ install_dir }}"
+        state: directory
+
+    - name: Create install-config file from inventory
+      ansible.builtin.template:
+        src: templates/install-config.j2
+        dest: "{{ install_dir }}/install-config.yaml"
+        force: true
+
+    - name: Create agent-config file from inventory
+      ansible.builtin.template:
+        src: templates/agent-config.j2
+        dest: "{{ install_dir }}/agent-config.yaml"
+        force: true
+
+    - name: "Backup install-config.yaml and agent-config.yaml in {{ install_dir }}/backup"
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ install_dir }}/backup/"
+      loop:
+        - "{{ install_dir }}/install-config.yaml"
+        - "{{ install_dir }}/agent-config.yaml"
+
+    - name: "Copy extra-manifests to {{ install_dir }}/openshift folder"
+      ansible.builtin.copy:
+        src: extra-manifests/
+        dest: "{{ install_dir }}/openshift/"
+   
+    # openshift-install must be downloaded and added to $PATH
+    # Make sure your openshift-install version is the expected as it will define the OCP cluster version
+    - name: Generating agent ISO
+      environment:
+        OPENSHIFT_INSTALL_OS_IMAGE_OVERRIDE: "{{ rhcos_base_url }}"
+      ansible.builtin.command: "openshift-install --dir={{ install_dir }} agent create image --log-level=debug"
+      register: agent_iso
+
+    - name: DEBUG agent ISO generation
+      ansible.builtin.debug:
+        var: agent_iso.stderr_lines
+
+    - name: "Upload ABI image to the Nexus repository"
+      ansible.builtin.uri:
+        url: "{{ abi_base_url }}" 
+        method: PUT
+        user: "{{ vault_nexus_user }}"
+        password: "{{ vault_nexus_password }}"
+        force_basic_auth: true
+        src: "{{ install_dir }}/agent.x86_64.iso"
+        status_code: [200, 201]
+        validate_certs: "{{ validate_certs_nexus  | default(false) }}"
+        headers:
+          Content-Type: application/x-iso9660-image
+      register: upload_result
+
+    - name: "Check if upload image was sucessfully completed"
+      ansible.builtin.debug:
+        msg: "Upload sucessfully completed to the Nexus repository {{ abi_base_url }}"
+      when: upload_result.status in [200, 201]
+   
+    - name: "Info message"
+      ansible.builtin.debug:
+        msg: "Find the agent ISO ready to be booted in {{ abi_base_url }}"
+...

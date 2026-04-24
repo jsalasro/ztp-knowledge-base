@@ -1,0 +1,301 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: gateway-1-egress-vlan
+spec:
+  nodeSelector: 
+    kubernetes.io/hostname: "DOMAIN_EXAMPLE_61.COM"
+  desiredState:
+    interfaces:
+      - name: bond2.3076
+        type: vlan
+        state: up
+        mtu: 9000
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+          - ip: "IP_ADDRESS_166"
+            prefix-length: 26
+        ipv6:
+          enabled: true
+          dhcp: false
+          address:
+          - ip: "2001:41d8:1:a100:0:24:0:7"
+            prefix-length: 122
+        vlan:
+          base-iface: bond2
+          id: 3076
+      - name: bond2.3077
+        type: vlan
+        state: up
+        mtu: 9000
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+          - ip: "IP_ADDRESS_167"
+            prefix-length: 26
+        ipv6:
+          enabled: true
+          dhcp: false
+          address:
+          - ip: "2001:41d8:1:a100:0:24:0:47"
+            prefix-length: 124
+        vlan:
+          base-iface: bond2
+          id: 3077
+      - name: bond2.3078
+        type: vlan
+        state: up
+        mtu: 1500
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+          - ip: "IP_ADDRESS_168"
+            prefix-length: 26
+        ipv6:
+          enabled: true
+          dhcp: false
+          address:
+          - ip: "2001:41d8:1:a100:0:24:0:87"
+            prefix-length: 124
+        vlan:
+          base-iface: bond2
+          id: 3078         
+    route-rules:
+      config:
+      - ip-to: IP_ADDRESS_169/26
+        priority: 12
+        route-table: 254
+      - ip-to: IP_ADDRESS_170/26
+        priority: 12
+        route-table: 254
+      - ip-to: IP_ADDRESS_94/26
+        priority: 12
+        route-table: 254
+      - ip-to: 2001:41d8:1:a100:0:24:0:0/122
+        priority: 12
+        route-table: 254
+      - ip-to: 2001:41d8:1:a100:0:24:0:40/124
+        priority: 12
+        route-table: 254
+      - ip-to: 2001:41d8:1:a100:0:24:0:80/124
+        priority: 12
+        route-table: 254
+    routes:
+      config:
+      - destination: IP_ADDRESS_53/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_55/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_56/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_57/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_58/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_59/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_60/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_61/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_62/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_63/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_64/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_65/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_66/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_42/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_67/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_68/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_69/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_70/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_71/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_72/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_73/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_74/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_75/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_44/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_76/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      # new routes (10 Oct 2024)
+      - destination: IP_ADDRESS_77/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_78/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_95/24
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_96/28
+        metric: 150
+        next-hop-address: IP_ADDRESS_172
+        next-hop-interface: bond2.3078
+        table-id: 254
+      - destination: IP_ADDRESS_81/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_82/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_83/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_84/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_85/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_86/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_87/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_88/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_89/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_90/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_91/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_92/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+      - destination: IP_ADDRESS_93/28
+        metric: 150
+        next-hop-address: IP_ADDRESS_171
+        next-hop-interface: bond2.3076
+        table-id: 254
+...

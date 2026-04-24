@@ -1,0 +1,15 @@
+---
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: 5gc-ncm-01-oam-egressip-dual
+spec:
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: 5gc-ncm-01-a-ns
+  egressIPs:
+  - IP_ADDRESS_26
+  - IP_ADDRESS_27
+  - 2001:41d8:1:b100:0:24:0:88
+  - 2001:41d8:1:b100:0:24:0:89
+...

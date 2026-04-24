@@ -1,0 +1,15 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: portworx-certified
+  namespace: portworx
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"    
+spec:
+  channel: stable
+  name: portworx-certified
+  source: certified-operator-index
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  sourceNamespace: openshift-marketplace
+  startingCSV: portworx-operator.v25.4.0
+...

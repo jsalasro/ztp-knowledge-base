@@ -1,0 +1,162 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: remove-gateway-0-routes
+spec:
+  nodeSelector: 
+    kubernetes.io/hostname: "DOMAIN_EXAMPLE_47.COM"
+  desiredState:      
+    routes:
+      config:
+      - destination: IP_ADDRESS_53/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_55/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_56/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_57/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_58/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_59/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_60/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_61/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_62/26
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_63/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_64/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_65/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_54
+        next-hop-interface: bond2.3076
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_66/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_42/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_67/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_68/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_69/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_70/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_71/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_72/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_73/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_74/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_75/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_44/27
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+      - destination: IP_ADDRESS_76/32
+        metric: 150
+        next-hop-address: IP_ADDRESS_43
+        next-hop-interface: bond2.3078
+        table-id: 254
+        state: absent
+...

@@ -1,0 +1,93 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Replace SSL certificate for the API service
+  name: cert-api-replace
+  namespace: policies-mano
+spec:
+  disabled: false
+  policy-templates:
+# Create secret with API certificate
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: cert-api-create-secret
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: api-tls
+              namespace: openshift-config
+            data: '{{hub copySecretData "policies-mano" (printf "api-tls-%s" .ManagedClusterName) hub}}'
+# Update API server
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: cert-api-update
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: config.openshift.io/v1
+            kind: APIServer
+            metadata:
+              name: cluster
+            spec:
+                servingCerts:
+                  namedCertificates:
+                  - names:
+                    - api.{{ (lookup "config.openshift.io/v1" "DNS" "" "cluster").spec.baseDomain }}
+                    servingCertificate:
+                      name: api-tls
+#Check API server
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: cert-api-update
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: cert-api-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: config.openshift.io/v1
+            kind: ClusterOperator
+            metadata:
+              name: kube-apiserver
+            status:
+              conditions:
+              - reason: AsExpected
+                status: "False"
+                type: Degraded
+              - reason: AsExpected
+                status: "False"
+                type: Progressing
+              - reason: AsExpected
+                status: "True"
+                type: Available
+              - reason: AsExpected
+                status: "True"
+                type: Upgradeable

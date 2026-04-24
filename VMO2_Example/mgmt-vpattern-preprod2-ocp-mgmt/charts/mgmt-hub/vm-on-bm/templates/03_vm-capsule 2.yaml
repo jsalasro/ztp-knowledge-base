@@ -1,0 +1,110 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  annotations:
+    name.os.template.kubevirt.io/rhel9: Red Hat Enterprise Linux 9.0 or higher
+    argocd.argoproj.io/sync-wave: "20"
+  labels:
+    app: "{{ .Values.mgmt.capsule.app_name }}"
+    flavor.template.kubevirt.io/medium: "true"
+    os.template.kubevirt.io/rhel9.6: "true"
+    workload.template.kubevirt.io/server: "true"
+  name: "{{ .Values.mgmt.capsule.app_name }}"
+  namespace: "{{ .Values.mgmt.apps.ns }}"
+spec:
+  dataVolumeTemplates:
+  - apiVersion: cdi.kubevirt.io/v1alpha1
+    kind: DataVolume
+    metadata:
+      creationTimestamp: null
+      name: "{{ .Values.mgmt.capsule.hostname }}-rootdisk-0"
+    spec:
+      pvc:  #Set acccessModes to RWX and volumeMode to block for live migration and VM pod eviction
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 1000Gi
+        storageClassName: "{{ .Values.mgmt.portworx.default_storageclass }}"
+        volumeMode: Block
+      source:
+        http:
+          certConfigMap: "{{ .Values.mgmt.provisioner.configMapName }}"
+          url: https://{{ .Values.mgmt.capsule.nexus_registry }}/repository/infra/iso/{{ .Values.mgmt.capsule.qcow }}
+        # registry:
+          # secretRef: "{{ .Values.mgmt.apps.imageSourceSecret }}"
+          # url: "{{ .Values.mgmt.apps.imageSourceRegistry }}"
+  running: true
+  template:
+    metadata:
+      labels:
+        flavor.template.kubevirt.io/medium: "true"
+        kubevirt.io/domain: "{{ .Values.mgmt.capsule.domain }}"
+        kubevirt.io/size: large
+        os.template.kubevirt.io/rhel8.8: "true"
+        vm.kubevirt.io/name: "{{ .Values.mgmt.capsule.domain }}"
+        workload.template.kubevirt.io/server: "true"
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: ""
+      domain:
+        firmware:
+          uuid: "{{ .Values.mgmt.capsule.uuid }}"
+        cpu:
+          cores: 4
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+            - bootOrder: 1
+              disk:
+                bus: virtio
+              name: rootdisk
+          interfaces:
+            - bridge: {}
+              model: virtio
+              name: vlan138
+          networkInterfaceMultiqueue: true
+          rng: {}
+        machine:
+          type: pc-q35-rhel9.4.0
+        resources:
+          requests:
+            memory: 16Gi
+      evictionStrategy: LiveMigrate
+      hostname: "{{ .Values.mgmt.capsule.app_name }}"
+      networks:
+        - multus:
+            networkName: "{{ .Values.mgmt.apps.nad_name }}"
+          name: vlan138
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              users:
+                - name: {{ .Values.mgmt.capsule.user }}
+                  ssh_authorized_keys: {{ .Values.mgmt.capsule.ssh_authorized_key }}
+                  sudo: "ALL=(ALL) NOPASSWD:ALL"
+              hostname: {{ .Values.mgmt.capsule.name }}
+              fqdn: {{ .Values.mgmt.capsule.hostname }}
+              prefer_fqdn_over_hostname: true
+              timezone: Europe/London
+            networkData: |
+              version: 2
+              ethernets:
+                eth0:
+                  addresses:
+                  - "{{ .Values.mgmt.capsule.ip }}/{{ .Values.mgmt.apps.subnet_len }}"
+                  gateway4: "{{ .Values.mgmt.apps.subnet_gw }}"
+                  nameservers:
+                    search: [{{ .Values.mgmt.cluster.domain }}]
+                    addresses: [{{ .Values.mgmt.apps.dns_server_ip }}]
+          name: cloudinitdisk
+        - dataVolume:
+            name: "{{ .Values.mgmt.capsule.hostname }}-rootdisk-0"
+          name: rootdisk
+

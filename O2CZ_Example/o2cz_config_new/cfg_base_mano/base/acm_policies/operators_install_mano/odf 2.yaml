@@ -1,0 +1,176 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: ODF Operator Installation
+  name: operator-install-odf
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+#Create namespace
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-namespace
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: openshift-storage
+              labels:
+                openshift.io/cluster-monitoring: "true"
+#Create the operator group, when the namespace is ready
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: odf-namespace
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-operator-group
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1
+            kind: OperatorGroup
+            metadata:
+              name: odf-operator-group
+              namespace: openshift-storage
+            spec:
+              targetNamespaces:
+                - openshift-storage
+#Create the subscription when the operator group is ready
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: odf-operator-group
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-subscription
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: Subscription
+            metadata:
+              name: odf-operator-subs
+              namespace: openshift-storage
+            spec:
+              channel: '{{hub fromConfigMap "policies-mano" "operators-version" "odf-channel" hub}}'
+              installPlanApproval: Manual
+              name: odf-operator
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+              startingCSV: '{{hub fromConfigMap "policies-mano" "operators-version" "odf-startingCSV" hub}}'
+#Approve the Install plan when it has been detected
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: odf-subscription
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-operator-install-plan-approve
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range $installplan := (lookup "operators.coreos.com/v1alpha1" "InstallPlan" "openshift-storage" "").items }}
+            {{- range $installplan.spec.clusterServiceVersionNames }}
+            {{- if eq . "{{hub fromConfigMap "policies-mano" "operators-version" "odf-startingCSV" hub}}" }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: operators.coreos.com/v1alpha1
+                kind: InstallPlan
+                metadata:
+                  namespace: openshift-storage
+                  name: '{{ $installplan.metadata.name }}'
+                spec:
+                  approved: true
+            {{- end }}
+            {{- end }}
+          {{- end }}
+#Check the CSV
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: odf-operator-install-plan-approve
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-operator-csv-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{hub fromConfigMap "policies-mano" "operators-version" "odf-startingCSV" hub}}'
+              namespace: openshift-storage
+            status:
+              phase: Succeeded 
+#Enable ODF console
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: odf-operator-csv-check
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: odf-console-enable
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operator.openshift.io/v1
+            kind: Console
+            metadata:
+              name: cluster
+            spec:
+              plugins:
+              - odf-console
+...

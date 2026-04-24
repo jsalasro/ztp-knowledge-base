@@ -1,0 +1,1086 @@
+{
+  "timestamp": "2026-04-24T18:33:56.183230",
+  "files_processed": [
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/values-hub.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.234.96.64",
+            "placeholder": "IP_ADDRESS_1"
+          },
+          {
+            "original": "10.234.96.65",
+            "placeholder": "IP_ADDRESS_2"
+          },
+          {
+            "original": "158.230.4.112",
+            "placeholder": "IP_ADDRESS_3"
+          },
+          {
+            "original": "10.234.96.66",
+            "placeholder": "IP_ADDRESS_4"
+          },
+          {
+            "original": "10.234.96.34",
+            "placeholder": "IP_ADDRESS_5"
+          },
+          {
+            "original": "10.234.96.98",
+            "placeholder": "IP_ADDRESS_6"
+          },
+          {
+            "original": "10.234.96.35",
+            "placeholder": "IP_ADDRESS_7"
+          },
+          {
+            "original": "10.234.96.99",
+            "placeholder": "IP_ADDRESS_8"
+          },
+          {
+            "original": "10.234.96.36",
+            "placeholder": "IP_ADDRESS_9"
+          },
+          {
+            "original": "10.234.96.100",
+            "placeholder": "IP_ADDRESS_10"
+          },
+          {
+            "original": "10.234.96.37",
+            "placeholder": "IP_ADDRESS_11"
+          },
+          {
+            "original": "10.234.96.101",
+            "placeholder": "IP_ADDRESS_12"
+          }
+        ],
+        "domains": [
+          {
+            "original": "ukytt-t10-pts119.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_1.COM"
+          },
+          {
+            "original": "ukytt-t10-pts125.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_2.COM"
+          },
+          {
+            "original": "ukytt-t10-pts126.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_3.COM"
+          },
+          {
+            "original": "ukytt-t10-pts127.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_4.COM"
+          },
+          {
+            "original": "tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_5.COM"
+          },
+          {
+            "original": "adauth.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_6.COM"
+          },
+          {
+            "original": "uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_7.COM"
+          },
+          {
+            "original": "ukelt-c10-vinf01-hcv03.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_8.COM"
+          },
+          {
+            "original": "example.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_9.COM"
+          },
+          {
+            "original": "nexus.apps.repo02.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_10.COM"
+          },
+          {
+            "original": "preprod2-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_11.COM"
+          },
+          {
+            "original": "capsule.preprod2-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_12.COM"
+          },
+          {
+            "original": "gitlab.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_13.COM"
+          },
+          {
+            "original": "thanos-querier-openshift-monitoring.apps.preprod2-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_14.COM"
+          },
+          {
+            "original": "quay.apps.repo02.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_15.COM"
+          },
+          {
+            "original": "s3-pre-prod2.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_16.COM"
+          },
+          {
+            "original": "quay.apps.preprod2-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_17.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 562
+          }
+        ],
+        "base64_secrets": [
+          {
+            "type": "base64_secret",
+            "placeholder": "BASE64_SECRET_1",
+            "length": 2668
+          },
+          {
+            "type": "base64_secret",
+            "placeholder": "BASE64_SECRET_2",
+            "length": 2236
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:57.924438"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/README.md",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.100.0.101",
+            "placeholder": "IP_ADDRESS_13"
+          },
+          {
+            "original": "10.100.0.132",
+            "placeholder": "IP_ADDRESS_14"
+          },
+          {
+            "original": "10.100.0.133",
+            "placeholder": "IP_ADDRESS_15"
+          },
+          {
+            "original": "10.100.0.134",
+            "placeholder": "IP_ADDRESS_16"
+          },
+          {
+            "original": "10.100.0.137",
+            "placeholder": "IP_ADDRESS_17"
+          },
+          {
+            "original": "10.10.10.1",
+            "placeholder": "IP_ADDRESS_18"
+          },
+          {
+            "original": "10.20.30.40",
+            "placeholder": "IP_ADDRESS_19"
+          },
+          {
+            "original": "10.20.30.50",
+            "placeholder": "IP_ADDRESS_20"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:57.935309"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/charts/mgmt-hub/portworx/templates/px-versions-cm-enterprise.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "3.3.1.3",
+            "placeholder": "IP_ADDRESS_21"
+          },
+          {
+            "original": "3.4.1.0",
+            "placeholder": "IP_ADDRESS_22"
+          },
+          {
+            "original": "3.4.0.1",
+            "placeholder": "IP_ADDRESS_23"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:58.117716"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/letsencrypt/README.md",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "8.8.8.8",
+            "placeholder": "IP_ADDRESS_24"
+          },
+          {
+            "original": "1.1.1.1",
+            "placeholder": "IP_ADDRESS_25"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:58.157397"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/tests/hashicorp-vault-naked.expected.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "127.0.0.1",
+            "placeholder": "IP_ADDRESS_26"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:58.409778"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/ansible/tests/unit/v1/values-secret-empty-secrets.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:59.927805"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/ansible/tests/unit/v1/mcg-values-secret.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:59.928882"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/ansible/tests/unit/v1/template-mcg-working.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:59.929854"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/ansible/tests/unit/v1/values-secret-empty-files.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:59.930673"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/ansible/tests/unit/v1/template-mcg-missing.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:59.931284"
+    },
+    {
+      "file": "mgmt-vpattern-preprod2-ocp-mgmt/common/ansible/tests/unit/v2/values-secret-v2-block-yamlstring.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 368
+          },
+          {
+            "type": "ssh_private_key",
+            "placeholder": "SSH_PRIVATE_KEY_1"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:33:59.945311"
+    },
+    {
+      "file": "aap_day2_ops-preprod-ocp-mgmt/vault_satellite_capsule_install_preprod1.yaml",
+      "type": "ansible_vault",
+      "action": "replaced_with_placeholder",
+      "timestamp": "2026-04-24T18:34:00.049411"
+    },
+    {
+      "file": "aap_day2_ops-preprod-ocp-mgmt/vault_casc_preprod1.yaml",
+      "type": "ansible_vault",
+      "action": "replaced_with_placeholder",
+      "timestamp": "2026-04-24T18:34:00.049845"
+    },
+    {
+      "file": "aap_day2_ops-preprod-ocp-mgmt/README.md",
+      "replacements": {
+        "domains": [
+          {
+            "original": "aap-ansible-automation-platform.apps.preprod1-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_18.COM"
+          },
+          {
+            "original": "capsule.preprod1-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_19.COM"
+          },
+          {
+            "original": "ssatellite02.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_20.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:00.053054"
+    },
+    {
+      "file": "aap_day2_ops-preprod-ocp-mgmt/vault_quay_mirror_preprod1.yaml",
+      "type": "ansible_vault",
+      "action": "replaced_with_placeholder",
+      "timestamp": "2026-04-24T18:34:00.053480"
+    },
+    {
+      "file": "aap_day2_ops-preprod-ocp-mgmt/orgs_vars/Default/env/preprod1/gateway_authenticators.d/gateway_authenticators.yaml",
+      "type": "ansible_vault",
+      "action": "replaced_with_placeholder",
+      "timestamp": "2026-04-24T18:34:00.062936"
+    },
+    {
+      "file": "aap_day2_ops-preprod-ocp-mgmt/build_ee/execution-environment.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "squay02.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_21.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:00.066646"
+    },
+    {
+      "file": "mgmt-vpattern-preprod1-ocp-mgmt/values-hub.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.234.80.64",
+            "placeholder": "IP_ADDRESS_27"
+          },
+          {
+            "original": "10.234.80.65",
+            "placeholder": "IP_ADDRESS_28"
+          },
+          {
+            "original": "10.234.80.66",
+            "placeholder": "IP_ADDRESS_29"
+          },
+          {
+            "original": "10.234.80.34",
+            "placeholder": "IP_ADDRESS_30"
+          },
+          {
+            "original": "10.234.80.98",
+            "placeholder": "IP_ADDRESS_31"
+          },
+          {
+            "original": "10.234.80.35",
+            "placeholder": "IP_ADDRESS_32"
+          },
+          {
+            "original": "10.234.80.99",
+            "placeholder": "IP_ADDRESS_33"
+          },
+          {
+            "original": "10.234.80.36",
+            "placeholder": "IP_ADDRESS_34"
+          },
+          {
+            "original": "10.234.80.100",
+            "placeholder": "IP_ADDRESS_35"
+          },
+          {
+            "original": "10.234.80.37",
+            "placeholder": "IP_ADDRESS_36"
+          },
+          {
+            "original": "10.234.80.101",
+            "placeholder": "IP_ADDRESS_37"
+          }
+        ],
+        "domains": [
+          {
+            "original": "ukbst-t10-pts275.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_22.COM"
+          },
+          {
+            "original": "ukbst-t10-pts276.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_23.COM"
+          },
+          {
+            "original": "ukbst-t10-pts277.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_24.COM"
+          },
+          {
+            "original": "ukbst-t10-pts278.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_25.COM"
+          },
+          {
+            "original": "preprod1-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_26.COM"
+          },
+          {
+            "original": "thanos-querier-openshift-monitoring.apps.preprod1-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_27.COM"
+          },
+          {
+            "original": "s3-pre-prod1.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_28.COM"
+          },
+          {
+            "original": "quay.apps.preprod1-ocp-mgmt.tcpp.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_29.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 562
+          }
+        ],
+        "base64_secrets": [
+          {
+            "type": "base64_secret",
+            "placeholder": "BASE64_SECRET_1",
+            "length": 2668
+          },
+          {
+            "type": "base64_secret",
+            "placeholder": "BASE64_SECRET_2",
+            "length": 2236
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:01.825281"
+    },
+    {
+      "file": "mgmt-vpattern-preprod1-ocp-mgmt/common/ansible/tests/unit/v1/values-secret-empty-secrets.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:03.873721"
+    },
+    {
+      "file": "mgmt-vpattern-preprod1-ocp-mgmt/common/ansible/tests/unit/v1/mcg-values-secret.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:03.874500"
+    },
+    {
+      "file": "mgmt-vpattern-preprod1-ocp-mgmt/common/ansible/tests/unit/v1/template-mcg-working.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:03.875427"
+    },
+    {
+      "file": "mgmt-vpattern-preprod1-ocp-mgmt/common/ansible/tests/unit/v1/values-secret-empty-files.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:03.876105"
+    },
+    {
+      "file": "mgmt-vpattern-preprod1-ocp-mgmt/common/ansible/tests/unit/v1/template-mcg-missing.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 11
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:03.876799"
+    },
+    {
+      "file": "mgmt-vpattern-preprod1-ocp-mgmt/common/ansible/tests/unit/v2/values-secret-v2-block-yamlstring.yaml",
+      "replacements": {
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 368
+          },
+          {
+            "type": "ssh_private_key",
+            "placeholder": "SSH_PRIVATE_KEY_1"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:03.892474"
+    },
+    {
+      "file": "mgmt-deployment-preprod-ocp-mgmt/ansible/playbook_secret_id_renewal.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "ukelt-c10-vinf01-hcv01.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_30.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.005318"
+    },
+    {
+      "file": "mgmt-deployment-preprod-ocp-mgmt/ansible/vso_onboarding.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "192.168.0.140",
+            "placeholder": "IP_ADDRESS_38"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.007039"
+    },
+    {
+      "file": "mgmt-deployment-preprod-ocp-mgmt/ansible/extra-manifests/itms.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "quay.apps.repo04.tccz.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_31.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.035367"
+    },
+    {
+      "file": "mgmt-deployment-preprod-ocp-mgmt/inventory/inventory-preprod2-ocp-mgmt.tcpp.uk.pri.o2.com.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.181.0.0",
+            "placeholder": "IP_ADDRESS_39"
+          },
+          {
+            "original": "10.234.96.0",
+            "placeholder": "IP_ADDRESS_40"
+          },
+          {
+            "original": "10.180.0.0",
+            "placeholder": "IP_ADDRESS_41"
+          },
+          {
+            "original": "10.234.96.2",
+            "placeholder": "IP_ADDRESS_42"
+          },
+          {
+            "original": "10.234.96.3",
+            "placeholder": "IP_ADDRESS_43"
+          },
+          {
+            "original": "10.234.96.4",
+            "placeholder": "IP_ADDRESS_44"
+          },
+          {
+            "original": "158.230.106.56",
+            "placeholder": "IP_ADDRESS_45"
+          },
+          {
+            "original": "10.234.96.1",
+            "placeholder": "IP_ADDRESS_46"
+          },
+          {
+            "original": "10.232.104.239",
+            "placeholder": "IP_ADDRESS_47"
+          },
+          {
+            "original": "10.232.104.171",
+            "placeholder": "IP_ADDRESS_48"
+          },
+          {
+            "original": "10.234.96.5",
+            "placeholder": "IP_ADDRESS_49"
+          },
+          {
+            "original": "10.232.104.172",
+            "placeholder": "IP_ADDRESS_50"
+          },
+          {
+            "original": "10.234.96.6",
+            "placeholder": "IP_ADDRESS_51"
+          },
+          {
+            "original": "10.232.104.173",
+            "placeholder": "IP_ADDRESS_52"
+          },
+          {
+            "original": "10.234.96.7",
+            "placeholder": "IP_ADDRESS_53"
+          }
+        ],
+        "domains": [
+          {
+            "original": "infoblox-primary-sdc-lan1.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_32.COM"
+          },
+          {
+            "original": "infoblox-ha-vip-rcn.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_33.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 552
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.087226"
+    },
+    {
+      "file": "mgmt-deployment-preprod-ocp-mgmt/inventory/vault-preprod2-ocp-mgmt.yaml",
+      "type": "ansible_vault",
+      "action": "replaced_with_placeholder",
+      "timestamp": "2026-04-24T18:34:04.088288"
+    },
+    {
+      "file": "mgmt-deployment-preprod-ocp-mgmt/inventory/vault-preprod1-ocp-mgmt.yaml",
+      "type": "ansible_vault",
+      "action": "replaced_with_placeholder",
+      "timestamp": "2026-04-24T18:34:04.088810"
+    },
+    {
+      "file": "mgmt-deployment-preprod-ocp-mgmt/inventory/inventory-preprod1-ocp-mgmt.tcpp.uk.pri.o2.com.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.234.80.0",
+            "placeholder": "IP_ADDRESS_54"
+          },
+          {
+            "original": "10.234.80.2",
+            "placeholder": "IP_ADDRESS_55"
+          },
+          {
+            "original": "10.234.80.3",
+            "placeholder": "IP_ADDRESS_56"
+          },
+          {
+            "original": "10.234.80.4",
+            "placeholder": "IP_ADDRESS_57"
+          },
+          {
+            "original": "10.234.80.1",
+            "placeholder": "IP_ADDRESS_58"
+          },
+          {
+            "original": "10.232.96.176",
+            "placeholder": "IP_ADDRESS_59"
+          },
+          {
+            "original": "10.232.96.177",
+            "placeholder": "IP_ADDRESS_60"
+          },
+          {
+            "original": "10.234.80.5",
+            "placeholder": "IP_ADDRESS_61"
+          },
+          {
+            "original": "10.232.96.178",
+            "placeholder": "IP_ADDRESS_62"
+          },
+          {
+            "original": "10.234.80.6",
+            "placeholder": "IP_ADDRESS_63"
+          },
+          {
+            "original": "10.232.96.179",
+            "placeholder": "IP_ADDRESS_64"
+          },
+          {
+            "original": "10.234.80.7",
+            "placeholder": "IP_ADDRESS_65"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 552
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.118821"
+    },
+    {
+      "file": "core-ztp-preprod-preprod-ocp-workload/clusters/test1-preprod1/test1-preprod1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.128.0.0",
+            "placeholder": "IP_ADDRESS_66"
+          },
+          {
+            "original": "10.234.80.128",
+            "placeholder": "IP_ADDRESS_67"
+          },
+          {
+            "original": "10.234.80.130",
+            "placeholder": "IP_ADDRESS_68"
+          },
+          {
+            "original": "10.234.80.131",
+            "placeholder": "IP_ADDRESS_69"
+          },
+          {
+            "original": "172.30.0.0",
+            "placeholder": "IP_ADDRESS_70"
+          },
+          {
+            "original": "10.232.96.191",
+            "placeholder": "IP_ADDRESS_71"
+          },
+          {
+            "original": "10.234.80.132",
+            "placeholder": "IP_ADDRESS_72"
+          },
+          {
+            "original": "10.234.80.196",
+            "placeholder": "IP_ADDRESS_73"
+          },
+          {
+            "original": "10.234.80.129",
+            "placeholder": "IP_ADDRESS_74"
+          },
+          {
+            "original": "10.234.80.32",
+            "placeholder": "IP_ADDRESS_75"
+          },
+          {
+            "original": "10.234.80.193",
+            "placeholder": "IP_ADDRESS_76"
+          },
+          {
+            "original": "10.232.96.192",
+            "placeholder": "IP_ADDRESS_77"
+          },
+          {
+            "original": "10.234.80.133",
+            "placeholder": "IP_ADDRESS_78"
+          },
+          {
+            "original": "10.234.80.197",
+            "placeholder": "IP_ADDRESS_79"
+          },
+          {
+            "original": "10.232.96.175",
+            "placeholder": "IP_ADDRESS_80"
+          },
+          {
+            "original": "10.234.80.134",
+            "placeholder": "IP_ADDRESS_81"
+          },
+          {
+            "original": "10.234.80.198",
+            "placeholder": "IP_ADDRESS_82"
+          },
+          {
+            "original": "10.232.96.202",
+            "placeholder": "IP_ADDRESS_83"
+          },
+          {
+            "original": "10.234.80.135",
+            "placeholder": "IP_ADDRESS_84"
+          },
+          {
+            "original": "10.234.80.199",
+            "placeholder": "IP_ADDRESS_85"
+          },
+          {
+            "original": "10.232.96.197",
+            "placeholder": "IP_ADDRESS_86"
+          },
+          {
+            "original": "10.234.80.136",
+            "placeholder": "IP_ADDRESS_87"
+          },
+          {
+            "original": "10.234.80.200",
+            "placeholder": "IP_ADDRESS_88"
+          }
+        ],
+        "domains": [
+          {
+            "original": "ukbst-t10-pts288.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_34.COM"
+          },
+          {
+            "original": "ukbst-t10-pts289.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_35.COM"
+          },
+          {
+            "original": "ukbst-t10-pts290.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_36.COM"
+          },
+          {
+            "original": "ukbst-t10-pts298.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_37.COM"
+          },
+          {
+            "original": "ukbst-t10-pts293.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_38.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 552
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.129905"
+    },
+    {
+      "file": "core-ztp-preprod-preprod-ocp-workload/clusters/test2-preprod1/test2-preprod1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.234.80.144",
+            "placeholder": "IP_ADDRESS_89"
+          },
+          {
+            "original": "10.234.80.146",
+            "placeholder": "IP_ADDRESS_90"
+          },
+          {
+            "original": "10.234.80.147",
+            "placeholder": "IP_ADDRESS_91"
+          },
+          {
+            "original": "10.232.96.199",
+            "placeholder": "IP_ADDRESS_92"
+          },
+          {
+            "original": "10.234.80.148",
+            "placeholder": "IP_ADDRESS_93"
+          },
+          {
+            "original": "10.234.80.244",
+            "placeholder": "IP_ADDRESS_94"
+          },
+          {
+            "original": "10.234.80.145",
+            "placeholder": "IP_ADDRESS_95"
+          },
+          {
+            "original": "10.234.80.240",
+            "placeholder": "IP_ADDRESS_96"
+          },
+          {
+            "original": "10.234.80.241",
+            "placeholder": "IP_ADDRESS_97"
+          },
+          {
+            "original": "10.232.96.203",
+            "placeholder": "IP_ADDRESS_98"
+          },
+          {
+            "original": "10.234.80.149",
+            "placeholder": "IP_ADDRESS_99"
+          },
+          {
+            "original": "10.234.80.245",
+            "placeholder": "IP_ADDRESS_100"
+          },
+          {
+            "original": "10.232.96.204",
+            "placeholder": "IP_ADDRESS_101"
+          },
+          {
+            "original": "10.234.80.150",
+            "placeholder": "IP_ADDRESS_102"
+          },
+          {
+            "original": "10.234.80.246",
+            "placeholder": "IP_ADDRESS_103"
+          },
+          {
+            "original": "10.232.96.205",
+            "placeholder": "IP_ADDRESS_104"
+          },
+          {
+            "original": "10.234.80.151",
+            "placeholder": "IP_ADDRESS_105"
+          },
+          {
+            "original": "10.234.80.247",
+            "placeholder": "IP_ADDRESS_106"
+          },
+          {
+            "original": "10.232.96.206",
+            "placeholder": "IP_ADDRESS_107"
+          },
+          {
+            "original": "10.234.80.152",
+            "placeholder": "IP_ADDRESS_108"
+          },
+          {
+            "original": "10.234.80.248",
+            "placeholder": "IP_ADDRESS_109"
+          }
+        ],
+        "domains": [
+          {
+            "original": "ukbst-t10-pts295.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_39.COM"
+          },
+          {
+            "original": "ukbst-t10-pts299.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_40.COM"
+          },
+          {
+            "original": "ukbst-t10-pts300.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_41.COM"
+          },
+          {
+            "original": "ukbst-t10-pts301.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_42.COM"
+          },
+          {
+            "original": "ukbst-t10-pts302.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_43.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 552
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.136921"
+    },
+    {
+      "file": "core-ztp-preprod-preprod-ocp-workload/policies/resources/site-data.yaml",
+      "replacements": {
+        "base64_secrets": [
+          {
+            "type": "base64_secret",
+            "placeholder": "BASE64_SECRET_1",
+            "length": 2472
+          },
+          {
+            "type": "base64_secret",
+            "placeholder": "BASE64_SECRET_2",
+            "length": 4364
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.714043"
+    },
+    {
+      "file": "core-ztp-preprod-preprod-ocp-workload/policies/v418-20251117/source-crs/NMSTATE/NMstateNNCP.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.234.80.164",
+            "placeholder": "IP_ADDRESS_110"
+          },
+          {
+            "original": "10.234.80.165",
+            "placeholder": "IP_ADDRESS_111"
+          },
+          {
+            "original": "10.234.80.166",
+            "placeholder": "IP_ADDRESS_112"
+          },
+          {
+            "original": "10.234.80.167",
+            "placeholder": "IP_ADDRESS_113"
+          },
+          {
+            "original": "10.234.80.168",
+            "placeholder": "IP_ADDRESS_114"
+          }
+        ],
+        "domains": [
+          {
+            "original": "storage-ukbst-t10-pts288.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_44.COM"
+          },
+          {
+            "original": "storage-ukbst-t10-pts289.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_45.COM"
+          },
+          {
+            "original": "storage-ukbst-t10-pts290.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_46.COM"
+          },
+          {
+            "original": "storage-ukbst-t10-pts298.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_47.COM"
+          },
+          {
+            "original": "storage-ukbst-t10-pts293.uk.pri.o2.com",
+            "placeholder": "DOMAIN_EXAMPLE_48.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:04.763012"
+    }
+  ],
+  "replacements": {},
+  "statistics": {
+    "total_files": 882,
+    "files_sanitized": 29,
+    "ips_replaced": 114,
+    "domains_replaced": 48,
+    "keys_replaced": 20,
+    "vault_files": 6
+  }
+}

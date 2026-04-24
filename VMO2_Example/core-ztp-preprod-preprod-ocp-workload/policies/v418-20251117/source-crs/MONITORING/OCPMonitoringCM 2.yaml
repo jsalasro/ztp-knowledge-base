@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "20"
+data:
+  config.yaml: |
+    # Enable user workload montoring
+    enableUserWorkload: true
+    prometheusK8s:
+      remoteWrite:
+      - url: http://prometheus-kafka-adapter.prom-kafka-adapter.svc.cluster.local:8080/receive
+      # Keep data stored for 7 days
+      retention: 7d
+      volumeClaimTemplate:
+        spec:
+          storageClassName: {{hub fromConfigMap "ztp-policy" "site-data" (printf "default-storageClass") hub}}
+          resources:
+            requests:
+              storage: 150Gi
+    alertmanagerMain:
+      #retention: 7d
+      volumeClaimTemplate:
+        spec:
+          storageClassName: {{hub fromConfigMap "ztp-policy" "site-data" (printf "default-storageClass") hub}}
+          resources:
+            requests:
+              storage: 150Gi

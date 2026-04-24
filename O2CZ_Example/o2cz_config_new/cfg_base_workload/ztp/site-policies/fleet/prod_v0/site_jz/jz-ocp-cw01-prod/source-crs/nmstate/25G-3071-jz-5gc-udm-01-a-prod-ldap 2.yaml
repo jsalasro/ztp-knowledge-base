@@ -1,0 +1,19 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: jz-5gc-udm-01-a-prod-ldap
+spec:
+  desiredState:
+    interfaces:
+      - description: jz-5gc-udm-01-a-prod-ldap vlan sub-interface
+        mtu: 9000
+        name: bond2.3071
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond2
+          id: 3071
+  nodeSelector:
+    node-role.kubernetes.io/appworker25g: ""
+...

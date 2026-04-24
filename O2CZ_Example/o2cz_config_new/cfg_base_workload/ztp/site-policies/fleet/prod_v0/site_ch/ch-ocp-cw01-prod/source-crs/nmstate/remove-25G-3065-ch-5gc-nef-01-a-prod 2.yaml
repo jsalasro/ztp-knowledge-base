@@ -1,0 +1,19 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: remove-vlan-3065-ch-5gc-nef-01-a-prod
+spec:
+  desiredState:
+    interfaces:
+      - description: ch-5gc-nef-01-a-prod vlan sub-interface
+        mtu: 9000
+        name: bond2.3065
+        state: absent
+        type: vlan
+        vlan:
+          base-iface: bond2
+          id: 3065
+  nodeSelector:
+    node-role.kubernetes.io/appworker25g: ""
+...

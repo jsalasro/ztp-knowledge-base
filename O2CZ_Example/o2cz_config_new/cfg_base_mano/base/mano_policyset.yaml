@@ -1,0 +1,108 @@
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: mano-base-config-policies
+  namespace: policies-mano
+spec:
+  description: "Policies for base cluster configuration"
+  policies:
+    - etcd-encryption
+    - master-schedulable
+    - kubelet-custom
+    - cert-ingress-replace
+    - cert-api-replace
+    - etcd-backup
+    - machine-configs
+    - authentication-oauth-config
+    - restrict-users
+    - cert-expiration-check
+    - proxy-configuration
+    - update-kubeconfig-ca
+    - active-management-validation
+    - console-customization
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: mano-base-operator-policies
+  namespace: policies-mano
+spec:
+  description: "Policies for MANO operator deployment"
+  policies:
+    - operator-install-aap
+    - operator-install-acm
+    - operator-install-amq
+    - operator-install-compliance
+    - operator-install-gitops
+    - operator-install-logging
+    - operator-install-loki
+    - operator-install-lso
+    - operator-install-odf
+    - operator-install-quay
+    - operator-install-rhacs
+    - operator-install-talm
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: mano-components-config
+  namespace: policies-mano
+spec:
+  description: "Policies for MANO component configuration"
+  policies:
+    - odf-internal
+    - acm-mch
+    - acm-oadp-prerequisites
+    - rhacs-central
+    - rhacs-bundle-init
+    - rhacs-secured-cluster
+    - rhacs-central-backup
+    - compliance-baseline
+    - quay-registry
+    - kafka-configuration
+    - monitoring-configuration
+    - logging-lokistack
+    - logging-clusterlogging
+    - logging-forward
+    - gitops-argocd-instance
+    # ZTP functionality setup
+    - ztp-setup-acm-cim
+    - ztp-setup-base-settings
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: mano-active-config
+  namespace: policies-mano
+spec:
+  description: "Policies for MANO component configuration on the active cluster"
+  policies:
+    - acm-oadp-backup-schedule
+    # ZTP functionality setup
+    - ztp-setup-active-preparation
+    - ztp-setup-cwl-config-remediation
+    - ztp-setup-util-config-remediation
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: mano-standby-config
+  namespace: policies-mano
+spec:
+  description: "Policies for MANO component configuration on the standby cluster"
+  policies:
+    - acm-oadp-restore-schedule
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: cwl-cluster-upgrade-management
+  namespace: policies-mano
+spec:
+  description: "Policies for CWL version upgrade mgmt"
+  policies:
+    - cluster-upgrade-cwl-trigger-cgu
+    - cluster-upgrade-cwl-version-check
+    - cluster-upgrade-healthcheck
+...

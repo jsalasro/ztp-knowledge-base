@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-manager-ingress-custom-certs
+  namespace: openshift-ingress
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  commonName: '*.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}' 
+  dnsNames:
+  - '*.apps.{{ .Values.mgmt.cluster.name }}.{{ .Values.mgmt.cluster.domain }}'
+  isCA: false
+  issuerRef:
+    kind: ClusterIssuer
+    name: intermediate-ca-issuer
+  secretName: cert-manager-ingress-custom-certs
+  duration: 8760h  # 365 days * 24 hours = 8760 hours (1 year)
+  renewBefore: 720h  # 30 days * 24 hours = 720 hours (renew 30 days before expiry)

@@ -1,0 +1,81 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: approve-installplan
+  namespace: cert-manager-operator
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: approve-installplan
+  namespace: cert-manager-operator
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: approve-installplan
+  namespace: cert-manager-operator
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: approve-installplan
+subjects:
+- kind: ServiceAccount
+  name: approve-installplan
+  namespace: cert-manager-operator
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: approve-installplan-cert-manager
+  namespace: cert-manager-operator
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  completions: 1
+  backoffLimit: 5
+  template:
+    metadata:
+      name: approve-installplan-cert-manager
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - -x
+        - -c
+        - |
+          sleep 45
+          IP=$(oc get installplan -n $NAMESPACE -o json | jq --arg csv_versions "$VERSION" -r '
+              ($csv_versions | split(",") | sort) as $versions |
+              .items
+              | map(select(.spec.approved == false and ((.spec.clusterServiceVersionNames | sort) == $versions)))
+              | sort_by(.metadata.creationTimestamp)
+              | .[0].metadata.name')
+          if [[ "$IP" != "null" ]]; then
+            oc patch installplan -n $NAMESPACE $IP --type merge --patch '{"spec":{"approved": true}}'
+            exit $?
+          fi
+          exit 1
+        env:
+        - name: NAMESPACE
+          value: cert-manager-operator
+        - name: VERSION
+          value: cert-manager-operator.v1.15.1
+        image: registry.redhat.io/openshift4/ose-tools-rhel8@sha256:f1dacdae26a698e1ef485071e486c7b4c417988277043253826ee9442556549d
+        name: job
+        resources: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccountName: approve-installplan
+...

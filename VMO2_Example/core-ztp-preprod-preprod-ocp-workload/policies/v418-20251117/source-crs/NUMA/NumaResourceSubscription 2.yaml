@@ -1,0 +1,18 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: numaresources-operator
+  namespace: openshift-numaresources
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  channel: "4.18"
+  name: numaresources-operator
+  source: redhat-operator-index
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  startingCSV: numaresources-operator.v4.18.1
+#status:
+#  state: AtLatestKnown
+...

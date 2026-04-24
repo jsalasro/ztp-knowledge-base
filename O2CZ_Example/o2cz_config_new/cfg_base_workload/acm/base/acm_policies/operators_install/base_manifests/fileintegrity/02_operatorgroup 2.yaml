@@ -1,0 +1,8 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: fileintegrity-operator-group
+  namespace: openshift-file-integrity
+spec: {}
+...

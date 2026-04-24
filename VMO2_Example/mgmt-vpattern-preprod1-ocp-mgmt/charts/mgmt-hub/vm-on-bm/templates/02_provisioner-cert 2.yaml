@@ -1,0 +1,10 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: "{{ .Values.mgmt.provisioner.configMapName }}"
+  namespace: "{{ .Values.mgmt.apps.ns }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+data:
+  ca.crt: |
+{{ .Values.mgmt.provisioner.caCert | b64dec | indent 4 }}

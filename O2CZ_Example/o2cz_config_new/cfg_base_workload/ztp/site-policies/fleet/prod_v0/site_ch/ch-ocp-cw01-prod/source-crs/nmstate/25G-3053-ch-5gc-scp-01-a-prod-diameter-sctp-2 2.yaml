@@ -1,0 +1,19 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: ch-5gc-scp-01-a-prod-diameter-sctp-2
+spec:
+  desiredState:
+    interfaces:
+      - description: ch-5gc-scp-01-a-prod-diameter-sctp-2 vlan sub-interface
+        mtu: 9000
+        name: bond2.3053
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond2
+          id: 3053
+  nodeSelector:
+    node-role.kubernetes.io/appworker25g: ""
+...

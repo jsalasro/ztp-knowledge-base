@@ -1,0 +1,334 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure Kafka form MANO
+  name: kafka-configuration
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  # Check for kafka prerequisites
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-prerequisites
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        # Check for AMQ operator installed
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{hub fromConfigMap "policies-mano" "operators-version" "amq-startingCSV" hub}}'
+              namespace: amq-streams-kafka
+            status:
+              phase: Succeeded
+        # Check for ODF block stroage class ready
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: ocs-storagecluster-ceph-rbd
+              annotations:
+                storageclass.kubernetes.io/is-default-class: "true"                
+            provisioner: openshift-storage.rbd.csi.ceph.com
+  # Create namespace
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-cluster-namespace
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: kafka-cluster
+  # Create kafka instance
+  - extraDependencies:
+    - apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      name: kafka-prerequisites
+      namespace: ""
+      compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-cluster
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: mustonlyhave
+          objectDefinition:
+            apiVersion: kafka.strimzi.io/v1beta2
+            kind: Kafka
+            metadata:
+              name: kafka-mano
+              namespace: kafka-cluster
+            spec:
+              kafka:
+                config:
+                  # topics can't be auto-created.
+                  default.replication.factor: 1
+                  auto.create.topics.enable: false
+                  offsets.topic.replication.factor: 1
+                  transaction.state.log.replication.factor: 1
+                  transaction.state.log.min.isr: 1
+                  min.insync.replicas: 1
+                  inter.broker.protocol.version: '3.6'
+                  message.max.bytes: 369295618
+                storage:
+                  volumes:
+                    - class: ocs-storagecluster-ceph-rbd
+                      deleteClaim: true
+                      id: 0
+                      size: '1000Gi'
+                      type: persistent-claim
+                  type: jbod
+                listeners:
+                  - name: plain
+                    port: 9092
+                    tls: false
+                    type: internal
+                  - name: tls
+                    port: 9093
+                    tls: true
+                    type: internal
+                  - name: external
+                    port: 9094
+                    tls: true
+                    type: route
+                replicas: 3
+                version: 3.6.0
+              entityOperator:
+                topicOperator: {}
+                userOperator: {}
+              zookeeper:
+                storage:
+                  class: ocs-storagecluster-ceph-rbd
+                  deleteClaim: true
+                  size: '40Gi'
+                  type: persistent-claim
+                replicas: 3
+  # Check for Kafka cluster readiness
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-cluster-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: kafka.strimzi.io/v1beta2
+            kind: Kafka
+            metadata:
+              name: kafka-mano
+              namespace: kafka-cluster
+            status:
+              conditions:
+              - type: Ready
+                status: "True"
+  # Create kafka topics
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: kafka-cluster-check
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-topics-create
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "").items }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  labels:
+                    strimzi.io/cluster: kafka-mano
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-ocp-metrics {{- else }} {{ .metadata.name }}-ocp-metrics {{- end }}
+                  namespace: kafka-cluster
+                spec:
+                  config:
+                    retention.ms: 600000
+                  partitions: 3
+                  replicas: 3
+                  topicName: {{- if eq .metadata.name "local-cluster" }} mano-ocp-metrics {{- else }} {{ .metadata.name }}-ocp-metrics {{- end }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  labels:
+                    strimzi.io/cluster: kafka-mano
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-infra-logs {{- else }} {{ .metadata.name }}-infra-logs {{- end }}
+                  namespace: kafka-cluster
+                spec:
+                  config:
+                    retention.ms: 600000
+                  partitions: 3
+                  replicas: 3
+                  topicName: {{- if eq .metadata.name "local-cluster" }} mano-infra-logs {{- else }} {{ .metadata.name }}-infra-logs {{- end }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  labels:
+                    strimzi.io/cluster: kafka-mano
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-audit-logs {{- else }} {{ .metadata.name }}-audit-logs {{- end }}
+                  namespace: kafka-cluster
+                spec:
+                  config:
+                    retention.ms: 600000
+                  partitions: 3
+                  replicas: 3
+                  topicName: {{- if eq .metadata.name "local-cluster" }} mano-audit-logs {{- else }} {{ .metadata.name }}-audit-logs {{- end }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  labels:
+                    strimzi.io/cluster: kafka-mano
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-app-logs {{- else }} {{ .metadata.name }}-app-logs {{- end }}
+                  namespace: kafka-cluster
+                spec:
+                  config:
+                    retention.ms: 600000
+                  partitions: 3
+                  replicas: 3
+                  topicName: {{- if eq .metadata.name "local-cluster" }} mano-app-logs {{- else }} {{ .metadata.name }}-app-logs {{- end }}
+          {{- end }}
+  # Check topics
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-topics-ready
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates-raw: |
+          {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "").items }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-ocp-metrics {{- else }} {{ .metadata.name }}-ocp-metrics {{- end }}
+                  namespace: kafka-cluster
+                status:
+                  conditions:
+                  - type: Ready
+                    status: "True"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-infra-logs {{- else }} {{ .metadata.name }}-infra-logs {{- end }}
+                  namespace: kafka-cluster
+                status:
+                  conditions:
+                  - type: Ready
+                    status: "True"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-audit-logs {{- else }} {{ .metadata.name }}-audit-logs {{- end }}
+                  namespace: kafka-cluster
+                status:
+                  conditions:
+                  - type: Ready
+                    status: "True"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: kafka.strimzi.io/v1beta2
+                kind: KafkaTopic
+                metadata:
+                  name: {{- if eq .metadata.name "local-cluster" }} mano-app-logs {{- else }} {{ .metadata.name }}-app-logs {{- end }}
+                  namespace: kafka-cluster
+                status:
+                  conditions:
+                  - type: Ready
+                    status: "True"
+          {{- end }}
+  # Render kafka certificates secret for workload
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-copy-certificates
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            data: 
+              ca-bundle.crt: '{{ fromSecret "kafka-cluster" "kafka-mano-cluster-ca-cert" "ca.crt" }}'
+              tls.crt: '{{ fromSecret "kafka-cluster" "kafka-mano-clients-ca-cert" "ca.crt" }}'
+              tls.key: '{{ fromSecret "kafka-cluster" "kafka-mano-clients-ca" "ca.key" }}'
+            kind: Secret
+            metadata:
+              name: kafka-certs-mano
+              namespace: "policies-mano"
+            type: Opaque
+  # Render external access route for Kafka cluster
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: kafka-copy-route
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            data: 
+              url: '{{ (lookup "route.openshift.io/v1" "Route" "kafka-cluster" "kafka-mano-kafka-bootstrap").spec.host }}'
+            kind: ConfigMap
+            metadata:
+              name: kafka-cluster-info
+              namespace: "policies-mano"
+...
+

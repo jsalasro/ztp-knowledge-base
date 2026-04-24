@@ -1,0 +1,38 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Check workload cluster taget version is compliant with the running version
+  name: cluster-upgrade-cwl-version-check
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+    # Check workload version
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: cluster-upgrade-cwl-version-mismatch
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates-raw: |
+            {{- range (lookup "cluster.open-cluster-management.io/v1" "ManagedCluster" "" "" "cluster_type=cwl").items }}
+            {{- $current_version := .metadata.labels.openshiftVersion }}
+            {{- $target_version := default $current_version .metadata.labels.openshiftTargetVersion }}
+            {{- if ne $current_version $target_version }}
+            - complianceType: mustnothave
+              objectDefinition:
+                apiVersion: cluster.open-cluster-management.io/v1
+                kind: ManagedCluster
+                metadata:
+                  name: {{ .metadata.name }}
+            {{- end }}
+            {{- end }}
+...

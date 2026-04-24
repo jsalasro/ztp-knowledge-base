@@ -1,0 +1,30 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: storage-network-vlan-a3-worker-016
+spec:
+  desiredState:
+    interfaces:
+      - description: storage vlan sub-interface
+        mtu: 9000
+        name: bond0.1221
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond0
+          id: 1221
+        ipv4:
+          address:
+          - ip: IP_ADDRESS_175
+            prefix-length: 24
+          enabled: true
+    routes:
+       config:
+         - destination: IP_ADDRESS_152/24
+           next-hop-address: IP_ADDRESS_153
+           next-hop-interface: bond0.1221
+           table-id: 254
+  nodeSelector:
+    kubernetes.io/hostname: "DOMAIN_EXAMPLE_56.COM"
+...

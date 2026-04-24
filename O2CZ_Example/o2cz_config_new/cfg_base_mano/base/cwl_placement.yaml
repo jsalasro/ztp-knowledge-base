@@ -1,0 +1,15 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1 
+kind: Placement
+metadata:
+  name: cwl-placement
+  namespace: policies-mano
+spec:
+  clusterSets:
+    - cwl-clusters
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            gitops_acm_config: Active
+...

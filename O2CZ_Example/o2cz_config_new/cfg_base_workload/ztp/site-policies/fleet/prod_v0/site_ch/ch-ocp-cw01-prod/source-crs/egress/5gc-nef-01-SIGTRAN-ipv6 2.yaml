@@ -1,0 +1,23 @@
+---
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: 5gc-nef-01-external-ipv6-egressip
+spec:
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: 5gc-nef-01-a-ns
+  podSelector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - nrf-management
+      - nrf-discovery
+      - sbaproxy
+      - daco
+      - charging
+  egressIPs:
+  - 2001:41d8:1:b100:0:24:0:10
+  - 2001:41d8:1:b100:0:24:0:11
+...

@@ -1,0 +1,9 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  name: TBD
+  namespace: TBD
+status:
+  phase: Succeeded
+...

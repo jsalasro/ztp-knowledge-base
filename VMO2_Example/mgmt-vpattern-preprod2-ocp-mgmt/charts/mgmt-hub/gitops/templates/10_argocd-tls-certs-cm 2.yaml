@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: argocd-tls-certs-cm
+  namespace: {{ .Values.mgmt.gitops.ztp_instance_ns }}
+  labels:
+    app.kubernetes.io/name: argocd-tls-certs-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  {{ .Values.mgmt.gitops.caCerts.gitlabHost }}: |-
+{{ .Values.mgmt.gitops.caCerts.certificate_b64 | b64dec | indent 4 }}

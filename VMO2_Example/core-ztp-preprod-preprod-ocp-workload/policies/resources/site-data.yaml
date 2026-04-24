@@ -1,0 +1,48 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: site-data
+  namespace: ztp-policy
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
+data:
+  ########################################################
+  # Global vars
+  ########################################################
+  mgmt-name: preprod1-ocp-mgmt
+  mgmt-domain: DOMAIN_EXAMPLE_5.COM
+  preprod1-registry: "DOMAIN_EXAMPLE_29.COM"
+  install-plan-approval: Manual
+
+  url: DOMAIN_EXAMPLE_6.COM
+  bind_dn: TCsvcPP1-rhoc-ldap@DOMAIN_EXAMPLE_7.COM
+  groups_base_dn: OU=Global Secure Groups,OU=Secure Groups,DC=uk,DC=pri,DC=o2,DC=com
+  users_base_dn: DC=uk,DC=pri,DC=o2,DC=com
+  group_membership: '%28%7C%28memberOf%3DCN%3Dg-telco-mds13-admin%2COU%3DGlobal%20Secure%20Groups%2COU%3DSecure%20Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-TelcoCloud-CoreInfra-Admins%2COU%3DGlobal%20Secure%20Groups%2COU%3DSecure%20Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-TelcoCloud-Support-Infra%2COU%3DGlobal%20Secure%20Groups%2COU%3DSecure%20Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-telco-redhat-supplier%2COU%3DGlobal%20Secure%20Groups%2COU%3DSecure%20Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-telcocloud-ICEDAuto%2COU%3DGlobal%20Secure%20Groups%2COU%3DSecure%20Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%28memberOf%3DCN%3Dg-telco-wwt-supplier%2COU%3DGlobal%20Secure%20Groups%2COU%3DSecure%20Groups%2CDC%3Duk%2CDC%3Dpri%2CDC%3Do2%2CDC%3Dcom%29%29'
+
+  default-storageClass: px-fa-direct-access-portworx 
+  portworx-image: DOMAIN_EXAMPLE_29.COM/ocp/rhel9/support-tools:latest
+  portworx-customImageRegistry: DOMAIN_EXAMPLE_29.COM/portworx
+  
+  kafka1-ca: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZMVENDQXhXZ0F3SUJBZ0lVUnExR2k5T20zL0licXo2WmEvZVVHN1ZaWHhZd0RRWUpLb1pJaHZjTkFRRU4KQlFBd0xURVRNQkVHQTFVRUNnd0thVzh1YzNSeWFXMTZhVEVXTUJRR0ExVUVBd3dOWTJ4MWMzUmxjaTFqWVNCMgpNREFlRncweU5URXlNVGN5TXpFd01ERmFGdzB5TmpFeU1UY3lNekV3TURGYU1DMHhFekFSQmdOVkJBb01DbWx2CkxuTjBjbWx0ZW1reEZqQVVCZ05WQkFNTURXTnNkWE4wWlhJdFkyRWdkakF3Z2dJaU1BMEdDU3FHU0liM0RRRUIKQVFVQUE0SUNEd0F3Z2dJS0FvSUNBUUNxTUNPZElaR0N5U3RNUVhCL0VEajNIUkx3aEF1b0E5UEkyUjFHeHNpZwpxdlU3QjZrSjV1WVM2SkFrd09VdE5ZL3Ryemk5KzVQTlNZclF5MmI1Y05ZZDNOYjJ5STZXcm93OXNWenBoTmRnCk5NVmFpTDE3cFN3K3NCK0ZJZzVEMlVERUlqaEtOQWNBY1J4eW9Ta25oZzNQL0JBYjdZbmRVNUF1dmMwcXBYckYKMkpzd0JEVFlDN1FSWUlZSE1OQUlGNklLZDRkaTV4U1kzZmV6d3VYNlFFVnZkVjcvWkZ6clZpTnJmK1lOYXVpRwpERUlnQUNzQ2cxQXg3U2gyZ09OVDI1QUtLcTZtRGs3azdIZnlZdW1ybGdzSmlQWUhPY21tczI1aFhwN01xYmpuCktUK2tUTWJUS0s2Q2ExYm94SDJwNFk0c2FqeTZjVlNJd2IvNHd4dFNyU2l0eTQrUDJIWmNwMVFFa0IwVUxndWYKOUs2UXZvWnFmb3YzWnZCV1NUZHgxSGVCTmxZNEI3R2lwQS9aM3RwNFRDNGhGYVBjYXlqVG5vOG92dmhuWHloNApZYUliZFBoL0E4Q3I2dG52TjFkNGZySlkwRlg5K1ZUckNoWlFNOGFhVXBoR3U3VmQ4UlpiY29HT3dsQzQwekt5CjhPeSs0M3doY0dINGxEU3B4K2U3RFBtSTJvUmM4RWNMejlMRDdYREpWdTN0Q2J3eXVyWERJRFJPNmxFY29oZVgKU3ZXdGIwVm15M0FQSTAvczh4eTVYUC9XWHE4MTJ4OEozUDdLVzFUM2gzb25YbW05cXBEMThHL3Fqa0dlV1hlNApFS0QxejhDOFVUc0V6YWtUNVhCaC9Xa09JOWZ4d1R3UjhkZDN1ZTRKY0xMMVhlUEdsRGJnSGgwV0wwU3g1elZMCjZ3SURBUUFCbzBVd1F6QWRCZ05WSFE0RUZnUVUwbHY0ZFBVMkxuUXlKQUgxcGFoTXhyajhWN2N3RWdZRFZSMFQKQVFIL0JBZ3dCZ0VCL3dJQkFEQU9CZ05WSFE4QkFmOEVCQU1DQVFZd0RRWUpLb1pJaHZjTkFRRU5CUUFEZ2dJQgpBRnNXTUZRRHFNY1RuS29Wa0g4UDM4eldpdEhpV21NcTlFMmtBeUdJREo5SjJVVHNGVWVERDMwNWlaVGhNTjlyClQzTi8rdUxOR3VKMGhKcGRPY3ZuY0huOFRQenhzdEJsTnIyUU9pWlkveXRkcHBJdDcwWXVWR0NOK2ozcWNlK2kKcDJ3NUlWRThhZE45MUV6ckVmK2NsSzIraTlpMjQyRFlsNHNDU3NZM2IxVFUrelNXcHpWeGVxWmt3U3llZkxHaQpWWnlNdmVrMzA2ZDZRR3FHcms3RldSWk9VSDJscGd2YlRUanFKTndkOUQxSXJ3ZVZYTVpKYU1GcW04QjExVjVPCktUOXZZdndUcE90KzhQKzlTT0ZybFpaQllPWHcvTk5Kc1c4d25hd1hSZGNNWHdZdkt3ZC9iakhNZ1IzQlFIQUQKUG9lOGtaNS81NUZvMjd2Uk52S1JsT0dZU3BQSmxoMzhKU2l4d1BBYTZINnltMlVWN2xnOHVvRFhwK1huRnlkSApFK2wrREpMd3lTdy9PTnZVTFdLUkN2bW96L0c3bjBndUVidmN2WUZxYUN4eDRCQjduVmovajdHc1kxTm9JNVcwCnMvR0VIK1A2WTRSaVdjY0psMnRZSTBOM2dXdUdieTVhTVo0WlNFT2ZYdUxwRWZkRS9mRElnczVRR3NaWUQ0V3AKM2FicjExa2thQ3lBZVlXM3VrTTM3aXl6QTJaWEhJRm8xek5WNE1QNk9XelJZMnY4ZVp2dERVb3pBNzJ2eDIrVQpHNjY4bVloNUYwVVpnY1BvVFgrRXhZNFlRSFFOeXJmL1dTREI3UkpWZFRodXVSdGlUbEFlVDNKMWgvK3VoRTF3CjBLTy8reWZNTlRwWmVMR3pQQWw2bmY0cHBYY0IzVGUvKzFHaHp2Wk8wNS95Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=
+  kafka1-cert: BASE64_SECRET_1
+  kafka1-key: BASE64_SECRET_2
+
+  ########################################################
+  # TEST1-PREPROD1 vars
+  ########################################################
+  test1-preprod1-clusterName: test1-preprod1
+  test1-preprod1-clusterDomain: DOMAIN_EXAMPLE_5.COM
+
+  test1-preprod1-portworx-base_iscsiIQN: iqn.2025-09.com.o2.pri.uk.tcpp.test1-preprod1
+  test1-preprod1-portword-pure_fa_pod_name: pod1-test1
+
+  ########################################################
+  # TEST2-PREPROD1 vars
+  ########################################################
+  test2-preprod1-clusterName: test2-preprod1
+  test2-preprod1-clusterDomain: DOMAIN_EXAMPLE_5.COM
+
+  test2-preprod1-portworx-base_iscsiIQN: iqn.2026-03.com.o2.pri.uk.tcpp.preprod1-test2
+  test2-preprod1-portword-pure_fa_pod_name: pod1-test2

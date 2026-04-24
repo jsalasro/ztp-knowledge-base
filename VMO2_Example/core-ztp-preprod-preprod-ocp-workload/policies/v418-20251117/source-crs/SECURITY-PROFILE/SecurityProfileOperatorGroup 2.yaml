@@ -1,0 +1,11 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: security-profiles-operator
+  namespace: openshift-security-profiles
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  upgradeStrategy: Default
+...

@@ -1,0 +1,409 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure monitoring stack and kafka adapter
+  name: monitoring-configuration
+  namespace: policies
+spec:
+  evaluationInterval:
+    compliant: 5m
+    noncompliant: 20s
+  disabled: false
+  policy-templates:
+  # Check for monitoring prerequisites
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-prerequisites
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        # Check for ODF Object storage ready
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: openshift-storage.noobaa.io
+              annotations:
+                description: Provides Object Bucket Claims (OBCs)
+            provisioner: openshift-storage.noobaa.io/obc
+            parameters:
+              bucketclass: noobaa-default-bucket-class
+        # Check for ODF block storage class ready
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: storage.k8s.io/v1
+            kind: StorageClass
+            metadata:
+              name: '{{ if eq (fromClusterClaim "name") "local-cluster" -}} ocs-storagecluster-ceph-rbd {{- else -}} ocs-external-storagecluster-ceph-rbd {{- end }}'
+              annotations:
+                storageclass.kubernetes.io/is-default-class: "true"                
+            provisioner: openshift-storage.rbd.csi.ceph.com
+  # Configure monitoring
+  - extraDependencies:
+      - name: monitoring-prerequisites
+        namespace: ""
+        apiVersion: policy.open-cluster-management.io/v1
+        compliance: Compliant
+        kind: ConfigurationPolicy
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-config-map
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: cluster-monitoring-config
+              namespace: openshift-monitoring
+            data:
+              config.yaml: |
+                enableUserWorkload: true
+                prometheusK8s:
+                  remoteWrite:
+                    - url: "http://kafka-adapter-svc.prom-kafka-adapter.svc.cluster.local:8080/receive"
+                  retention: 1d
+                  volumeClaimTemplate:
+                    spec:
+                      storageClassName: {{- if eq (fromClusterClaim "name") "local-cluster" }} ocs-storagecluster-ceph-rbd {{- else }} ocs-external-storagecluster-ceph-rbd {{- end }}
+                      resources:
+                        requests:
+                          storage: {{- if eq (fromClusterClaim "name") "local-cluster" }} 20Gi {{- else }} 100Gi {{- end }}
+                alertmanagerMain:
+                  retention: 1d
+                  volumeClaimTemplate:
+                    spec:
+                      storageClassName: {{- if eq (fromClusterClaim "name") "local-cluster" }} ocs-storagecluster-ceph-rbd {{- else }} ocs-external-storagecluster-ceph-rbd {{- end }}
+                      resources:
+                        requests:
+                          storage: 20Gi
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: user-workload-monitoring-config
+              namespace: openshift-user-workload-monitoring
+            data:
+              config.yaml: |
+                prometheus:
+                  retention: 1d
+                  volumeClaimTemplate:
+                    spec:
+                      storageClassName: {{- if eq (fromClusterClaim "name") "local-cluster" }} ocs-storagecluster-ceph-rbd {{- else }} ocs-external-storagecluster-ceph-rbd {{- end }}
+                      resources:
+                        requests:
+                          storage: {{- if eq (fromClusterClaim "name") "local-cluster" }} 20Gi {{- else }} 200Gi {{- end }}
+                  enforcedSampleLimit: 50000
+                thanosRuler:
+                  retention: 1d
+                  volumeClaimTemplate:
+                    spec:
+                      storageClassName: {{- if eq (fromClusterClaim "name") "local-cluster" }} ocs-storagecluster-ceph-rbd {{- else }} ocs-external-storagecluster-ceph-rbd {{- end }}
+                      resources:
+                        requests:
+                          storage: {{- if eq (fromClusterClaim "name") "local-cluster" }} 20Gi {{- else }} 50Gi {{- end }}
+  # Create namespace for kafka adapter
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-kafka-adapter-ns
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: prom-kafka-adapter
+  # Render Kafka secret to cwl
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-create-kafka-certs-cm
+      spec:
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- if ne (fromClusterClaim "name") "local-cluster"}}
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: kafka-certs
+                namespace: prom-kafka-adapter
+              data:
+                ca-bundle.crt: |
+                  {{ print "{{hub fromSecret "policies-mano" "kafka-certs-mano" "ca-bundle.crt" hub}}" |base64dec | autoindent }}
+                tls.crt: |
+                  {{ print "{{hub fromSecret "policies-mano" "kafka-certs-mano" "tls.crt" hub}}" |base64dec | autoindent }}
+                tls.key: |
+                  {{ print "{{hub fromSecret "policies-mano" "kafka-certs-mano" "tls.key" hub}}" |base64dec | autoindent }}
+          {{- end }}
+  # Render Kafka config to cwl
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-create-kafka-info
+      spec:
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: kafka-info
+                namespace: prom-kafka-adapter
+          {{- if eq (fromClusterClaim "name") "local-cluster"}}
+              data:
+                url: kafka-mano-kafka-bootstrap.kafka-cluster.svc.cluster.local
+                image: {{hub fromConfigMap "policies-mano" "kafka-adapter-config" "upstream_image" hub}}:{{hub fromConfigMap "policies-mano" "kafka-adapter-config" "tag" hub}}
+          {{- else }}
+              data:
+                url: {{hub fromConfigMap "policies-mano" "kafka-cluster-info" "url" hub}}:443
+                image: {{hub fromConfigMap "policies-mano" "kafka-adapter-config" "disconnected_image" hub}}:{{hub fromConfigMap "policies-mano" "kafka-adapter-config" "tag" hub}}
+          {{- end }}
+  # Create adapter service
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-kafka-adapter-service
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: kafka-adapter-svc
+              namespace: prom-kafka-adapter
+              labels:
+                app: prometheus-kafka-adapter
+            spec:
+              type: ClusterIP
+              ports:
+              - port: 8080
+                targetPort: http
+                protocol: TCP
+                name: http
+              selector:
+                app: prometheus-kafka-adapter
+  # Create deployment for kafka adapter
+  - extraDependencies:
+      - name: monitoring-prerequisites
+        namespace: ""
+        apiVersion: policy.open-cluster-management.io/v1
+        compliance: Compliant
+        kind: ConfigurationPolicy
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-kafka-adapter-deploy
+      spec:
+        pruneObjectBehavior: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                labels:
+                  app: prometheus-kafka-adapter
+                name: prometheus-kafka-adapter
+                namespace: prom-kafka-adapter 
+              spec:
+                progressDeadlineSeconds: 600
+                replicas: 3
+                revisionHistoryLimit: 10
+                selector:
+                  matchLabels:
+                    app: prometheus-kafka-adapter
+                strategy:
+                  rollingUpdate:
+                    maxSurge: 25%
+                    maxUnavailable: 25%
+                  type: RollingUpdate
+                template:
+                  metadata:
+                    labels:
+                      app: prometheus-kafka-adapter
+                  spec:
+                    containers:
+                    - image: {{ fromConfigMap "prom-kafka-adapter" "kafka-info" "image" }}
+                      imagePullPolicy: IfNotPresent
+                      name: prometheus-kafka-adapter
+                      resources: {}
+                      terminationMessagePath: /dev/termination-log
+                      terminationMessagePolicy: File
+                      env:
+                      - name: KAFKA_BROKER_LIST
+                        value: {{ fromConfigMap "prom-kafka-adapter" "kafka-info" "url" }}
+                      - name: KAFKA_TOPIC
+                        value: {{- if eq (fromClusterClaim "name") "local-cluster" }} mano-ocp-metrics {{- else }} {{ fromClusterClaim "name" }}-ocp-metrics {{- end }}
+                      - name: GIN_MODE
+                        value: release
+                    {{- if ne (fromClusterClaim "name") "local-cluster" }}
+                      - name: KAFKA_SSL_CA_CERT_FILE
+                        value: /etc/ssl/certs/my-certs/ca-bundle.crt
+                      - name: KAFKA_SSL_CLIENT_KEY_FILE
+                        value: /etc/ssl/certs/my-certs/tls.key
+                      - name: KAFKA_SSL_CLIENT_CERT_FILE
+                        value: /etc/ssl/certs/my-certs/tls.crt
+                      - name: PORT
+                        value: "8080"
+                      volumeMounts:
+                      - mountPath: /etc/ssl/certs/my-certs
+                        name: ca-pemstore                    
+                    {{- end }}
+                      ports:
+                      - containerPort: 8080
+                        name: http
+                        protocol: TCP
+                    dnsPolicy: ClusterFirst
+                    schedulerName: default-scheduler
+                    restartPolicy: Always
+                    terminationGracePeriodSeconds: 30
+                    {{- if ne (fromClusterClaim "name") "local-cluster"}}
+                    volumes:
+                    - configMap:
+                        defaultMode: 420
+                        name: kafka-certs
+                      name: ca-pemstore
+                    {{- end }}
+  # Check adapter deployment ready
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-kafka-adapter-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              name: prometheus-kafka-adapter
+              namespace: prom-kafka-adapter 
+            status:
+              conditions:
+              - type: Available
+                status: "True"
+  # Custom AlertManager configuration config map
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-alertmanager-custom-config
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: alertmanager-main-custom
+              namespace: openshift-monitoring
+            data:
+              alertmanager.yaml: |  
+                global:
+                  resolve_timeout: 5m
+                inhibit_rules:
+                  - equal:
+                      - namespace
+                      - alertname
+                    source_matchers:
+                      - severity = critical
+                    target_matchers:
+                      - severity =~ warning|info
+                  - equal:
+                      - namespace
+                      - alertname
+                    source_matchers:
+                      - severity = warning
+                    target_matchers:
+                      - severity = info
+                  - equal:
+                      - namespace
+                    source_matchers:
+                      - alertname = InfoInhibitor
+                    target_matchers:
+                      - severity = info
+                receivers:
+                  - name: Critical
+                  - name: Default
+                    webhook_configs:
+                      - url: 'http://tflu04prahvl.cz.o2:9876'
+                      - url: 'http://tflu04prahkz.cz.o2:9876'
+                  - name: 'null'
+                  - name: Watchdog
+                route:
+                  group_by:
+                    - namespace
+                  group_interval: 5m
+                  group_wait: 30s
+                  receiver: Default
+                  repeat_interval: 12h
+                  routes:
+                    - matchers:
+                        - alertname = InfoInhibitor
+                      receiver: 'null'
+  # Custom AlertManager configuration secret
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: monitoring-alertmanager-set-config
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: alertmanager-main
+              namespace: openshift-monitoring
+            data:
+              alertmanager.yaml: '{{ fromConfigMap "openshift-monitoring" "alertmanager-main-custom" "alertmanager.yaml" | base64enc }}'
+...

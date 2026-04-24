@@ -1,0 +1,34 @@
+---
+# jz-ocp-hub1-prod is by default the standby cluster when bootstraping
+
+resources:
+  - ../../base
+
+configMapGenerator:
+  # set registries configuration for workload clusters
+  - name: local-mano-config
+    namespace: policies-mano
+    literals:
+      - remote_mano=DOMAIN_EXAMPLE_1.COM
+    options:
+      disableNameSuffixHash: true
+
+  # Custom logo for MANO cluster
+  - name: console-custom-logo-local-cluster
+    namespace: policies-mano
+    files:
+      - local-cluster.png=cluster_config/custom_console_logos/jz-ocp-hub1-prod.png
+    options:
+      disableNameSuffixHash: true
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/value
+        value: standby
+    target:
+      group: cluster.open-cluster-management.io
+      version: v1alpha1
+      kind: ClusterClaim
+      name: custom.hub-status
+...

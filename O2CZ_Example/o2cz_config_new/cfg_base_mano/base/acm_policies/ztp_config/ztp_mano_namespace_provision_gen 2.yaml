@@ -1,0 +1,98 @@
+# Policy generator for workload cluster prerequisites preparation
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: ztp-workload-base-config
+placementBindingDefaults:
+  name: ztp-workload-base-config
+policyDefaults:
+  namespace: policies-mano
+  categories:
+    - "CM Configuration Management"
+  complianceType: musthave
+  controls:
+    - "CM-2 Baseline Configuration"
+  description: "Creates the requirements to deploy each workload cluster"
+  disabled: false
+  remediationAction: enforce
+  severity: medium
+  evaluationInterval:
+    compliant: 5m
+    noncompliant: 30s
+  # Put each object in its own ConfigurationPolicy in the Policy
+  # consolidateManifests: false
+  policySets:
+    - ztp-workload-base-config
+policySetDefaults:
+  placement:
+    placementPath: ztp_config/ztp_cwl_namespace_provision_manifests/placement.yaml
+policies:
+  # prepare cluster ch-ocp-cw01-prod
+  - name: ztp-config-ch-ocp-cw01-prod
+    disabled: false
+    manifests:
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/cluster_ns_ch-ocp-cw01-prod.yaml
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/pull_secret.yaml
+        patches:
+          - metadata:
+              namespace: ch-ocp-cw01-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/bmc_creds.yaml
+        patches:
+          - metadata:
+              namespace: ch-ocp-cw01-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/argo_rbac_role.yaml
+        complianceType: mustonlyhave
+        patches:
+          - metadata:
+              namespace: ch-ocp-cw01-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/argo_rbac_rolebinding.yaml
+        patches:
+          - metadata:
+              namespace: ch-ocp-cw01-prod
+  # prepare cluster jz-ocp-cw01-prod
+  - name: ztp-config-jz-ocp-cw01-prod
+    disabled: false
+    manifests:
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/cluster_ns_jz-ocp-cw01-prod.yaml
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/pull_secret.yaml
+        patches:
+          - metadata:
+              namespace: jz-ocp-cw01-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/bmc_creds.yaml
+        patches:
+          - metadata:
+              namespace: jz-ocp-cw01-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/argo_rbac_role.yaml
+        complianceType: mustonlyhave
+        patches:
+          - metadata:
+              namespace: jz-ocp-cw01-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/argo_rbac_rolebinding.yaml
+        patches:
+          - metadata:
+              namespace: jz-ocp-cw01-prod
+    ############################################# UTIL Clusters ########################################
+    # prepare cluster ch-ocp-util-prod
+  - name: ztp-config-ch-ocp-util-prod
+    disabled: false
+    manifests:
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/cluster_ns_ch-ocp-util-prod.yaml
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/pull_secret.yaml
+        patches:
+          - metadata:
+              namespace: ch-ocp-util-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/bmc_creds.yaml
+        patches:
+          - metadata:
+              namespace: ch-ocp-util-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/argo_rbac_role.yaml
+        complianceType: mustonlyhave
+        patches:
+          - metadata:
+              namespace: ch-ocp-util-prod
+      - path: ztp_config/ztp_cwl_namespace_provision_manifests/argo_rbac_rolebinding.yaml
+        patches:
+          - metadata:
+              namespace: ch-ocp-util-prod
+...

@@ -1,0 +1,16 @@
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultStaticSecret
+metadata:
+  name: vso-alert-manager-main
+  namespace: openshift-monitoring
+spec:
+  type: kv-v2 
+  mount: {{ .Values.mgmt.vault.vault_engine }}
+  path: preprod/{{ splitList "-" .Values.mgmt.cluster.name | first }}/monitoring/alert-manager-main
+  destination:
+    name: alertmanager-main
+    create: true
+    overwrite: true
+  refreshAfter: 30s
+  vaultAuthRef: vault-secrets-operator/default

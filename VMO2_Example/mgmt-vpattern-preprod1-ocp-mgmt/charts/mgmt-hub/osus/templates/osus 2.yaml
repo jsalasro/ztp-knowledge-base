@@ -1,0 +1,10 @@
+---
+apiVersion: updateservice.operator.openshift.io/v1
+kind: UpdateService
+metadata:
+  name: osus
+  namespace: openshift-update-service
+spec:
+  graphDataImage: '{{ splitList "/" .Values.mgmt.portworx.customImageRegistry | first }}/openshift/openshift/graph-image:latest'
+  releases: '{{ splitList "/" .Values.mgmt.portworx.customImageRegistry | first }}/openshift/openshift/release-images'
+  replicas: 2

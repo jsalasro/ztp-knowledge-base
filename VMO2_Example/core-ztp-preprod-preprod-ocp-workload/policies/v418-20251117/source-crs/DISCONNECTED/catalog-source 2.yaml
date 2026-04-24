@@ -1,0 +1,51 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: redhat-operator-index
+  namespace: openshift-marketplace
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "1"
+spec:
+  displayName: Red Hat Disconnected Operators
+  # image: registry.redhat.io/redhat/redhat-operator-index:v4.18
+  image: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "preprod1-registry") hub}}/ocp/redhat/redhat-operator-index:v4.18'
+  publisher: Red Hat
+  sourceType: grpc
+status:
+  connectionState:
+    lastObservedState: READY
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: certified-operator-index
+  namespace: openshift-marketplace
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "1"
+spec:
+  displayName: Certified Disconnected Operators
+  # image: registry.redhat.io/redhat/certified-operator-index:v4.18
+  image: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "preprod1-registry") hub}}/ocp/redhat/certified-operator-index:v4.18'
+  publisher: Red Hat
+  sourceType: grpc
+status:
+  connectionState:
+    lastObservedState: READY
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: community-operator-index
+  namespace: openshift-marketplace
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "1"
+spec:
+  displayName: Community Disconnected Operators
+  # image: registry.redhat.io/redhat/community-operator-index:v4.18
+  image: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "preprod1-registry") hub}}/ocp/redhat/community-operator-index:v4.18'
+  sourceType: grpc
+status:
+  connectionState:
+    lastObservedState: READY
+...

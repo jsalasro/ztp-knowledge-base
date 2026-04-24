@@ -1,0 +1,447 @@
+---
+# This policy has the following pre-requisites
+# - A secret called htpasswd-secret in namespace policies-mano in the hub cluster, with the credentials for local cluster authentication.
+# - A secret called ldap-secret in namespace policies-mano in the hub cluster, with a key called bindPassword containing the password of the user that binds to the LDAP server.
+# - A config map called custom-ca-bundle in namespace policies-mano in the hub cluster, with the CA certificate of the LDAP server
+# - A config map called authentication-ldap-configmap in namespace policies-mano in the hub cluster, with the following keys:
+#     - bind-user containing the DN of the user that binds to the LDAP server
+#     - ldaps-url containing the full URL to connect to the LDAP server
+#     - users-branch containing the branch in the ldap server for the users
+#     - groups-branch containing the branch in the ldap server for the groups
+# This repository contains an example config map in the file auth-ldap-configmap.yaml
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Cluster Authentication Configuration
+  name: authentication-oauth-config
+  namespace: policies-mano
+spec:
+  disabled: false
+  policy-templates:
+  # Create htpasswd secret
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ldap-auth-create-htpasswd-secret
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: htpasswd-secret
+              namespace: openshift-config
+            data: '{{hub copySecretData "policies-mano" "htpasswd-secret" hub}}'
+  # Create ldap secret
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ldap-auth-create-ldap-secret
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: ldap-secret
+              namespace: openshift-config
+            data: '{{hub copySecretData "policies-mano" "ldap-secret" hub}}'
+  # Create Config Map with LDAP CA certificate
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ldap-auth-create-configmap
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        namespaceSelector:
+          include: ["openshift-config","ldap-group-sync"]
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: ca-config-map
+            data:
+              ca.crt: |
+                {{hub fromConfigMap "policies-mano" "custom-ca-bundle" "CA.cer" | autoindent hub}}
+  # Add providers to OAuth
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-configure
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: config.openshift.io/v1
+            kind: OAuth
+            metadata:
+              name: cluster
+            spec:
+              identityProviders:
+              - name: local_user
+                mappingMethod: claim 
+                type: HTPasswd
+                htpasswd:
+                  fileData:
+                    name: htpasswd-secret
+              - name: ldapidm 
+                mappingMethod: claim 
+                type: LDAP
+                ldap:
+                  attributes:
+                    id: 
+                    - dn
+                    name: 
+                    - cn
+                    preferredUsername: 
+                    - sAMAccountName
+                  bindDN: '{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "bind-user" hub}}'
+                  bindPassword: 
+                    name: ldap-secret
+                  ca:
+                    name: ca-config-map
+                  insecure: false
+                  url: '{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "ldaps-url" hub}}/{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "users-branch" hub}}?sAMAccountName?sub?{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "user-filter" hub}}'
+#Check Oauth Deployment
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-configure
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-configure-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: config.openshift.io/v1
+            kind: ClusterOperator
+            metadata:
+              name: authentication
+            status:
+              conditions:
+              - message: All is well
+                reason: AsExpected
+                status: "False"
+                type: Degraded
+              - reason: AsExpected
+                status: "False"
+                type: Progressing
+              - message: All is well
+                reason: AsExpected
+                status: "True"
+                type: Available
+              - message: All is well
+                reason: AsExpected
+                status: "True"
+                type: Upgradeable
+# Sync LDAP Groups
+  # Create namespace to perform group sync from
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-sync-namespace
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: ldap-group-sync
+  # Create Service Account
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-ldap-group-sync-namespace
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-service-account
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+              name: ldap-group-sync
+              namespace: ldap-group-sync
+  # Create Cluster Role for ldap syncher service account
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-sync-clusterrole
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              name: ldap-group-sync
+            rules:
+            - apiGroups:
+              - user.openshift.io
+              resources:
+              - groups
+              verbs:
+              - create
+              - update
+              - patch
+              - get
+              - list
+  # Create Cluster Role Binding
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-ldap-group-sync-namespace
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-sync-clusterrole-binding
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+              name: ldap-group-sync
+            subjects:
+            - kind: ServiceAccount
+              name: ldap-group-sync
+              namespace: ldap-group-sync
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: ldap-group-sync
+  # Create config map with Ldap Sync Configuration
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-ldap-group-sync-namespace
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-sync-config-map
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: ldap-group-sync
+              namespace: ldap-group-sync
+            data: 
+              ad-group-sync.yaml: |
+                kind: LDAPSyncConfig
+                apiVersion: v1
+                url: '{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "ldaps-url" hub}}'
+                bindDN: '{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "bind-user" hub}}'
+                bindPassword:
+                  file: /etc/secrets/bindPassword
+                insecure: false
+                ca: /ldap-sync/ca.crt
+                augmentedActiveDirectory:
+                  groupsQuery:
+                    baseDN: '{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "groups-branch" hub}}'
+                    scope: sub
+                    derefAliases: never
+                    pageSize: 0
+                  groupUIDAttribute: dn
+                  groupNameAttributes: [ cn ]
+                  usersQuery:
+                    baseDN: '{{hub fromConfigMap "policies-mano" "authentication-ldap-configmap" "users-branch" hub}}'
+                    scope: sub
+                    derefAliases: never
+                    filter: (objectclass=person)
+                    pageSize: 0
+                  userNameAttributes: [ sAMAccountName ]
+                  groupMembershipAttributes: [ memberOf ]
+  # Copy ldap password secret to the ldap-group-sync namespace
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-ldap-secret
+      spec:
+        remediationAction: enforce
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: ldap-secret
+                namespace: ldap-group-sync
+              type: Opaque
+              data:
+                bindPassword: '{{hub fromSecret "policies-mano" "ldap-secret" "bindPassword" hub}}'
+  # Create cron job running the group sync
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-ldap-group-sync-namespace
+       namespace: ""
+       compliance: Compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-ldap-group-ldap-secret
+       namespace: ""
+       compliance: Compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-ldap-group-service-account
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-sync-cronjob
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          - complianceType: mustonlyhave
+            objectDefinition:
+              kind: CronJob
+              apiVersion: batch/v1
+              metadata:
+                name: ldap-group-sync
+                namespace: ldap-group-sync
+              spec:
+                schedule: "*/5 * * * *"
+                concurrencyPolicy: Forbid
+                successfulJobsHistoryLimit: 5
+                failedJobsHistoryLimit: 5
+                jobTemplate:
+                  spec:
+                    ttlSecondsAfterFinished: 3600
+                    backoffLimit: 0
+                    template:
+                      spec:
+                      {{- if ne (fromClusterClaim "name") "local-cluster"}}
+                        nodeSelector:
+                          machineconfiguration.openshift.io/role: appworker25g
+                      {{- end }}
+                        containers:
+                          - name: ldap-group-sync
+                            image: "registry.redhat.io/openshift4/ose-cli"
+                            command:
+                              - "/bin/bash"
+                              - "-c"
+                              - oc adm groups sync --sync-config /etc/config/ad-group-sync.yaml --confirm
+                            volumeMounts:
+                              - mountPath: "/etc/config"
+                                name: "ldap-sync-volume"
+                              - mountPath: "/etc/secrets"
+                                name: "ldap-bind-password"
+                              - mountPath: "/ldap-sync"
+                                name: "ldap-ca"
+                        volumes:
+                          - name: "ldap-sync-volume"
+                            configMap:
+                              name: ldap-group-sync
+                          - name: "ldap-bind-password"
+                            secret:
+                              secretName: ldap-secret
+                          - name: "ldap-ca"
+                            configMap:
+                              name: ca-config-map
+                        restartPolicy: "Never"
+                        terminationGracePeriodSeconds: 30
+                        activeDeadlineSeconds: 300
+                        dnsPolicy: "ClusterFirst"
+                        serviceAccountName: ldap-group-sync
+                        serviceAccount: ldap-group-sync
+  #Check for job completion
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: auth-oauth-ldap-group-sync-cronjob
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: auth-oauth-ldap-group-sync-cronjob-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: mustnothave
+          objectDefinition:
+            apiVersion: batch/v1
+            kind: Job
+            metadata:
+              namespace: ldap-group-sync
+            status:
+              conditions:
+                - reason: BackoffLimitExceeded
+                  status: "True"
+                  type: Failed
+              failed: 1
+...

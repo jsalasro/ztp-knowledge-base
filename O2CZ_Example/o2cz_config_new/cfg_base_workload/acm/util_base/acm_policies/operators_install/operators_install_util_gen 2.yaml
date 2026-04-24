@@ -1,0 +1,551 @@
+# Policy generator for workload cluster operators installation
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: util-generator-operators-install
+policyDefaults:
+  namespace: policies-util
+  categories:
+    - "CM Configuration Management"
+  complianceType: musthave
+  controls:
+    - "CM-2 Baseline Configuration"
+  description: "Manages operator installation on specific version"
+  disabled: false
+  remediationAction: enforce
+  severity: high
+  evaluationInterval:
+    compliant: 60m
+    noncompliant: 10s
+  # Put each object in its own ConfigurationPolicy in the Policy
+  consolidateManifests: false
+  policySets:
+    - util-install-operator-policies
+policySetDefaults:
+  placement:
+    placementName: util-placement
+placementBindingDefaults:
+  name: util-install-operator-binding
+policies:
+  # install compliance operator
+  - name: util-operator-install-compliance
+    disabled: false
+    manifests:
+      - path: operators_install/base_manifests/compliance/01_ns.yaml
+      - path: operators_install/base_manifests/compliance/02_operatorgroup.yaml
+      - path: operators_install/base_manifests/compliance/03_approve_ip.yaml
+      - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+        patches:
+          - metadata:
+              name: compliance-operator-subs
+              namespace: openshift-compliance
+            spec:
+              channel: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "compliance-channel" hub}}'
+              name: compliance-operator
+              startingCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "compliance-startingCSV" hub}}'
+      - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: compliance-operator-subs
+              namespace: openshift-compliance
+            status:
+              installedCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "compliance-startingCSV" hub}}'
+      - path: operators_install/base_manifests/csvGenericStatus.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "compliance-startingCSV" hub}}'
+              namespace: openshift-compliance
+  # install odf operator
+  - name: util-operator-install-odf
+    disabled: false
+    manifests:
+      - path: operators_install/base_manifests/odf/01_ns.yaml
+      - path: operators_install/base_manifests/odf/02_operatorgroup.yaml
+      - path: operators_install/base_manifests/odf/03_approve_ip.yaml
+      - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+        patches:
+          - metadata:
+              name: odf-operator-subs
+              namespace: openshift-storage
+            spec:
+              channel: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "odf-channel" hub}}'
+              name: odf-operator
+              startingCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "odf-startingCSV" hub}}'
+      - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: odf-operator-subs
+              namespace: openshift-storage
+            status:
+              installedCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "odf-startingCSV" hub}}'
+      - path: operators_install/base_manifests/csvGenericStatus.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "odf-startingCSV" hub}}'
+              namespace: openshift-storage
+      - path: operators_install/base_manifests/odf/04_enable_console.yaml
+  # install rhacs operator
+  - name: util-operator-install-rhacs
+    disabled: false
+    manifests:
+      - path: operators_install/base_manifests/rhacs/01_ns.yaml
+      - path: operators_install/base_manifests/rhacs/02_operatorgroup.yaml
+      - path: operators_install/base_manifests/rhacs/03_approve_ip.yaml
+      - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+        patches:
+          - metadata:
+              name: rhacs-operator-subs
+              namespace: rhacs-operator
+            spec:
+              channel: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "rhacs-channel" hub}}'
+              name: rhacs-operator
+              startingCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "rhacs-startingCSV" hub}}'
+      - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: rhacs-operator-subs
+              namespace: rhacs-operator
+            status:
+              installedCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "rhacs-startingCSV" hub}}'
+      - path: operators_install/base_manifests/csvGenericStatus.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "rhacs-startingCSV" hub}}'
+              namespace: rhacs-operator
+  # # install sriov operator
+  # - name: cwl-operator-install-sriov
+  #   disabled: false
+  #   manifests:
+  #     - path: operators_install/base_manifests/sriov/01_ns.yaml
+  #     - path: operators_install/base_manifests/sriov/02_operatorgroup.yaml
+  #     - path: operators_install/base_manifests/sriov/03_approve_ip.yaml
+  #     - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+  #       patches:
+  #         - metadata:
+  #             name: sriov-operator-subs
+  #             namespace: openshift-sriov-network-operator
+  #           spec:
+  #             channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "sriov-channel" hub}}'
+  #             name: sriov-network-operator
+  #             startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "sriov-startingCSV" hub}}'
+  #     - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+  #       remediationAction: inform
+  #       patches:
+  #         - metadata:
+  #             name: sriov-operator-subs
+  #             namespace: openshift-sriov-network-operator
+  #           status:
+  #             installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "sriov-startingCSV" hub}}'
+  #     - path: operators_install/base_manifests/csvGenericStatus.yaml
+  #       remediationAction: inform
+  #       patches:
+  #         - metadata:
+  #             name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "sriov-startingCSV" hub}}'
+  #             namespace: openshift-sriov-network-operator
+  # install metallb operator
+  - name: util-operator-install-metallb
+    disabled: false
+    manifests:
+      - path: operators_install/base_manifests/metallb/01_ns.yaml
+      - path: operators_install/base_manifests/metallb/02_operatorgroup.yaml
+      - path: operators_install/base_manifests/metallb/03_approve_ip.yaml
+      - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+        patches:
+          - metadata:
+              name: metallb-operator-subs
+              namespace: metallb-system
+            spec:
+              channel: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "metallb-channel" hub}}'
+              name: metallb-operator
+              startingCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "metallb-startingCSV" hub}}'
+      - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: metallb-operator-subs
+              namespace: metallb-system
+            status:
+              installedCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "metallb-startingCSV" hub}}'
+      - path: operators_install/base_manifests/csvGenericStatus.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "metallb-startingCSV" hub}}'
+              namespace: metallb-system
+  # install loki operator
+  - name: util-operator-install-loki
+    disabled: false
+    manifests:
+      - path: operators_install/base_manifests/loki/01_ns.yaml
+      - path: operators_install/base_manifests/loki/02_operatorgroup.yaml
+      - path: operators_install/base_manifests/loki/03_approve_ip.yaml
+      - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+        patches:
+          - metadata:
+              name: loki-operator-subs
+              namespace: openshift-operators-redhat
+            spec:
+              channel: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "loki-channel" hub}}'
+              name: loki-operator
+              startingCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "loki-startingCSV" hub}}'
+      - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: loki-operator-subs
+              namespace: openshift-operators-redhat
+            status:
+              installedCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "loki-startingCSV" hub}}'
+      - path: operators_install/base_manifests/csvGenericStatus.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "loki-startingCSV" hub}}'
+              namespace: openshift-operators-redhat
+  # install logging operator
+  - name: util-operator-install-logging
+    disabled: false
+    manifests:
+      - path: operators_install/base_manifests/logging/01_ns.yaml
+      - path: operators_install/base_manifests/logging/02_operatorgroup.yaml
+      - path: operators_install/base_manifests/logging/03_approve_ip.yaml
+      - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+        patches:
+          - metadata:
+              name: logging-operator-subs
+              namespace: openshift-logging
+            spec:
+              channel: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "logging-channel" hub}}'
+              name: cluster-logging
+              startingCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "logging-startingCSV" hub}}'
+      - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: logging-operator-subs
+              namespace: openshift-logging
+            status:
+              installedCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "logging-startingCSV" hub}}'
+      - path: operators_install/base_manifests/csvGenericStatus.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "logging-startingCSV" hub}}'
+              namespace: openshift-logging
+  # # install numa operator
+  # - name: cwl-operator-install-numa
+  #   disabled: false
+  #   manifests:
+  #     - path: operators_install/base_manifests/numa/01_ns.yaml
+  #     - path: operators_install/base_manifests/numa/02_operatorgroup.yaml
+  #     - path: operators_install/base_manifests/numa/03_approve_ip.yaml
+  #     - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+  #       patches:
+  #         - metadata:
+  #             name: numa-operator-subs
+  #             namespace: openshift-numaresources
+  #           spec:
+  #             channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "numa-channel" hub}}'
+  #             name: numaresources-operator
+  #             startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "numa-startingCSV" hub}}'
+  #     - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+  #       remediationAction: inform
+  #       patches:
+  #         - metadata:
+  #             name: numa-operator-subs
+  #             namespace: openshift-numaresources
+  #           status:
+  #             installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "numa-startingCSV" hub}}'
+  #     - path: operators_install/base_manifests/csvGenericStatus.yaml
+  #       remediationAction: inform
+  #       patches:
+  #         - metadata:
+  #             name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "numa-startingCSV" hub}}'
+  #             namespace: openshift-numaresources
+  # install nmstate operator
+  - name: util-operator-install-nmstate
+    disabled: false
+    manifests:
+      - path: operators_install/base_manifests/nmstate/01_ns.yaml
+      - path: operators_install/base_manifests/nmstate/02_operatorgroup.yaml
+      - path: operators_install/base_manifests/nmstate/03_approve_ip.yaml
+      - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+        patches:
+          - metadata:
+              name: nmstate-operator-subs
+              namespace: openshift-nmstate
+            spec:
+              channel: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "nmstate-channel" hub}}'
+              name: kubernetes-nmstate-operator
+              startingCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "nmstate-startingCSV" hub}}'
+      - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: nmstate-operator-subs
+              namespace: openshift-nmstate
+            status:
+              installedCSV: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "nmstate-startingCSV" hub}}'
+      - path: operators_install/base_manifests/csvGenericStatus.yaml
+        remediationAction: inform
+        patches:
+          - metadata:
+              name: '{{hub fromConfigMap "policies-util" "operators-version-util-v0" "nmstate-startingCSV" hub}}'
+              namespace: openshift-nmstate
+#   # install custommetricsautoscaler
+#   - name: cwl-operator-install-keda
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/keda/01_ns.yaml
+#       - path: operators_install/base_manifests/keda/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/keda/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: nmstate-operator-subs
+#               namespace: openshift-keda
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "keda-channel" hub}}'
+#               name: openshift-custom-metrics-autoscaler-operator
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "keda-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: nmstate-operator-subs
+#               namespace: openshift-keda
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "keda-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "keda-startingCSV" hub}}'
+#               namespace: openshift-keda
+#   # install cert-manager operator
+#   - name: cwl-operator-install-certmanager
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/certmanager/01_ns.yaml
+#       - path: operators_install/base_manifests/certmanager/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/certmanager/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: certmanager-operator-subs
+#               namespace: cert-manager-operator
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "certmanager-channel" hub}}'
+#               name: openshift-cert-manager-operator
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "certmanager-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: certmanager-operator-subs
+#               namespace: cert-manager-operator
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "certmanager-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "certmanager-startingCSV" hub}}'
+#               namespace: cert-manager-operator
+#   # install securityprofilesoperator operator
+#   - name: cwl-operator-install-securityprofiles
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/securityprofiles/01_ns.yaml
+#       - path: operators_install/base_manifests/securityprofiles/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/securityprofiles/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: securityprofiles-operator-subs
+#               namespace: openshift-security-profiles
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "securityprofiles-channel" hub}}'
+#               name: security-profiles-operator
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "securityprofiles-startingCSV" hub}}'
+#               config:
+#                 resources:
+#                   limits:
+#                     cpu: 500m
+#                     memory: 256Mi
+#                   requests:
+#                     cpu: 250m
+#                     memory: 50Mi
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: securityprofiles-operator-subs
+#               namespace: openshift-security-profiles
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "securityprofiles-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "securityprofiles-startingCSV" hub}}'
+#               namespace: openshift-security-profiles
+#   # install fileintegrity operator
+#   - name: cwl-operator-install-fileintegrity
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/fileintegrity/01_ns.yaml
+#       - path: operators_install/base_manifests/fileintegrity/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/fileintegrity/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: fileintegrity-operator-subs
+#               namespace: openshift-file-integrity
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "fileintegrity-channel" hub}}'
+#               name: file-integrity-operator
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "fileintegrity-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: fileintegrity-operator-subs
+#               namespace: openshift-file-integrity
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "fileintegrity-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "fileintegrity-startingCSV" hub}}'
+#               namespace: openshift-file-integrity
+#   # install elasticsearch operator
+#   - name: cwl-operator-install-elastic
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/elasticsearch/01_ns.yaml
+#       - path: operators_install/base_manifests/elasticsearch/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/elasticsearch/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: elastic-operator-subs
+#               namespace: elastic-operator
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "elastic-channel" hub}}'
+#               name: elasticsearch-operator
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "elastic-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: elastic-operator-subs
+#               namespace: elastic-operator
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "elastic-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "elastic-startingCSV" hub}}'
+#               namespace: elastic-operator
+#   # install kiali operator
+#   - name: cwl-operator-install-kiali
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/kiali/01_ns.yaml
+#       - path: operators_install/base_manifests/kiali/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/kiali/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: kiali-operator-subs
+#               namespace: kiali-operator
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "kiali-channel" hub}}'
+#               name: kiali-ossm
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "kiali-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: kiali-operator-subs
+#               namespace: kiali-operator
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "kiali-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "kiali-startingCSV" hub}}'
+#               namespace: kiali-operator
+#   # install jaeger operator
+#   - name: cwl-operator-install-jaeger
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/jaeger/01_ns.yaml
+#       - path: operators_install/base_manifests/jaeger/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/jaeger/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: jaeger-operator-subs
+#               namespace: openshift-distributed-tracing
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "jaeger-channel" hub}}'
+#               name: jaeger-product
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "jaeger-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: jaeger-operator-subs
+#               namespace: openshift-distributed-tracing
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "jaeger-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "jaeger-startingCSV" hub}}'
+#               namespace: openshift-distributed-tracing
+#   # install servicemesh operator
+#   - name: cwl-operator-install-ossm
+#     disabled: false
+#     manifests:
+#       - path: operators_install/base_manifests/ossm/01_ns.yaml
+#       - path: operators_install/base_manifests/ossm/02_operatorgroup.yaml
+#       - path: operators_install/base_manifests/ossm/03_approve_ip.yaml
+#       - path: operators_install/base_manifests/operatorGenericSubscription.yaml
+#         patches:
+#           - metadata:
+#               name: ossm-operator-subs
+#               namespace: ossm-operator
+#             spec:
+#               channel: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "ossm-channel" hub}}'
+#               name: servicemeshoperator
+#               startingCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "ossm-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/operatorGenericSubscriptionCheck.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: ossm-operator-subs
+#               namespace: ossm-operator
+#             status:
+#               installedCSV: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "ossm-startingCSV" hub}}'
+#       - path: operators_install/base_manifests/csvGenericStatus.yaml
+#         remediationAction: inform
+#         patches:
+#           - metadata:
+#               name: '{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "ossm-startingCSV" hub}}'
+#               namespace: ossm-operator  
+# ...
+      

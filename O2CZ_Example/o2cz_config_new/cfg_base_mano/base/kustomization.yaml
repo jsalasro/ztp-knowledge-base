@@ -1,0 +1,101 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- mano_clusterclaim.yaml
+- mano_placement.yaml
+- mano_placement_active.yaml
+- mano_placement_standby.yaml
+- mano_clustersetbinding.yaml
+- mano_policyset.yaml
+- mano_policyset_binding.yaml
+- cwl_policyset.yaml
+- cwl_placement.yaml
+- cwl_policyset_binding.yaml
+- util_policyset.yaml
+- util_placement.yaml
+- util_policyset_binding.yaml
+# include ACM policy definitions
+- acm_policies/
+
+configMapGenerator:
+  # set operator version configuration for MANO
+  - name: cluster-settings
+    namespace: policies-mano
+    envs:
+      - cluster_config/general_config.cfg
+    options:
+      disableNameSuffixHash: true
+
+  # set operator version configuration for MANO
+  - name: operators-version
+    namespace: policies-mano
+    envs:
+      - cluster_config/operators_version_mano.cfg
+    options:
+      disableNameSuffixHash: true
+
+  # set operator version configuration for CWL
+  - name: operators-version-cwl-v0
+    namespace: policies-mano
+    envs:
+      - cluster_config/operators_version_cwl_v0.cfg
+    options:
+      disableNameSuffixHash: true
+  
+   # set operator version configuration for UTIL
+  - name: operators-version-util-v0
+    namespace: policies-mano
+    envs:
+      - cluster_config/operators_version_util_v0.cfg
+    options:
+      disableNameSuffixHash: true
+
+  # set LDAP configuration for MANO
+  - name: authentication-ldap-configmap
+    namespace: policies-mano
+    envs:
+      - cluster_config/ldap_configmap.cfg
+    options:
+      disableNameSuffixHash: true
+
+  # set proxy configuration for MANO
+  - name: proxy-config-mano
+    namespace: policies-mano
+    literals:
+      - httpProxy=http://internet-proxy-s1.cz.o2:8080
+      - httpsProxy=http://internet-proxy-s1.cz.o2:8080
+    files:
+      - noProxy=cluster_config/proxy_exceptions_mano.cfg
+    options:
+      disableNameSuffixHash: true
+
+  # set operator version configuration for MANO
+  - name: ztp-configuration-reference
+    namespace: policies-mano
+    envs:
+      - cluster_config/ztp_configuration.cfg
+    options:
+      disableNameSuffixHash: true
+
+  # kafka adapter
+  - name: kafka-adapter-config
+    namespace: policies-mano
+    envs:
+      - cluster_config/kafka_adapter.cfg
+    options:
+      disableNameSuffixHash: true
+
+  # Console custom logo for CWL (one per logo due to CM size restrictions)
+  - name: console-custom-logo-ch-ocp-cw01-prod
+    namespace: policies-mano
+    files:
+      - cluster_config/custom_console_logos/ch-ocp-cw01-prod.png
+    options:
+      disableNameSuffixHash: true
+  - name: console-custom-logo-jz-ocp-cw01-prod
+    namespace: policies-mano
+    files:
+      - cluster_config/custom_console_logos/jz-ocp-cw01-prod.png
+    options:
+      disableNameSuffixHash: true

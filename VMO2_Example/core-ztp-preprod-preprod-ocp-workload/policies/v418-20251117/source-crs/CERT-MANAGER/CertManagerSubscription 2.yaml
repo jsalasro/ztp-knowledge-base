@@ -1,0 +1,18 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: openshift-cert-manager-operator
+  namespace: cert-manager-operator
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+spec:
+  channel: stable-v1.15
+  name: openshift-cert-manager-operator
+  source: redhat-operator-index
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  startingCSV: cert-manager-operator.v1.15.1
+#status:
+#  state: AtLatestKnown
+...

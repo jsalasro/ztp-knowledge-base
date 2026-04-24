@@ -1,0 +1,38 @@
+---
+# Monitor the expiration date in the init bundle certificates for the secured clusters in workload clsuters
+# Only the sensor certificate is checked because all three certificates are created at the same time as part of a single bundle.
+# The label "certificate_key_name: sensor-cert.pem" is used to specify the name of the key in the secret containing the certificate to check.  This label must also exists in the secret that is being checked (https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.10/html/governance/governance#certificate-policy-controller)
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Check expiration date of TLS certificates in the init bundle used by the ACS secured clusters in workload clsuters.  
+  name: rhacs-secured-cluster-cert-expiration-check
+  namespace: policies-cwl
+spec:
+  disabled: false
+  dependencies:
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: rhacs-secured-cluster-managed
+    namespace: policies-cwl
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: CertificatePolicy
+      metadata:
+        name: rhacs-certs-expiration-check
+      spec:
+        namespaceSelector:
+          include: [ "stackrox" ]
+        labelSelector:
+          certificate_key_name: sensor-cert.pem
+        remediationAction: inform
+        severity: high
+        # Raise alarm at 25 days from expiration
+        minimumDuration: 600h
+...

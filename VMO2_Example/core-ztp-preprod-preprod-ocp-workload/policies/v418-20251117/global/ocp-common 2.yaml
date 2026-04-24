@@ -1,0 +1,387 @@
+---
+apiVersion: ran.openshift.io/v1
+kind: PolicyGenTemplate
+metadata:
+  name: "ocp-common-v418-20251117"
+  namespace: "ztp-policy"
+spec:
+  bindingRules:
+    # These policies will correspond to all clusters with this label:
+    ocp: "true"
+    config-version: "v418-20251117"
+  sourceFiles:
+    ########################################################
+    # Disconnected environment (wave 1)
+    ########################################################
+    # Create catalog source for private registry
+    - fileName: DISCONNECTED/catalog-source.yaml
+      policyName: "disconnected"
+    # Disable default operator catalogs
+    - fileName: DISCONNECTED/operator-hub.yaml
+      policyName: "disconnected"
+    - fileName: DISCONNECTED/itms.yaml
+      policyName: "disconnected"
+    # Disable insights operator
+    - fileName: DISCONNECTED/disable-insights.yaml
+      policyName: "disconnected"
+    ########################################################
+    # Install Certs (wave 1)
+    ########################################################
+    # CA certs
+    - fileName: CERT-MANAGER/CertsCABundle.yaml
+      policyName: "custom-certificates"
+    - fileName: CERT-MANAGER/CertsProxy.yaml
+      policyName: "custom-certificates"
+    ########################################################
+    # Node Configuration (wave 1)
+    ########################################################
+    # Make master nodes scheduleable
+    - fileName: EXTRA/MastersSchedulable.yaml
+      policyName: "nodes-configuration"
+    # MULTIPATHCONFIG
+    - fileName: EXTRA/MCMultipathMaster.yaml
+      policyName: nodes-configuration
+    - fileName: EXTRA/MCMultipathWorker.yaml
+      policyName: nodes-configuration
+    ########################################################
+    # Setup authentication & AD integration (wave 10)
+    ########################################################
+    - fileName: AUTH/AuthRBAC.yaml
+      policyName: "authentication"
+    - fileName: AUTH/AuthSecret.yaml
+      policyName: "authentication"
+    - fileName: AUTH/AuthLDAPcert.yaml
+      policyName: "authentication"
+    - fileName: AUTH/AuthGroupSyncRBAC.yaml
+      policyName: "authentication"
+    - fileName: AUTH/AuthGroupSyncConfigMap.yaml
+      policyName: "authentication"
+    - fileName: AUTH/AuthGroupSyncJob.yaml
+      policyName: "authentication"
+    - fileName: AUTH/AuthOauth.yaml
+      policyName: "authentication"
+    ########################################################
+    # Operator installation & configuration (wave 10-20)
+    ########################################################
+    # Node Health Check Operator and Self Node Remediation
+    # - fileName: AVAILABILITY/Namespace.yaml
+    #   policyName: "operators-installation"
+    # - fileName: AVAILABILITY/OperatorGroup.yaml
+    #   policyName: "operators-installation"
+    # - fileName: AVAILABILITY/NodeHealthCheckOperatorSubscription.yaml
+    #   policyName: "operators-installation"
+    # - fileName: AVAILABILITY/SelfNodeRemediationSubscription.yaml
+    #   policyName: "operators-installation"
+    # - fileName: AVAILABILITY/InstallPlan.yaml
+    #   policyName: "operators-installation"
+    # - fileName: AVAILABILITY/SNRTemplate.yaml
+    #   policyName: "operators-instance-1"
+    # - fileName: AVAILABILITY/SelfNodeConfig.yaml
+    #   policyName: "operators-instance-1"
+    # - fileName: AVAILABILITY/NHC-controlPlane.yaml
+    #   policyName: "operators-instance-1"
+    # - fileName: AVAILABILITY/NHC-worker.yaml
+    #   policyName: "operators-instance-1"
+    # RHOSO
+    # - fileName: RHOSO/operator/RhosoNS.yaml
+    #   policyName: "operators-installation"
+    # - fileName: RHOSO/operator/RhosoOperGroup.yaml
+    #   policyName: "operators-installation"
+    # - fileName: RHOSO/operator/RhosoSubscription.yaml
+    #   policyName: "operators-installation"
+    # - fileName: RHOSO/operator/RhosoInstallPlan.yaml # falta crear en source-crs
+    #   policyName: "operators-installation"
+    # - fileName: RHOSO/operator/RhosoInit.yaml
+    #   policyName: "operators-instance-1"
+    # Cert-Manager
+    - fileName: CERT-MANAGER/CertManagerNS.yaml
+      policyName: "operators-installation"
+    - fileName: CERT-MANAGER/CertManagerOperGroup.yaml
+      policyName: "operators-installation"
+    - fileName: CERT-MANAGER/CertManagerSubscription.yaml
+      policyName: "operators-installation"
+    - fileName: CERT-MANAGER/CertManagerInstallPlan.yaml
+      policyName: "operators-installation"
+    - fileName: CERT-MANAGER/CertManagerCASecret.yaml
+      policyName: "operators-instance-1"
+    - fileName: CERT-MANAGER/CertManagerClusterIssuer.yaml
+      policyName: "operators-instance-1"
+    - fileName: CERT-MANAGER/CertManagerIngressCertificate.yaml
+      policyName: "operators-instance-1"
+    - fileName: CERT-MANAGER/CertManagerApiCertificate.yaml
+      policyName: "operators-instance-1"
+    - fileName: CERT-MANAGER/CertManagerApiserver.yaml
+      policyName: "operators-instance-1"
+    - fileName: CERT-MANAGER/CertManagerIngressController.yaml
+      policyName: "operators-instance-1"
+    # Service Mesh
+    - fileName: OSSM/OSSMNS.yaml
+      policyName: operators-installation
+    - fileName: OSSM/OSSMOperatorGroup.yaml
+      policyName: operators-installation
+    - fileName: OSSM/OSSMSubscription.yaml
+      policyName: operators-installation
+    - fileName: OSSM/OSSMInstallPlan.yaml
+      policyName: operators-installation
+    # NUMA
+    - fileName: NUMA/NumaResourceNS.yaml
+      policyName: operators-installation
+    - fileName: NUMA/NumaResourceOperatorGroup.yaml
+      policyName: operators-installation
+    - fileName: NUMA/NumaResourceSubscription.yaml
+      policyName: operators-installation
+    - fileName: NUMA/NumaResourceInstallPlan.yaml
+      policyName: operators-installation
+    # MetalLB
+    - fileName: METALLB/MetalLBNS.yaml
+      policyName: operators-installation
+    - fileName: METALLB/MetalLBOperatorGroup.yaml
+      policyName: operators-installation
+    - fileName: METALLB/MetalLBSubscription.yaml
+      policyName: operators-installation
+    - fileName: METALLB/MetalLBInstallPlan.yaml
+      policyName: operators-installation
+    - fileName: METALLB/MetalLBInstance.yaml
+      policyName: operators-instance-1
+    # NMState
+    - fileName: NMSTATE/NMstateNS.yaml
+      policyName: "operators-installation"
+    - fileName: NMSTATE/NMstateOperatorGroup.yaml
+      policyName: "operators-installation"
+    - fileName: NMSTATE/NMstateSubscription.yaml
+      policyName: "operators-installation"
+    - fileName: NMSTATE/NMstateInstallPlan.yaml
+      policyName: "operators-installation"
+    - fileName: NMSTATE/NMstate.yaml
+      policyName: "operators-instance-1"
+    ########################################################
+    # NMState configuration (wave 20-30)
+    ########################################################
+    # NMState NNCP Instance
+    - fileName: NMSTATE/NMstateNNCP.yaml
+      policyName: "operators-instance-2"
+    ########################################################
+    # Operator installation & configuration (wave 10-20)
+    ########################################################
+    # Cluster Observability
+    # - fileName: COO/CooSubscription.yaml
+    #   policyName: "operators-installation"
+    # - fileName: COO/CooInstallPlan.yaml # falta crear en source-crs
+    #   policyName: "operators-installation"
+    # Cluster Logging
+    - fileName: LOG/ClusterLogNS.yaml
+      policyName: "operators-installation"
+    - fileName: LOG/ClusterLogOperGroup.yaml
+      policyName: "operators-installation"
+    - fileName: LOG/ClusterLogSubscription.yaml
+      policyName: "operators-installation"
+    - fileName: LOG/ClusterLogInstallPlan.yaml
+      policyName: "operators-installation"
+    - fileName: LOG/kafka-secret1.yaml
+      policyName: "logging-and-monitoring"
+    # - fileName: LOG/kafka-secret2.yaml
+    #   policyName: "logging-and-monitoring"
+    - fileName: LOG/ClusterLogForwarder.yaml # Forward to Loki in RHOSO cluster
+      policyName: "operators-instance-1"
+    - fileName: LOG/ClusterLogServiceAccount.yaml
+      policyName: "logging-and-monitoring"
+    - fileName: LOG/ClusterLogCollectorRole.yaml
+      policyName: "logging-and-monitoring"
+    - fileName: LOG/ClusterLogServiceAccountWriterBinding.yaml
+      policyName: "logging-and-monitoring"
+    - fileName: LOG/ClusterLogServiceAccountInfraBinding.yaml
+      policyName: "logging-and-monitoring"
+    - fileName: LOG/ClusterLogServiceAccountAuditBinding.yaml
+      policyName: "logging-and-monitoring"
+    # Security Profile Operator
+    - fileName: SECURITY-PROFILE/SecurityProfileNS.yaml
+      policyName: "operators-installation"
+    - fileName: SECURITY-PROFILE/SecurityProfileOperatorGroup.yaml
+      policyName: "operators-installation"
+    - fileName: SECURITY-PROFILE/SecurityProfileSubscription.yaml
+      policyName: "operators-installation"
+    - fileName: SECURITY-PROFILE/SecurityProfileInstallPlan.yaml
+      policyName: "operators-installation"
+    # Openshift Custom metrics autoscale - KEDA operator
+    - fileName: CUSTOM-METRICS-AUTOSCALE/CustomMetricsAutoscaleNS.yaml
+      policyName: "operators-installation"
+    - fileName: CUSTOM-METRICS-AUTOSCALE/CustomMetricsAutoscaleOperatorGroup.yaml
+      policyName: "operators-installation"
+    - fileName: CUSTOM-METRICS-AUTOSCALE/CustomMetricsAutoscaleSubscription.yaml
+      policyName: "operators-installation"
+    - fileName: CUSTOM-METRICS-AUTOSCALE/CustomMetricsAutoscaleInstallPlan.yaml
+      policyName: "operators-installation"
+    # Loki for logStore
+    # - fileName: LOKI/LokiNS.yaml
+    #   policyName: "operators-installation"
+    # - fileName: LOKI/LokiOperatorGroup.yaml
+    #   policyName: "operators-installation"
+    # - fileName: LOKI/LokiSubscription.yaml # https://docs.redhat.com/en/documentation/openshift_container_platform/4.10/html/logging/cluster-logging-loki#logging-loki-deploy_cluster-logging-loki
+    #   policyName: "operators-installation"
+    # - fileName: LOKI/LokiInstallPlan.yaml
+    #   policyName: "operators-installation"
+    # - fileName: LOKI/LoggingConsole.yaml
+    #   policyName: "operators-instance-1"
+    # - fileName: LOKI/LokiBucketClaim.yaml
+    #   policyName: "operators-instance-1"
+    # - fileName: LOKI/LokiS3Secret.yaml
+    #   policyName: "operators-instance-1"
+    # - fileName: LOKI/LokiStack.yaml
+    #   policyName: "operators-instance-1"
+    # Prometheus Kafka Adapter
+    - fileName: MONITORING/KafkaAdapNS.yaml
+      policyName: "operators-installation"
+    - fileName: MONITORING/KafkaAdapDeployment.yaml
+      policyName: "logging-and-monitoring"
+    - fileName: MONITORING/KafkaAdapService.yaml
+      policyName: "logging-and-monitoring"
+    - fileName: MONITORING/KafkaConfigMap.yaml
+      policyName: "logging-and-monitoring"
+      data:
+        ca-bundle.crt: |
+          -----BEGIN CERTIFICATE-----
+          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
+          -----END CERTIFICATE-----
+        tls.crt: |
+          -----BEGIN CERTIFICATE-----
+          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
+          -----END CERTIFICATE-----
+        tls.key: |
+          -----BEGIN PRIVATE KEY-----
+          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
+          w7FlqoD1vZcXIT3HGUyjqOLVg4PSag==
+          -----END PRIVATE KEY-----
+    
+    # OCP workload Monitoring
+    - fileName: MONITORING/UserWorkLoad.yaml
+      policyName: "logging-and-monitoring"
+    - fileName: MONITORING/OCPMonitoringCM.yaml
+      policyName: "logging-and-monitoring"
+
+    # AlertManager
+    - fileName: MONITORING/AlertManager.yaml
+      policyName: "logging-and-monitoring"
+
+    # PORTWORX Operator
+    - fileName: PORTWORX/PXNS.yaml
+      policyName: operators-installation
+    - fileName: PORTWORX/PXOperatorGroup.yaml
+      policyName: operators-installation
+    - fileName: PORTWORX/PXSubscription.yaml
+      policyName: operators-installation
+    - fileName: PORTWORX/PXInstallPlan.yaml
+      policyName: operators-installation
+    - fileName: PORTWORX/PXStorageCluster.yaml
+      policyName: operators-instance-1
+    - fileName: PORTWORX/PXISCIDaemonSet.yaml
+      policyName: operators-instance-1
+    - fileName: PORTWORX/PXPullSecret.yaml
+      policyName: operators-instance-1
+    - fileName: PORTWORX/PXVersions.yaml
+      policyName: operators-instance-1
+    - fileName: PORTWORX/PXStorageClass.yaml
+      policyName: operators-instance-1
+
+...

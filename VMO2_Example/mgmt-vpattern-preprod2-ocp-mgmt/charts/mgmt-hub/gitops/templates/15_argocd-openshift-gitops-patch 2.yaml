@@ -1,0 +1,66 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: patch-argocd-resource-exclusions
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  backoffLimit: 6
+  template:
+    spec:
+      serviceAccountName: patch-argocd-resource-exclusions
+      restartPolicy: Never
+      containers:
+        - name: patch
+          image: registry.redhat.io/openshift4/ose-cli:latest
+          command:
+            - /bin/sh
+            - -ec
+            - |
+                until oc get argocd openshift-gitops -n openshift-gitops >/dev/null 2>&1; do
+                  echo "Waiting for ArgoCD CR openshift-gitops in namespace openshift-gitops..."
+                  sleep 5
+                done
+
+                current="$(oc get argocd openshift-gitops -n openshift-gitops -o jsonpath='{.spec.resourceExclusions}' 2>/dev/null || true)"
+
+                if printf '%s\n' "${current}" | grep -q 'operators\.coreos\.com' && \
+                  printf '%s\n' "${current}" | grep -q 'InstallPlan'; then
+                  echo "InstallPlan exclusion already present, nothing to do."
+                  exit 0
+                fi
+
+                tmpfile="$(mktemp)"
+
+                cat > "${tmpfile}" <<'EOF'
+                apiVersion: argoproj.io/v1alpha1
+                kind: ArgoCD
+                metadata:
+                  name: openshift-gitops
+                  namespace: openshift-gitops
+                spec:
+                  resourceExclusions: |
+                    - apiGroups:
+                      - tekton.dev
+                      clusters:
+                      - "*"
+                      kinds:
+                      - TaskRun
+                      - PipelineRun
+                    - apiGroups:
+                      - operators.coreos.com
+                      clusters:
+                      - "*"
+                      kinds:
+                      - InstallPlan
+                EOF
+
+                echo "Applying ArgoCD resourceExclusions patch:"
+                cat "${tmpfile}"
+
+                oc apply -f "${tmpfile}"
+
+                echo "Patched openshift-gitops ArgoCD CR successfully."

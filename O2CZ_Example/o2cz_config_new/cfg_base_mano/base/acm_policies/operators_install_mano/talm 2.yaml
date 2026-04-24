@@ -1,0 +1,97 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: TALM Operator Installation
+  name: operator-install-talm
+  namespace: policies
+spec:
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: talm-subscription
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: Subscription
+            metadata:
+              name: talm-subscription
+              namespace: openshift-operators
+            spec:
+              channel: '{{hub fromConfigMap "policies-mano" "operators-version" "talm-channel" hub}}'
+              installPlanApproval: Manual
+              name: topology-aware-lifecycle-manager
+              source: redhat-operators
+              sourceNamespace: openshift-marketplace
+              startingCSV: '{{hub fromConfigMap "policies-mano" "operators-version" "talm-startingCSV" hub}}'
+#Approve the Install plan when it has been detected
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: talm-subscription
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: talm-installplan-approve
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates-raw: |
+          {{- range $installplan := (lookup "operators.coreos.com/v1alpha1" "InstallPlan" "openshift-operators" "").items }}
+            {{- range $installplan.spec.clusterServiceVersionNames }}
+            {{- if eq . "{{hub fromConfigMap "policies-mano" "operators-version" "talm-startingCSV" hub}}" }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: operators.coreos.com/v1alpha1
+                kind: InstallPlan
+                metadata:
+                  namespace: openshift-operators
+                  name: '{{ $installplan.metadata.name }}'
+                spec:
+                  approved: true
+            {{- end }}
+            {{- end }}
+          {{- end }}
+#Check the CSV
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: talm-installplan-approve
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: talm-csv-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ClusterServiceVersion
+            metadata:
+              name: '{{hub fromConfigMap "policies-mano" "operators-version" "talm-startingCSV" hub}}'
+              namespace: openshift-operators
+            status:
+              phase: Succeeded 
+...

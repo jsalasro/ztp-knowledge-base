@@ -1,0 +1,80 @@
+---
+- name: "Manage Secrets in HashiCorp Vault"
+  hosts: "localhost"
+  gather_facts: false
+  connection: "local"
+  vars:
+    kubeconfig: "{{ install_dir }}/auth/kubeconfig"
+  # Vault variables examples
+  #   vault.vault_url: "http://IP_ADDRESS_38:8200"
+  #   vault_roleID: "your_role_id..."
+  #   vault_secretID: "your_secret_id..."
+  #   engine_mount_point: "preprod1-mgmt-ocp"
+  #   vault_apps:
+  #     - secret_path: "quay/"
+  #       data:
+  #         quay_s3_key: "key"
+  #         quay_s3_access: "access"
+
+  tasks:
+
+    - name: "Create or update a secret in KV v2"
+      community.hashi_vault.vault_kv2_write:
+        url: "{{ vault.vault_url }}"
+        auth_method: "approle"
+        role_id: "{{ vault_roleID }}"
+        secret_id: "{{ vault_secretID }}"
+        engine_mount_point: "{{ vault.engine_mount_point }}"
+        path: "{{ item.secret_path }}"
+        data: "{{ item.data }}"
+        namespace: "{{ vault.vault_namespace }}"
+        validate_certs: false
+      loop: "{{ vault_apps }}"
+      no_log: true
+      register: "vault_result"
+
+    - name: Create required namespaces for consumer
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        name: "{{ item }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+      loop: 
+        - ansible-automation-platform
+        - ztp
+        - open-cluster-management-backup
+        - portworx
+        - quay-enterprise
+        - ztp-policy
+        - test1-preprod1
+        - test2-preprod1
+        - imperative
+
+    - name: Create a consumer Secret for each namespace
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: approle-creds
+            namespace: "{{ item }}"
+          type: Opaque
+          stringData:
+            id: "{{ vault_secretID }}" 
+      loop: 
+        - ansible-automation-platform
+        - openshift-authentication
+        - openshift-config
+        - ztp
+        - ztp-policy
+        - openshift-monitoring
+        - open-cluster-management-backup
+        - portworx
+        - quay-enterprise
+        - test1-preprod1
+        - test2-preprod1
+        - imperative
+...

@@ -1,0 +1,3815 @@
+{
+  "timestamp": "2026-04-24T18:34:15.125047",
+  "files_processed": [
+    {
+      "file": "o2cz_config_new/cfg_base_mano/overlays/jz-ocp-hub1-prod/kustomization.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "ch-ocp-hub1-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_1.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.130962"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_mano/overlays/ch-ocp-hub1-prod/kustomization.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "jz-ocp-hub1-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_2.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.132114"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_mano/base/cluster_config/ldap_configmap.cfg",
+      "replacements": {
+        "domains": [
+          {
+            "original": "lb.ad.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_3.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.145258"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_mano/base/cluster_config/proxy_exceptions_mano.cfg",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.212.0",
+            "placeholder": "IP_ADDRESS_1"
+          },
+          {
+            "original": "10.40.212.0",
+            "placeholder": "IP_ADDRESS_2"
+          },
+          {
+            "original": "10.40.213.0",
+            "placeholder": "IP_ADDRESS_3"
+          },
+          {
+            "original": "10.41.213.0",
+            "placeholder": "IP_ADDRESS_4"
+          },
+          {
+            "original": "10.42.224.0",
+            "placeholder": "IP_ADDRESS_5"
+          },
+          {
+            "original": "10.44.224.0",
+            "placeholder": "IP_ADDRESS_6"
+          },
+          {
+            "original": "10.248.0.0",
+            "placeholder": "IP_ADDRESS_7"
+          },
+          {
+            "original": "10.20.0.0",
+            "placeholder": "IP_ADDRESS_8"
+          },
+          {
+            "original": "10.41.215.0",
+            "placeholder": "IP_ADDRESS_9"
+          },
+          {
+            "original": "10.42.226.0",
+            "placeholder": "IP_ADDRESS_10"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.150965"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_mano/base/acm_policies/ztp_config/README.md",
+      "replacements": {
+        "domains": [
+          {
+            "original": "api.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_4.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.178445"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_mano/base/acm_policies/cluster_settings_common/etcd_bakup_policy.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.199.173.58",
+            "placeholder": "IP_ADDRESS_11"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.306666"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_mano/base/acm_policies/cluster_upgrade_cwl/cluster_upgrade_trigger_cgu.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.20.0.1",
+            "placeholder": "IP_ADDRESS_12"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.359972"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/servicemesh/smcp.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.18.190",
+            "placeholder": "IP_ADDRESS_13"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.429933"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-ncd-01-OAM-dual.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.185",
+            "placeholder": "IP_ADDRESS_14"
+          },
+          {
+            "original": "10.27.36.186",
+            "placeholder": "IP_ADDRESS_15"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.432306"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-nef-01-SIGTRAN-dual.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.57",
+            "placeholder": "IP_ADDRESS_16"
+          },
+          {
+            "original": "10.27.36.58",
+            "placeholder": "IP_ADDRESS_17"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.432921"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-nef-01-INTERNET-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.124",
+            "placeholder": "IP_ADDRESS_18"
+          },
+          {
+            "original": "10.27.36.125",
+            "placeholder": "IP_ADDRESS_19"
+          },
+          {
+            "original": "10.27.36.126",
+            "placeholder": "IP_ADDRESS_20"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.434275"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-ncd-01-OAM-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.187",
+            "placeholder": "IP_ADDRESS_21"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.435920"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-nef-01-SIGTRAN-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.59",
+            "placeholder": "IP_ADDRESS_22"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.437643"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-nrf-01-SIGTRAN-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.60",
+            "placeholder": "IP_ADDRESS_23"
+          },
+          {
+            "original": "10.27.36.61",
+            "placeholder": "IP_ADDRESS_24"
+          },
+          {
+            "original": "10.27.36.62",
+            "placeholder": "IP_ADDRESS_25"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.438357"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-ncm-01-OAM-dual.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.188",
+            "placeholder": "IP_ADDRESS_26"
+          },
+          {
+            "original": "10.27.36.189",
+            "placeholder": "IP_ADDRESS_27"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.441079"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/egress/5gc-ncm-01-OAM-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.190",
+            "placeholder": "IP_ADDRESS_28"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.441812"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-001.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-001.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_5.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.498450"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-017.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-017.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_6.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.499095"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-006.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-006.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_7.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.499737"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-010.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-010.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_8.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.500427"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-011.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-011.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_9.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.501273"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-007.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-007.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_10.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.502339"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-016.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-016.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_11.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.503281"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-007.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-007.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_12.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.503927"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-011.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-011.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_13.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.504596"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-016.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-016.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_14.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.505556"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-020.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-020.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_15.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.506227"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-021.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-021.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_16.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.506823"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-017.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-017.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_17.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.507438"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-001.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-001.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_18.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.508090"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-010.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-010.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_19.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.508885"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-006.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-006.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_20.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.509536"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-014.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-014.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_21.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.510339"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-002.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-002.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_22.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.511352"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-013.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-013.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_23.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.512062"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-005.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-005.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_24.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.512656"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-018.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-018.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_25.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.513491"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-009.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-009.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_26.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.514290"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-008.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-008.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_27.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.514956"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-019.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-019.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_28.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.515803"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-004.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-004.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_29.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.516538"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-012.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-012.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_30.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.517359"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-003.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-003.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_31.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.518377"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-015.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-015.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_32.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.519181"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-008.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-008.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_33.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.519873"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-012.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-012.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_34.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.520554"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-004.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-004.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_35.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.521338"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-015.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-015.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_36.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.522006"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-003.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-003.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_37.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.522805"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-002.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-002.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_38.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.523414"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-014.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-014.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_39.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.524050"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-005.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-005.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_40.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.525313"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-013.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-013.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_41.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.527032"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-018.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-018.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_42.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.527777"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-009.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-009.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_43.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.528621"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-011.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.41",
+            "placeholder": "IP_ADDRESS_29"
+          },
+          {
+            "original": "10.41.203.0",
+            "placeholder": "IP_ADDRESS_30"
+          },
+          {
+            "original": "10.41.214.1",
+            "placeholder": "IP_ADDRESS_31"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.530816"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-007.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.37",
+            "placeholder": "IP_ADDRESS_32"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.531716"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-016.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.55",
+            "placeholder": "IP_ADDRESS_33"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.534017"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-master-001.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.11",
+            "placeholder": "IP_ADDRESS_34"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-001.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_44.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.537183"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-001.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.21",
+            "placeholder": "IP_ADDRESS_35"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.544021"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-017.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.56",
+            "placeholder": "IP_ADDRESS_36"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.544833"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-006.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.36",
+            "placeholder": "IP_ADDRESS_37"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.546881"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-010.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.40",
+            "placeholder": "IP_ADDRESS_38"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.547650"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-021.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.60",
+            "placeholder": "IP_ADDRESS_39"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.551645"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-017.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.47",
+            "placeholder": "IP_ADDRESS_40"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.554235"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-001.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.31",
+            "placeholder": "IP_ADDRESS_41"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.555279"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/remove-GW-0-routes.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.1.64",
+            "placeholder": "IP_ADDRESS_42"
+          },
+          {
+            "original": "10.27.36.129",
+            "placeholder": "IP_ADDRESS_43"
+          },
+          {
+            "original": "10.27.1.32",
+            "placeholder": "IP_ADDRESS_44"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.556876"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-010.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.49",
+            "placeholder": "IP_ADDRESS_45"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.558534"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-006.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.26",
+            "placeholder": "IP_ADDRESS_46"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.560459"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/GW-1-egress.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.7",
+            "placeholder": "IP_ADDRESS_47"
+          },
+          {
+            "original": "10.27.36.71",
+            "placeholder": "IP_ADDRESS_48"
+          },
+          {
+            "original": "10.27.36.135",
+            "placeholder": "IP_ADDRESS_49"
+          },
+          {
+            "original": "10.27.36.0",
+            "placeholder": "IP_ADDRESS_50"
+          },
+          {
+            "original": "10.27.36.64",
+            "placeholder": "IP_ADDRESS_51"
+          },
+          {
+            "original": "10.27.36.128",
+            "placeholder": "IP_ADDRESS_52"
+          },
+          {
+            "original": "10.27.16.64",
+            "placeholder": "IP_ADDRESS_53"
+          },
+          {
+            "original": "10.27.36.1",
+            "placeholder": "IP_ADDRESS_54"
+          },
+          {
+            "original": "10.27.32.54",
+            "placeholder": "IP_ADDRESS_55"
+          },
+          {
+            "original": "10.27.18.128",
+            "placeholder": "IP_ADDRESS_56"
+          },
+          {
+            "original": "10.27.18.64",
+            "placeholder": "IP_ADDRESS_57"
+          },
+          {
+            "original": "10.27.18.192",
+            "placeholder": "IP_ADDRESS_58"
+          },
+          {
+            "original": "10.26.16.64",
+            "placeholder": "IP_ADDRESS_59"
+          },
+          {
+            "original": "10.26.32.54",
+            "placeholder": "IP_ADDRESS_60"
+          },
+          {
+            "original": "10.26.18.128",
+            "placeholder": "IP_ADDRESS_61"
+          },
+          {
+            "original": "10.26.18.64",
+            "placeholder": "IP_ADDRESS_62"
+          },
+          {
+            "original": "10.26.18.192",
+            "placeholder": "IP_ADDRESS_63"
+          },
+          {
+            "original": "10.27.18.160",
+            "placeholder": "IP_ADDRESS_64"
+          },
+          {
+            "original": "10.26.18.160",
+            "placeholder": "IP_ADDRESS_65"
+          },
+          {
+            "original": "10.26.1.32",
+            "placeholder": "IP_ADDRESS_66"
+          },
+          {
+            "original": "10.199.173.52",
+            "placeholder": "IP_ADDRESS_67"
+          },
+          {
+            "original": "10.23.48.164",
+            "placeholder": "IP_ADDRESS_68"
+          },
+          {
+            "original": "10.23.48.198",
+            "placeholder": "IP_ADDRESS_69"
+          },
+          {
+            "original": "10.23.48.199",
+            "placeholder": "IP_ADDRESS_70"
+          },
+          {
+            "original": "10.23.50.110",
+            "placeholder": "IP_ADDRESS_71"
+          },
+          {
+            "original": "10.23.50.174",
+            "placeholder": "IP_ADDRESS_72"
+          },
+          {
+            "original": "10.23.51.127",
+            "placeholder": "IP_ADDRESS_73"
+          },
+          {
+            "original": "10.23.51.186",
+            "placeholder": "IP_ADDRESS_74"
+          },
+          {
+            "original": "10.23.57.149",
+            "placeholder": "IP_ADDRESS_75"
+          },
+          {
+            "original": "10.21.6.190",
+            "placeholder": "IP_ADDRESS_76"
+          },
+          {
+            "original": "10.168.165.32",
+            "placeholder": "IP_ADDRESS_77"
+          },
+          {
+            "original": "10.168.166.32",
+            "placeholder": "IP_ADDRESS_78"
+          },
+          {
+            "original": "10.208.166.35",
+            "placeholder": "IP_ADDRESS_79"
+          },
+          {
+            "original": "10.208.167.35",
+            "placeholder": "IP_ADDRESS_80"
+          },
+          {
+            "original": "10.27.17.32",
+            "placeholder": "IP_ADDRESS_81"
+          },
+          {
+            "original": "10.26.17.32",
+            "placeholder": "IP_ADDRESS_82"
+          },
+          {
+            "original": "10.82.59.149",
+            "placeholder": "IP_ADDRESS_83"
+          },
+          {
+            "original": "10.82.59.213",
+            "placeholder": "IP_ADDRESS_84"
+          },
+          {
+            "original": "10.82.58.149",
+            "placeholder": "IP_ADDRESS_85"
+          },
+          {
+            "original": "10.82.58.213",
+            "placeholder": "IP_ADDRESS_86"
+          },
+          {
+            "original": "10.82.52.26",
+            "placeholder": "IP_ADDRESS_87"
+          },
+          {
+            "original": "10.82.52.27",
+            "placeholder": "IP_ADDRESS_88"
+          },
+          {
+            "original": "10.82.53.26",
+            "placeholder": "IP_ADDRESS_89"
+          },
+          {
+            "original": "10.82.53.27",
+            "placeholder": "IP_ADDRESS_90"
+          },
+          {
+            "original": "10.82.52.0",
+            "placeholder": "IP_ADDRESS_91"
+          },
+          {
+            "original": "10.82.53.0",
+            "placeholder": "IP_ADDRESS_92"
+          },
+          {
+            "original": "10.82.53.128",
+            "placeholder": "IP_ADDRESS_93"
+          },
+          {
+            "original": "10.26.36.128",
+            "placeholder": "IP_ADDRESS_94"
+          },
+          {
+            "original": "10.82.24.0",
+            "placeholder": "IP_ADDRESS_95"
+          },
+          {
+            "original": "10.82.23.64",
+            "placeholder": "IP_ADDRESS_96"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.564897"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-007.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.27",
+            "placeholder": "IP_ADDRESS_97"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.565629"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-011.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.50",
+            "placeholder": "IP_ADDRESS_98"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.566644"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-016.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.46",
+            "placeholder": "IP_ADDRESS_99"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.567968"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-020.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.59",
+            "placeholder": "IP_ADDRESS_100"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.570074"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-008.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.28",
+            "placeholder": "IP_ADDRESS_101"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.572135"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-019.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.58",
+            "placeholder": "IP_ADDRESS_102"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.575234"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-004.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.24",
+            "placeholder": "IP_ADDRESS_103"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.576776"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-012.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.51",
+            "placeholder": "IP_ADDRESS_104"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.580739"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-003.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.33",
+            "placeholder": "IP_ADDRESS_105"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.582563"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-015.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.45",
+            "placeholder": "IP_ADDRESS_106"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.583858"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-014.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.44",
+            "placeholder": "IP_ADDRESS_107"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.584472"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-002.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.32",
+            "placeholder": "IP_ADDRESS_108"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.585342"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-013.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.52",
+            "placeholder": "IP_ADDRESS_109"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.588366"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-005.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.25",
+            "placeholder": "IP_ADDRESS_110"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.589825"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-018.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.48",
+            "placeholder": "IP_ADDRESS_111"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.590698"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-009.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.29",
+            "placeholder": "IP_ADDRESS_112"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.592783"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-002.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.22",
+            "placeholder": "IP_ADDRESS_113"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.594790"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-014.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.53",
+            "placeholder": "IP_ADDRESS_114"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.597290"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-005.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.35",
+            "placeholder": "IP_ADDRESS_115"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.598550"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-013.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.43",
+            "placeholder": "IP_ADDRESS_116"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.600384"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-018.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.57",
+            "placeholder": "IP_ADDRESS_117"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.603425"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-009.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.39",
+            "placeholder": "IP_ADDRESS_118"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.604176"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-master-003.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.13",
+            "placeholder": "IP_ADDRESS_119"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-003.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_45.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.609548"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-master-002.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.12",
+            "placeholder": "IP_ADDRESS_120"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-002.ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_46.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.611086"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/GW-0-egress.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.6",
+            "placeholder": "IP_ADDRESS_121"
+          },
+          {
+            "original": "10.27.36.70",
+            "placeholder": "IP_ADDRESS_122"
+          },
+          {
+            "original": "10.27.36.134",
+            "placeholder": "IP_ADDRESS_123"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.615233"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-008.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.38",
+            "placeholder": "IP_ADDRESS_124"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.616391"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-012.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.42",
+            "placeholder": "IP_ADDRESS_125"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.624303"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-004.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.34",
+            "placeholder": "IP_ADDRESS_126"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.625506"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-015.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.54",
+            "placeholder": "IP_ADDRESS_127"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.628201"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-003.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.214.23",
+            "placeholder": "IP_ADDRESS_128"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.628960"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/metallb/5gc-nef-01-INTERNET-dual-IPAddressPool.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.21.128",
+            "placeholder": "IP_ADDRESS_129"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.633389"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-OAM-ipv4-1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.131",
+            "placeholder": "IP_ADDRESS_130"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.635722"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-INTERNET-ipv4-2.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.68",
+            "placeholder": "IP_ADDRESS_131"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.636564"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-SIGTRAN-ipv4-1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.3",
+            "placeholder": "IP_ADDRESS_132"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.637145"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-SIGTRAN-ipv4-2.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.4",
+            "placeholder": "IP_ADDRESS_133"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.637627"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-OAM-ipv4-2.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.132",
+            "placeholder": "IP_ADDRESS_134"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.638089"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_ch/ch-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-INTERNET-ipv4-1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.27.36.67",
+            "placeholder": "IP_ADDRESS_135"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.638590"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/servicemesh/smcp.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.18.190",
+            "placeholder": "IP_ADDRESS_136"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.678396"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/egress/5gc-nef-01-INTERNET-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.124",
+            "placeholder": "IP_ADDRESS_137"
+          },
+          {
+            "original": "10.26.36.125",
+            "placeholder": "IP_ADDRESS_138"
+          },
+          {
+            "original": "10.26.36.126",
+            "placeholder": "IP_ADDRESS_139"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.679441"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/egress/5gc-ncd-01-OAM-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.185",
+            "placeholder": "IP_ADDRESS_140"
+          },
+          {
+            "original": "10.26.36.186",
+            "placeholder": "IP_ADDRESS_141"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.679934"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/egress/5gc-nef-01-SIGTRAN-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.57",
+            "placeholder": "IP_ADDRESS_142"
+          },
+          {
+            "original": "10.26.36.58",
+            "placeholder": "IP_ADDRESS_143"
+          },
+          {
+            "original": "10.26.36.59",
+            "placeholder": "IP_ADDRESS_144"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.680471"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/egress/5gc-nrf-01-SIGTRAN-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.60",
+            "placeholder": "IP_ADDRESS_145"
+          },
+          {
+            "original": "10.26.36.61",
+            "placeholder": "IP_ADDRESS_146"
+          },
+          {
+            "original": "10.26.36.62",
+            "placeholder": "IP_ADDRESS_147"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.681060"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/egress/5gc-ncm-01-OAM-ipv4.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.188",
+            "placeholder": "IP_ADDRESS_148"
+          },
+          {
+            "original": "10.26.36.189",
+            "placeholder": "IP_ADDRESS_149"
+          },
+          {
+            "original": "10.26.36.190",
+            "placeholder": "IP_ADDRESS_150"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.682585"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-001.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-001.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_47.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.725319"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-017.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-017.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_48.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.726059"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-006.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-006.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_49.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.726751"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-010.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-010.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_50.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.727329"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-011.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-011.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_51.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.727881"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-007.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-007.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_52.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.728550"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-016.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-016.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_53.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.729119"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-007.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-007.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_54.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.729979"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-011.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-011.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_55.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.730799"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-016.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-016.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_56.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.731676"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-020.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-020.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_57.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.732363"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-021.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-021.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_58.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.732927"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-017.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-017.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_59.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.733475"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-001.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-001.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_60.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.734016"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-010.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-010.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_61.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.734569"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-006.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-006.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_62.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.735303"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-014.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-014.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_63.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.735997"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-002.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-002.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_64.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.736661"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-013.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-013.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_65.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.737365"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-005.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-005.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_66.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.737981"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-018.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-018.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_67.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.738630"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-009.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-009.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_68.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.739205"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-008.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-008.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_69.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.739770"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-019.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-019.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_70.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.740373"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-004.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-004.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_71.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.741000"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-012.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-012.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_72.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.741691"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-003.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-003.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_73.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.742756"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-015.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-015.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_74.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.743504"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-008.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-008.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_75.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.744257"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-012.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-012.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_76.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.744845"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-004.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-004.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_77.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.745443"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-015.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-015.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_78.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.745952"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-003.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-003.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_79.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.746522"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-002.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-002.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_80.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.747157"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-014.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-014.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_81.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.747712"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-005.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-005.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_82.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.748359"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-013.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-013.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_83.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.748973"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a2-worker-018.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a2-worker-018.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_84.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.749704"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/node-labels/hpe-a3-worker-009.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "hpe-a3-worker-009.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_85.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.750355"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-011.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.41",
+            "placeholder": "IP_ADDRESS_151"
+          },
+          {
+            "original": "10.40.203.0",
+            "placeholder": "IP_ADDRESS_152"
+          },
+          {
+            "original": "10.40.214.1",
+            "placeholder": "IP_ADDRESS_153"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.751850"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-007.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.37",
+            "placeholder": "IP_ADDRESS_154"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.752581"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-016.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.58",
+            "placeholder": "IP_ADDRESS_155"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.753528"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-master-001.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.11",
+            "placeholder": "IP_ADDRESS_156"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-001.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_86.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.755632"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-001.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.21",
+            "placeholder": "IP_ADDRESS_157"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.759256"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-017.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.59",
+            "placeholder": "IP_ADDRESS_158"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.760297"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-006.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.36",
+            "placeholder": "IP_ADDRESS_159"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.761128"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-010.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.40",
+            "placeholder": "IP_ADDRESS_160"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.762069"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-021.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.51",
+            "placeholder": "IP_ADDRESS_161"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.764914"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-017.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.47",
+            "placeholder": "IP_ADDRESS_162"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.766451"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-001.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.31",
+            "placeholder": "IP_ADDRESS_163"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.767249"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-010.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.52",
+            "placeholder": "IP_ADDRESS_164"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.772219"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-006.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.26",
+            "placeholder": "IP_ADDRESS_165"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.773802"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/GW-1-egress.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.7",
+            "placeholder": "IP_ADDRESS_166"
+          },
+          {
+            "original": "10.26.36.70",
+            "placeholder": "IP_ADDRESS_167"
+          },
+          {
+            "original": "10.26.36.135",
+            "placeholder": "IP_ADDRESS_168"
+          },
+          {
+            "original": "10.26.36.0",
+            "placeholder": "IP_ADDRESS_169"
+          },
+          {
+            "original": "10.26.36.64",
+            "placeholder": "IP_ADDRESS_170"
+          },
+          {
+            "original": "10.26.36.1",
+            "placeholder": "IP_ADDRESS_171"
+          },
+          {
+            "original": "10.26.36.129",
+            "placeholder": "IP_ADDRESS_172"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.778209"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-007.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.27",
+            "placeholder": "IP_ADDRESS_173"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.779763"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-011.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.53",
+            "placeholder": "IP_ADDRESS_174"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.786672"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-016.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.46",
+            "placeholder": "IP_ADDRESS_175"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.787468"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-020.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.50",
+            "placeholder": "IP_ADDRESS_176"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.788263"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-008.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.28",
+            "placeholder": "IP_ADDRESS_177"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.793665"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-019.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.49",
+            "placeholder": "IP_ADDRESS_178"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.795709"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-004.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.24",
+            "placeholder": "IP_ADDRESS_179"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.798551"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-012.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.54",
+            "placeholder": "IP_ADDRESS_180"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.800989"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-003.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.33",
+            "placeholder": "IP_ADDRESS_181"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.802459"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-015.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.45",
+            "placeholder": "IP_ADDRESS_182"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.803223"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-014.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.44",
+            "placeholder": "IP_ADDRESS_183"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.804008"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-002.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.32",
+            "placeholder": "IP_ADDRESS_184"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.804837"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-013.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.55",
+            "placeholder": "IP_ADDRESS_185"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.805555"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-005.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.25",
+            "placeholder": "IP_ADDRESS_186"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.807548"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-018.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.48",
+            "placeholder": "IP_ADDRESS_187"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.809765"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-009.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.29",
+            "placeholder": "IP_ADDRESS_188"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.811546"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-002.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.22",
+            "placeholder": "IP_ADDRESS_189"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.812753"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-014.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.56",
+            "placeholder": "IP_ADDRESS_190"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.814122"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-005.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.35",
+            "placeholder": "IP_ADDRESS_191"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.816864"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-013.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.43",
+            "placeholder": "IP_ADDRESS_192"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.817695"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-018.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.60",
+            "placeholder": "IP_ADDRESS_193"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.818347"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-009.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.39",
+            "placeholder": "IP_ADDRESS_194"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.819908"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-master-003.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.13",
+            "placeholder": "IP_ADDRESS_195"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-003.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_87.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.821894"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-master-002.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.12",
+            "placeholder": "IP_ADDRESS_196"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-002.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_88.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.823738"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/GW-0-egress.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.6",
+            "placeholder": "IP_ADDRESS_197"
+          },
+          {
+            "original": "10.26.36.69",
+            "placeholder": "IP_ADDRESS_198"
+          },
+          {
+            "original": "10.26.36.134",
+            "placeholder": "IP_ADDRESS_199"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.827826"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-008.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.38",
+            "placeholder": "IP_ADDRESS_200"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.829638"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-012.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.42",
+            "placeholder": "IP_ADDRESS_201"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.833839"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a3-worker-004.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.34",
+            "placeholder": "IP_ADDRESS_202"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.835298"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-015.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.57",
+            "placeholder": "IP_ADDRESS_203"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.836102"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/nmstate/storage-network-vlan-a2-worker-003.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.214.23",
+            "placeholder": "IP_ADDRESS_204"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.836800"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-OAM-ipv4-1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.131",
+            "placeholder": "IP_ADDRESS_205"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.841981"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-INTERNET-ipv4-2.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.68",
+            "placeholder": "IP_ADDRESS_206"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.842500"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-SIGTRAN-ipv4-1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.3",
+            "placeholder": "IP_ADDRESS_207"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.842901"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-SIGTRAN-ipv4-2.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.4",
+            "placeholder": "IP_ADDRESS_208"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.843314"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-OAM-ipv4-2.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.132",
+            "placeholder": "IP_ADDRESS_209"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.843827"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-BGPPeer-INTERNET-ipv4-1.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.36.67",
+            "placeholder": "IP_ADDRESS_210"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.844175"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-nef-01-INTERNET-IPAddressPool.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.21.128",
+            "placeholder": "IP_ADDRESS_211"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.846075"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/prod_v0/site_jz/jz-ocp-cw01-prod/source-crs/metallb/5gc-ncd-01-OAM-dual-IPAddressPool.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.26.1.64",
+            "placeholder": "IP_ADDRESS_212"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.847294"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/util_clusters/site_ch/ch-ocp-util-prod/source-crs/nmstate/storage-network-vlan-a2-master-001.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.216.11",
+            "placeholder": "IP_ADDRESS_213"
+          },
+          {
+            "original": "10.41.216.1",
+            "placeholder": "IP_ADDRESS_214"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-001.ch-ocp-util-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_89.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.889923"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/util_clusters/site_ch/ch-ocp-util-prod/source-crs/nmstate/storage-network-vlan-a2-master-003.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.216.13",
+            "placeholder": "IP_ADDRESS_215"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-003.ch-ocp-util-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_90.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.890743"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-policies/fleet/util_clusters/site_ch/ch-ocp-util-prod/source-crs/nmstate/storage-network-vlan-a2-master-002.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.216.12",
+            "placeholder": "IP_ADDRESS_216"
+          }
+        ],
+        "domains": [
+          {
+            "original": "hpe-a2-master-002.ch-ocp-util-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_91.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.891704"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-config/custom-manifests/99-zz-custom-registries-master-jz.yaml",
+      "replacements": {
+        "domains": [
+          {
+            "original": "registry-quay.apps.jz-ocp-hub1-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_92.COM"
+          },
+          {
+            "original": "registry-quay.apps.ch-ocp-hub1-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_93.COM"
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:15.904374"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-config/cluster-jz-ocp-cw01-prod/siteconfig.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.40.213.9",
+            "placeholder": "IP_ADDRESS_217"
+          },
+          {
+            "original": "10.40.213.10",
+            "placeholder": "IP_ADDRESS_218"
+          },
+          {
+            "original": "10.82.17.134",
+            "placeholder": "IP_ADDRESS_219"
+          },
+          {
+            "original": "10.82.18.134",
+            "placeholder": "IP_ADDRESS_220"
+          },
+          {
+            "original": "10.82.27.134",
+            "placeholder": "IP_ADDRESS_221"
+          },
+          {
+            "original": "10.44.224.11",
+            "placeholder": "IP_ADDRESS_222"
+          },
+          {
+            "original": "10.40.213.11",
+            "placeholder": "IP_ADDRESS_223"
+          },
+          {
+            "original": "10.16.52.224",
+            "placeholder": "IP_ADDRESS_224"
+          },
+          {
+            "original": "10.199.73.30",
+            "placeholder": "IP_ADDRESS_225"
+          },
+          {
+            "original": "10.40.213.1",
+            "placeholder": "IP_ADDRESS_226"
+          },
+          {
+            "original": "10.44.224.12",
+            "placeholder": "IP_ADDRESS_227"
+          },
+          {
+            "original": "10.40.213.12",
+            "placeholder": "IP_ADDRESS_228"
+          },
+          {
+            "original": "10.44.224.13",
+            "placeholder": "IP_ADDRESS_229"
+          },
+          {
+            "original": "10.40.213.13",
+            "placeholder": "IP_ADDRESS_230"
+          },
+          {
+            "original": "10.44.224.21",
+            "placeholder": "IP_ADDRESS_231"
+          },
+          {
+            "original": "10.40.213.21",
+            "placeholder": "IP_ADDRESS_232"
+          },
+          {
+            "original": "10.44.224.52",
+            "placeholder": "IP_ADDRESS_233"
+          },
+          {
+            "original": "10.40.213.52",
+            "placeholder": "IP_ADDRESS_234"
+          },
+          {
+            "original": "10.44.224.22",
+            "placeholder": "IP_ADDRESS_235"
+          },
+          {
+            "original": "10.40.213.22",
+            "placeholder": "IP_ADDRESS_236"
+          },
+          {
+            "original": "10.44.224.23",
+            "placeholder": "IP_ADDRESS_237"
+          },
+          {
+            "original": "10.40.213.23",
+            "placeholder": "IP_ADDRESS_238"
+          },
+          {
+            "original": "10.44.224.24",
+            "placeholder": "IP_ADDRESS_239"
+          },
+          {
+            "original": "10.40.213.24",
+            "placeholder": "IP_ADDRESS_240"
+          },
+          {
+            "original": "10.44.224.25",
+            "placeholder": "IP_ADDRESS_241"
+          },
+          {
+            "original": "10.40.213.25",
+            "placeholder": "IP_ADDRESS_242"
+          },
+          {
+            "original": "10.44.224.26",
+            "placeholder": "IP_ADDRESS_243"
+          },
+          {
+            "original": "10.40.213.26",
+            "placeholder": "IP_ADDRESS_244"
+          },
+          {
+            "original": "10.44.224.27",
+            "placeholder": "IP_ADDRESS_245"
+          },
+          {
+            "original": "10.40.213.27",
+            "placeholder": "IP_ADDRESS_246"
+          },
+          {
+            "original": "10.44.224.28",
+            "placeholder": "IP_ADDRESS_247"
+          },
+          {
+            "original": "10.40.213.28",
+            "placeholder": "IP_ADDRESS_248"
+          },
+          {
+            "original": "10.44.224.29",
+            "placeholder": "IP_ADDRESS_249"
+          },
+          {
+            "original": "10.40.213.29",
+            "placeholder": "IP_ADDRESS_250"
+          },
+          {
+            "original": "10.44.224.53",
+            "placeholder": "IP_ADDRESS_251"
+          },
+          {
+            "original": "10.40.213.53",
+            "placeholder": "IP_ADDRESS_252"
+          },
+          {
+            "original": "10.44.224.54",
+            "placeholder": "IP_ADDRESS_253"
+          },
+          {
+            "original": "10.40.213.54",
+            "placeholder": "IP_ADDRESS_254"
+          },
+          {
+            "original": "10.44.224.55",
+            "placeholder": "IP_ADDRESS_255"
+          },
+          {
+            "original": "10.40.213.55",
+            "placeholder": "IP_ADDRESS_256"
+          },
+          {
+            "original": "10.44.224.56",
+            "placeholder": "IP_ADDRESS_257"
+          },
+          {
+            "original": "10.40.213.56",
+            "placeholder": "IP_ADDRESS_258"
+          },
+          {
+            "original": "10.44.224.57",
+            "placeholder": "IP_ADDRESS_259"
+          },
+          {
+            "original": "10.40.213.57",
+            "placeholder": "IP_ADDRESS_260"
+          },
+          {
+            "original": "10.44.224.58",
+            "placeholder": "IP_ADDRESS_261"
+          },
+          {
+            "original": "10.40.213.58",
+            "placeholder": "IP_ADDRESS_262"
+          },
+          {
+            "original": "10.44.224.59",
+            "placeholder": "IP_ADDRESS_263"
+          },
+          {
+            "original": "10.40.213.59",
+            "placeholder": "IP_ADDRESS_264"
+          },
+          {
+            "original": "10.44.224.60",
+            "placeholder": "IP_ADDRESS_265"
+          },
+          {
+            "original": "10.40.213.60",
+            "placeholder": "IP_ADDRESS_266"
+          },
+          {
+            "original": "10.44.224.31",
+            "placeholder": "IP_ADDRESS_267"
+          },
+          {
+            "original": "10.40.213.31",
+            "placeholder": "IP_ADDRESS_268"
+          },
+          {
+            "original": "10.44.224.32",
+            "placeholder": "IP_ADDRESS_269"
+          },
+          {
+            "original": "10.40.213.32",
+            "placeholder": "IP_ADDRESS_270"
+          },
+          {
+            "original": "10.44.224.33",
+            "placeholder": "IP_ADDRESS_271"
+          },
+          {
+            "original": "10.40.213.33",
+            "placeholder": "IP_ADDRESS_272"
+          },
+          {
+            "original": "10.44.224.34",
+            "placeholder": "IP_ADDRESS_273"
+          },
+          {
+            "original": "10.40.213.34",
+            "placeholder": "IP_ADDRESS_274"
+          },
+          {
+            "original": "10.44.224.35",
+            "placeholder": "IP_ADDRESS_275"
+          },
+          {
+            "original": "10.40.213.35",
+            "placeholder": "IP_ADDRESS_276"
+          },
+          {
+            "original": "10.44.224.36",
+            "placeholder": "IP_ADDRESS_277"
+          },
+          {
+            "original": "10.40.213.36",
+            "placeholder": "IP_ADDRESS_278"
+          },
+          {
+            "original": "10.44.224.37",
+            "placeholder": "IP_ADDRESS_279"
+          },
+          {
+            "original": "10.40.213.37",
+            "placeholder": "IP_ADDRESS_280"
+          },
+          {
+            "original": "10.44.224.38",
+            "placeholder": "IP_ADDRESS_281"
+          },
+          {
+            "original": "10.40.213.38",
+            "placeholder": "IP_ADDRESS_282"
+          },
+          {
+            "original": "10.44.224.39",
+            "placeholder": "IP_ADDRESS_283"
+          },
+          {
+            "original": "10.40.213.39",
+            "placeholder": "IP_ADDRESS_284"
+          },
+          {
+            "original": "10.44.224.40",
+            "placeholder": "IP_ADDRESS_285"
+          },
+          {
+            "original": "10.40.213.40",
+            "placeholder": "IP_ADDRESS_286"
+          },
+          {
+            "original": "10.44.224.41",
+            "placeholder": "IP_ADDRESS_287"
+          },
+          {
+            "original": "10.40.213.41",
+            "placeholder": "IP_ADDRESS_288"
+          },
+          {
+            "original": "10.44.224.42",
+            "placeholder": "IP_ADDRESS_289"
+          },
+          {
+            "original": "10.40.213.42",
+            "placeholder": "IP_ADDRESS_290"
+          },
+          {
+            "original": "10.44.224.43",
+            "placeholder": "IP_ADDRESS_291"
+          },
+          {
+            "original": "10.40.213.43",
+            "placeholder": "IP_ADDRESS_292"
+          },
+          {
+            "original": "10.44.224.44",
+            "placeholder": "IP_ADDRESS_293"
+          },
+          {
+            "original": "10.40.213.44",
+            "placeholder": "IP_ADDRESS_294"
+          },
+          {
+            "original": "10.44.224.45",
+            "placeholder": "IP_ADDRESS_295"
+          },
+          {
+            "original": "10.40.213.45",
+            "placeholder": "IP_ADDRESS_296"
+          },
+          {
+            "original": "10.44.224.46",
+            "placeholder": "IP_ADDRESS_297"
+          },
+          {
+            "original": "10.40.213.46",
+            "placeholder": "IP_ADDRESS_298"
+          },
+          {
+            "original": "10.44.224.47",
+            "placeholder": "IP_ADDRESS_299"
+          },
+          {
+            "original": "10.40.213.47",
+            "placeholder": "IP_ADDRESS_300"
+          },
+          {
+            "original": "10.44.224.48",
+            "placeholder": "IP_ADDRESS_301"
+          },
+          {
+            "original": "10.40.213.48",
+            "placeholder": "IP_ADDRESS_302"
+          },
+          {
+            "original": "10.44.224.49",
+            "placeholder": "IP_ADDRESS_303"
+          },
+          {
+            "original": "10.40.213.49",
+            "placeholder": "IP_ADDRESS_304"
+          },
+          {
+            "original": "10.44.224.50",
+            "placeholder": "IP_ADDRESS_305"
+          },
+          {
+            "original": "10.40.213.50",
+            "placeholder": "IP_ADDRESS_306"
+          },
+          {
+            "original": "10.44.224.51",
+            "placeholder": "IP_ADDRESS_307"
+          },
+          {
+            "original": "10.40.213.51",
+            "placeholder": "IP_ADDRESS_308"
+          },
+          {
+            "original": "10.44.224.61",
+            "placeholder": "IP_ADDRESS_309"
+          },
+          {
+            "original": "10.40.213.61",
+            "placeholder": "IP_ADDRESS_310"
+          },
+          {
+            "original": "10.44.224.62",
+            "placeholder": "IP_ADDRESS_311"
+          },
+          {
+            "original": "10.40.213.62",
+            "placeholder": "IP_ADDRESS_312"
+          },
+          {
+            "original": "10.44.224.63",
+            "placeholder": "IP_ADDRESS_313"
+          },
+          {
+            "original": "10.40.213.63",
+            "placeholder": "IP_ADDRESS_314"
+          },
+          {
+            "original": "10.44.224.64",
+            "placeholder": "IP_ADDRESS_315"
+          },
+          {
+            "original": "10.40.213.64",
+            "placeholder": "IP_ADDRESS_316"
+          },
+          {
+            "original": "10.44.224.65",
+            "placeholder": "IP_ADDRESS_317"
+          },
+          {
+            "original": "10.40.213.65",
+            "placeholder": "IP_ADDRESS_318"
+          }
+        ],
+        "domains": [
+          {
+            "original": "jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_94.COM"
+          },
+          {
+            "original": "ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_95.COM"
+          },
+          {
+            "original": "hpe-a3-worker-022.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_96.COM"
+          },
+          {
+            "original": "hpe-a3-worker-023.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_97.COM"
+          },
+          {
+            "original": "hpe-a3-worker-024.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_98.COM"
+          },
+          {
+            "original": "hpe-a3-worker-025.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_99.COM"
+          },
+          {
+            "original": "hpe-a3-worker-026.jz-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_100.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 552
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:16.792308"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-config/cluster-ch-ocp-cw01-prod/siteconfig.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.213.9",
+            "placeholder": "IP_ADDRESS_319"
+          },
+          {
+            "original": "10.41.213.10",
+            "placeholder": "IP_ADDRESS_320"
+          },
+          {
+            "original": "10.42.224.11",
+            "placeholder": "IP_ADDRESS_321"
+          },
+          {
+            "original": "10.41.213.11",
+            "placeholder": "IP_ADDRESS_322"
+          },
+          {
+            "original": "10.41.213.1",
+            "placeholder": "IP_ADDRESS_323"
+          },
+          {
+            "original": "10.42.224.12",
+            "placeholder": "IP_ADDRESS_324"
+          },
+          {
+            "original": "10.41.213.12",
+            "placeholder": "IP_ADDRESS_325"
+          },
+          {
+            "original": "10.42.224.13",
+            "placeholder": "IP_ADDRESS_326"
+          },
+          {
+            "original": "10.41.213.13",
+            "placeholder": "IP_ADDRESS_327"
+          },
+          {
+            "original": "10.42.224.21",
+            "placeholder": "IP_ADDRESS_328"
+          },
+          {
+            "original": "10.41.213.21",
+            "placeholder": "IP_ADDRESS_329"
+          },
+          {
+            "original": "10.42.224.49",
+            "placeholder": "IP_ADDRESS_330"
+          },
+          {
+            "original": "10.41.213.49",
+            "placeholder": "IP_ADDRESS_331"
+          },
+          {
+            "original": "10.42.224.22",
+            "placeholder": "IP_ADDRESS_332"
+          },
+          {
+            "original": "10.41.213.22",
+            "placeholder": "IP_ADDRESS_333"
+          },
+          {
+            "original": "10.42.224.23",
+            "placeholder": "IP_ADDRESS_334"
+          },
+          {
+            "original": "10.41.213.23",
+            "placeholder": "IP_ADDRESS_335"
+          },
+          {
+            "original": "10.42.224.24",
+            "placeholder": "IP_ADDRESS_336"
+          },
+          {
+            "original": "10.41.213.24",
+            "placeholder": "IP_ADDRESS_337"
+          },
+          {
+            "original": "10.42.224.25",
+            "placeholder": "IP_ADDRESS_338"
+          },
+          {
+            "original": "10.41.213.25",
+            "placeholder": "IP_ADDRESS_339"
+          },
+          {
+            "original": "10.42.224.26",
+            "placeholder": "IP_ADDRESS_340"
+          },
+          {
+            "original": "10.41.213.26",
+            "placeholder": "IP_ADDRESS_341"
+          },
+          {
+            "original": "10.42.224.27",
+            "placeholder": "IP_ADDRESS_342"
+          },
+          {
+            "original": "10.41.213.27",
+            "placeholder": "IP_ADDRESS_343"
+          },
+          {
+            "original": "10.42.224.28",
+            "placeholder": "IP_ADDRESS_344"
+          },
+          {
+            "original": "10.41.213.28",
+            "placeholder": "IP_ADDRESS_345"
+          },
+          {
+            "original": "10.42.224.29",
+            "placeholder": "IP_ADDRESS_346"
+          },
+          {
+            "original": "10.41.213.29",
+            "placeholder": "IP_ADDRESS_347"
+          },
+          {
+            "original": "10.42.224.50",
+            "placeholder": "IP_ADDRESS_348"
+          },
+          {
+            "original": "10.41.213.50",
+            "placeholder": "IP_ADDRESS_349"
+          },
+          {
+            "original": "10.42.224.51",
+            "placeholder": "IP_ADDRESS_350"
+          },
+          {
+            "original": "10.41.213.51",
+            "placeholder": "IP_ADDRESS_351"
+          },
+          {
+            "original": "10.42.224.52",
+            "placeholder": "IP_ADDRESS_352"
+          },
+          {
+            "original": "10.41.213.52",
+            "placeholder": "IP_ADDRESS_353"
+          },
+          {
+            "original": "10.42.224.53",
+            "placeholder": "IP_ADDRESS_354"
+          },
+          {
+            "original": "10.41.213.53",
+            "placeholder": "IP_ADDRESS_355"
+          },
+          {
+            "original": "10.42.224.54",
+            "placeholder": "IP_ADDRESS_356"
+          },
+          {
+            "original": "10.41.213.54",
+            "placeholder": "IP_ADDRESS_357"
+          },
+          {
+            "original": "10.42.224.55",
+            "placeholder": "IP_ADDRESS_358"
+          },
+          {
+            "original": "10.41.213.55",
+            "placeholder": "IP_ADDRESS_359"
+          },
+          {
+            "original": "10.42.224.56",
+            "placeholder": "IP_ADDRESS_360"
+          },
+          {
+            "original": "10.41.213.56",
+            "placeholder": "IP_ADDRESS_361"
+          },
+          {
+            "original": "10.42.224.57",
+            "placeholder": "IP_ADDRESS_362"
+          },
+          {
+            "original": "10.41.213.57",
+            "placeholder": "IP_ADDRESS_363"
+          },
+          {
+            "original": "10.42.224.31",
+            "placeholder": "IP_ADDRESS_364"
+          },
+          {
+            "original": "10.41.213.31",
+            "placeholder": "IP_ADDRESS_365"
+          },
+          {
+            "original": "10.42.224.32",
+            "placeholder": "IP_ADDRESS_366"
+          },
+          {
+            "original": "10.41.213.32",
+            "placeholder": "IP_ADDRESS_367"
+          },
+          {
+            "original": "10.42.224.33",
+            "placeholder": "IP_ADDRESS_368"
+          },
+          {
+            "original": "10.41.213.33",
+            "placeholder": "IP_ADDRESS_369"
+          },
+          {
+            "original": "10.42.224.34",
+            "placeholder": "IP_ADDRESS_370"
+          },
+          {
+            "original": "10.41.213.34",
+            "placeholder": "IP_ADDRESS_371"
+          },
+          {
+            "original": "10.42.224.35",
+            "placeholder": "IP_ADDRESS_372"
+          },
+          {
+            "original": "10.41.213.35",
+            "placeholder": "IP_ADDRESS_373"
+          },
+          {
+            "original": "10.42.224.36",
+            "placeholder": "IP_ADDRESS_374"
+          },
+          {
+            "original": "10.41.213.36",
+            "placeholder": "IP_ADDRESS_375"
+          },
+          {
+            "original": "10.42.224.37",
+            "placeholder": "IP_ADDRESS_376"
+          },
+          {
+            "original": "10.41.213.37",
+            "placeholder": "IP_ADDRESS_377"
+          },
+          {
+            "original": "10.42.224.38",
+            "placeholder": "IP_ADDRESS_378"
+          },
+          {
+            "original": "10.41.213.38",
+            "placeholder": "IP_ADDRESS_379"
+          },
+          {
+            "original": "10.42.224.39",
+            "placeholder": "IP_ADDRESS_380"
+          },
+          {
+            "original": "10.41.213.39",
+            "placeholder": "IP_ADDRESS_381"
+          },
+          {
+            "original": "10.42.224.40",
+            "placeholder": "IP_ADDRESS_382"
+          },
+          {
+            "original": "10.41.213.40",
+            "placeholder": "IP_ADDRESS_383"
+          },
+          {
+            "original": "10.42.224.41",
+            "placeholder": "IP_ADDRESS_384"
+          },
+          {
+            "original": "10.41.213.41",
+            "placeholder": "IP_ADDRESS_385"
+          },
+          {
+            "original": "10.42.224.42",
+            "placeholder": "IP_ADDRESS_386"
+          },
+          {
+            "original": "10.41.213.42",
+            "placeholder": "IP_ADDRESS_387"
+          },
+          {
+            "original": "10.42.224.43",
+            "placeholder": "IP_ADDRESS_388"
+          },
+          {
+            "original": "10.41.213.43",
+            "placeholder": "IP_ADDRESS_389"
+          },
+          {
+            "original": "10.42.224.44",
+            "placeholder": "IP_ADDRESS_390"
+          },
+          {
+            "original": "10.41.213.44",
+            "placeholder": "IP_ADDRESS_391"
+          },
+          {
+            "original": "10.42.224.45",
+            "placeholder": "IP_ADDRESS_392"
+          },
+          {
+            "original": "10.41.213.45",
+            "placeholder": "IP_ADDRESS_393"
+          },
+          {
+            "original": "10.42.224.46",
+            "placeholder": "IP_ADDRESS_394"
+          },
+          {
+            "original": "10.41.213.46",
+            "placeholder": "IP_ADDRESS_395"
+          },
+          {
+            "original": "10.42.224.47",
+            "placeholder": "IP_ADDRESS_396"
+          },
+          {
+            "original": "10.41.213.47",
+            "placeholder": "IP_ADDRESS_397"
+          },
+          {
+            "original": "10.42.224.48",
+            "placeholder": "IP_ADDRESS_398"
+          },
+          {
+            "original": "10.41.213.48",
+            "placeholder": "IP_ADDRESS_399"
+          },
+          {
+            "original": "10.42.224.58",
+            "placeholder": "IP_ADDRESS_400"
+          },
+          {
+            "original": "10.41.213.58",
+            "placeholder": "IP_ADDRESS_401"
+          },
+          {
+            "original": "10.42.224.59",
+            "placeholder": "IP_ADDRESS_402"
+          },
+          {
+            "original": "10.41.213.59",
+            "placeholder": "IP_ADDRESS_403"
+          },
+          {
+            "original": "10.42.224.60",
+            "placeholder": "IP_ADDRESS_404"
+          },
+          {
+            "original": "10.41.213.60",
+            "placeholder": "IP_ADDRESS_405"
+          }
+        ],
+        "domains": [
+          {
+            "original": "ch-ocp-cw01-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_101.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 552
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:16.840700"
+    },
+    {
+      "file": "o2cz_config_new/cfg_base_workload/ztp/site-config/cluster-ch-ocp-util-prod/siteconfig.yaml",
+      "replacements": {
+        "ip_addresses": [
+          {
+            "original": "10.41.215.9",
+            "placeholder": "IP_ADDRESS_406"
+          },
+          {
+            "original": "10.41.215.10",
+            "placeholder": "IP_ADDRESS_407"
+          },
+          {
+            "original": "10.42.226.11",
+            "placeholder": "IP_ADDRESS_408"
+          },
+          {
+            "original": "10.41.215.11",
+            "placeholder": "IP_ADDRESS_409"
+          },
+          {
+            "original": "10.41.215.1",
+            "placeholder": "IP_ADDRESS_410"
+          },
+          {
+            "original": "10.41.216.0",
+            "placeholder": "IP_ADDRESS_411"
+          },
+          {
+            "original": "10.42.226.12",
+            "placeholder": "IP_ADDRESS_412"
+          },
+          {
+            "original": "10.41.215.12",
+            "placeholder": "IP_ADDRESS_413"
+          },
+          {
+            "original": "10.42.226.13",
+            "placeholder": "IP_ADDRESS_414"
+          },
+          {
+            "original": "10.41.215.13",
+            "placeholder": "IP_ADDRESS_415"
+          }
+        ],
+        "domains": [
+          {
+            "original": "ch-ocp-util-prod.ntw.o2.cz",
+            "placeholder": "DOMAIN_EXAMPLE_102.COM"
+          }
+        ],
+        "ssh_keys": [
+          {
+            "type": "ssh_public_key",
+            "placeholder": "SSH_PUBLIC_KEY_1",
+            "length": 552
+          }
+        ]
+      },
+      "timestamp": "2026-04-24T18:34:16.846405"
+    }
+  ],
+  "replacements": {},
+  "statistics": {
+    "total_files": 913,
+    "files_sanitized": 211,
+    "ips_replaced": 415,
+    "domains_replaced": 102,
+    "keys_replaced": 3,
+    "vault_files": 0
+  }
+}

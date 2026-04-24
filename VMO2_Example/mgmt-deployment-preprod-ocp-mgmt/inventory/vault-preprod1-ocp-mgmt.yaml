@@ -1,0 +1,6 @@
+# SANITIZED: This file contained Ansible Vault encrypted data
+# Original file: vault-preprod1-ocp-mgmt.yaml
+# The encrypted content has been removed for security purposes
+#
+# In a real deployment, this would contain sensitive configuration data
+# encrypted using ansible-vault

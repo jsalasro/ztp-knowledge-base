@@ -1,0 +1,140 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Create Quay Registry
+  name: quay-registry
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # Persistent storage needs to be fully ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: odf-internal
+    namespace: policies-mano
+  # QUAY operator deployed
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: operator-install-quay
+    namespace: policies-mano
+  policy-templates:
+#Create namespace
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: quay-registry-namespace
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: quay
+#              labels:
+#                openshift.io/cluster-monitoring: "true"
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: quay-config-bundle
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: musthave
+          objectDefinition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: config-bundle-secret
+              namespace: quay
+            data: '{{ copySecretData "policies-mano" "quay-config-bundle-secret" }}'
+  # quay-registry
+  - extraDependencies:
+    - name: quay-config-bundle
+      namespace: ""
+      apiVersion: policy.open-cluster-management.io/v1
+      compliance: Compliant
+      kind: ConfigurationPolicy
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: quay-registry-create
+      spec:
+        remediationAction: enforce
+        severity: high
+        object-templates:
+          - complianceType: mustonlyhave
+            objectDefinition:
+              apiVersion: quay.redhat.com/v1
+              kind: QuayRegistry
+              metadata:
+                name: quay-registry
+                namespace: quay
+              spec:
+                configBundleSecret: config-bundle-secret
+                components:
+                  - kind: clair
+                    managed: true
+                  - kind: postgres
+                    managed: true
+                  - kind: objectstorage
+                    managed: true
+                  - kind: redis
+                    managed: true
+                  - kind: horizontalpodautoscaler
+                    managed: true
+                  - kind: route
+                    managed: true
+                  - kind: mirror
+                    managed: true
+                  - kind: monitoring
+                    managed: true
+                  - kind: tls
+                    managed: true
+                  - kind: quay
+                    managed: true
+                  - kind: clairpostgres
+                    managed: true
+  #Check for Quay registry ready
+  - extraDependencies:
+    - name: quay-registry-create
+      namespace: ""
+      apiVersion: policy.open-cluster-management.io/v1
+      compliance: Compliant
+      kind: ConfigurationPolicy
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: quay-registry-ready
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: quay.redhat.com/v1
+              kind: QuayRegistry
+              metadata:
+                name: quay-registry
+                namespace: quay
+              status:
+                conditions:
+                - type: Available
+                  status: 'True'
+...

@@ -1,0 +1,266 @@
+# SiteConfig file for cluster: DOMAIN_EXAMPLE_101.COM
+---
+apiVersion: ran.openshift.io/v1
+kind: SiteConfig
+metadata:
+  name: "ch-ocp-util-prod"
+  namespace: "workload-clusters"
+spec:
+  baseDomain: "DOMAIN_EXAMPLE_95.COM"
+  pullSecretRef:
+    name: "pull-secret"
+  # Set the correct image version at cluster installation time, later it cannot be changed even if cluster is updated
+  clusterImageSetNameRef: "img4.14.35-x86-64-appsub"
+  sshPublicKey: "SSH_PUBLIC_KEY_1"
+  clusters:
+  - clusterName: "ch-ocp-util-prod"
+    installConfigOverrides: "{\"capabilities\":{\"baselineCapabilitySet\": \"None\", \"additionalEnabledCapabilities\": [ \"baremetal\", \"Console\", \"MachineAPI\", \"marketplace\", \"Build\", \"NodeTuning\", \"CSISnapshot\", \"Storage\" ] }}"
+# Active capabilities:
+#   - baremetal
+#   - Console
+#   - MachineAPI
+#   - marketplace
+#   - Build
+#   - NodeTuning
+#   - CSISnapshot
+#   - Storage
+    extraManifests:
+      searchPaths:
+      - ../extra-manifests
+      - ../custom-manifests
+      filter:
+        inclusionDefault: include
+      exclude:
+      # adapt to initial site deployment
+      - 99-zz-custom-registries-master-jz.yaml
+      - 99-zz-custom-registries-worker-jz.yaml
+    networkType: "OVNKubernetes"
+    clusterLabels:
+      cluster_site: cho
+      cluster_scope: production
+      cluster_type: util
+      configuration_version: base-414-v0
+      openshiftTargetVersion: "4.14.35"
+      # This cluster is part of the cwl-clusters managedclusterset
+      cluster.open-cluster-management.io/clusterset: util-clusters
+      # Gitops status
+      gitops_acm_config: Active
+      gitops_ztp_config: Active
+      # Disable TALM on deployment
+      ztp-done: ''
+    apiVIP: IP_ADDRESS_406
+    apiVIPs:
+      - IP_ADDRESS_406
+      - 2001:41d8:2:402::9
+    ingressVIP: IP_ADDRESS_407
+    ingressVIPs:
+      - IP_ADDRESS_407
+      - 2001:41d8:2:402::10
+    clusterNetwork:
+      - cidr: IP_ADDRESS_7/14
+        hostPrefix: 23
+      - cidr: 2001:41d8:000f::/48
+        hostPrefix: 64
+    machineNetwork:
+      - cidr: IP_ADDRESS_9/24
+      - cidr: 2001:41d8:2:402::/64
+    serviceNetwork:
+      - IP_ADDRESS_8/16
+      - 2001:41d8:2:50f::/112
+    additionalNTPSources:
+      - IP_ADDRESS_219
+      - IP_ADDRESS_220
+    crTemplates:
+      KlusterletAddonConfig: "klusterletaddonconfigoverride.yaml"
+    nodes:
+      # control plane nodes
+      - hostName: "DOMAIN_EXAMPLE_89.COM"
+        role: "master"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_408/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "B8:3F:D2:6C:01:66"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: B8:3F:D2:6C:01:66
+            - name: ens15f1np1
+              macAddress: B8:3F:D2:6C:01:67
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_409
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:402::11
+                      prefix-length: 64
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_102.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225    
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_410
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:402::1
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: IP_ADDRESS_411/24
+                  next-hop-address: IP_ADDRESS_214
+                  next-hop-interface: bond0.1223
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_91.COM"
+        role: "master"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_412/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:34:12"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:34:12
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:34:13
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_413
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:402::12
+                      prefix-length: 64
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_102.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225    
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_410
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:402::1
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: IP_ADDRESS_411/24
+                  next-hop-address: IP_ADDRESS_214
+                  next-hop-interface: bond0.1223
+                  table-id: 254
+      - hostName: "DOMAIN_EXAMPLE_90.COM"
+        role: "master"
+        bmcAddress: "redfish-virtualmedia://IP_ADDRESS_414/redfish/v1/systems/1"
+        bmcCredentialsName:
+          name: bmc-creds-workload
+        bootMACAddress: "b8:3f:d2:6c:15:7c"
+        # Use UEFISecureBoot to enable secure boot for this node
+        bootMode: "UEFISecureBoot"
+        rootDeviceHints:
+          vendor: HPE
+        nodeNetwork:
+          interfaces:
+            # machineNet + storage (bond0)
+            - name: ens15f0np0
+              macAddress: b8:3f:d2:6c:15:7c
+            - name: ens15f1np1
+              macAddress: b8:3f:d2:6c:15:7d
+          config:
+            interfaces:
+              - name: bond0
+                type: bond
+                state: up
+                mtu: 9000
+                link-aggregation:
+                  mode: 802.3ad
+                  port:
+                    - ens15f0np0
+                    - ens15f1np1
+                ipv4:
+                  enabled: true
+                  dhcp: false
+                  address:
+                  - ip: IP_ADDRESS_415
+                    prefix-length: 24
+                ipv6:
+                  enabled: true
+                  dhcp: false
+                  autoconf: false
+                  address:
+                    - ip: 2001:41d8:2:402::13
+                      prefix-length: 64
+            dns-resolver:
+              config:
+                search:
+                  - cz.o2
+                  - DOMAIN_EXAMPLE_102.COM
+                server:
+                  - IP_ADDRESS_224
+                  - IP_ADDRESS_225    
+            routes:
+              config:
+                - destination: 0.0.0.0/0
+                  next-hop-address: IP_ADDRESS_410
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: ::/0
+                  next-hop-address: 2001:41d8:2:402::1
+                  next-hop-interface: bond0
+                  table-id: 254
+                - destination: IP_ADDRESS_411/24
+                  next-hop-address: IP_ADDRESS_214
+                  next-hop-interface: bond0.1223
+                  table-id: 254
+     

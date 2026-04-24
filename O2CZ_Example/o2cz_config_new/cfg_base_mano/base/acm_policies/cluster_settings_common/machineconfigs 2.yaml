@@ -1,0 +1,200 @@
+# This policy expects a secret in the namespace "ocp-etcd-backup" called "ssh-key" with the ssh key in the secret key "sftp_server_key"
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Applies Machine Configs to the cluster
+  name: machine-configs
+  namespace: policies-mano
+spec:
+  disabled: false
+  policy-templates:
+# Installs in the master nodes the ssh key required to connect from the masters to the sftp server to send the etcd backups
+# Expects a secret in the ocp-etcd-backup namespace, called "ssh-key" with a key called "sftp_server_key" that contains the ssh private key
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: machine-configs-ssh-key-to-masters
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: mustonlyhave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: MachineConfig
+            metadata:
+              labels:
+                machineconfiguration.openshift.io/role: master
+              name: 99-master-ssh-key-sftp
+            spec:
+              config:
+                ignition:
+                  version: 3.4.0
+                storage:
+                  files:
+                  - contents:
+                      source: data:text/plain;charset=utf-8;base64,{{hub fromSecret "policies-mano" "ssh-key" "sftp_server_key" hub}}
+                    mode: 384
+                    overwrite: true
+                    path: /home/core/.ssh/sftp_server_key
+  #Creates dummy file to have the machine config pools stop waining about the directory /etc/docker/certs.d not existing
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: machine-configs-docker-certd
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: mustonlyhave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: MachineConfig
+            metadata:
+              labels:
+                machineconfiguration.openshift.io/role: worker
+              name: 15-create-docker-certd
+            spec:
+              config:
+                ignition:
+                  version: 3.4.0
+                storage:
+                  files:
+                    - contents:
+                        source: data:text/plain;charset=utf-8;base64,Cg==
+                      mode: 420
+                      overwrite: true
+                      path: /etc/docker/certs.d/.ignore
+                      user:
+                        name: root
+  #Set node timezone to Europe/Prague
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: machine-configs-set-node-timezone
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: enforce
+        severity: high
+        object-templates:
+        - complianceType: mustonlyhave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: MachineConfig
+            metadata:
+              labels:
+                machineconfiguration.openshift.io/role: worker
+              name: 35-worker-custom-timezone-configuration
+            spec:
+              config:
+                ignition:
+                  config: {}
+                  security:
+                    tls: {}
+                  timeouts: {}
+                  version: 3.4.0
+                networkd: {}
+                passwd: {}
+                storage: {}
+                systemd:
+                  units:
+                  - contents: |
+                      [Unit]
+                      Description=set timezone
+                      After=network-online.target
+
+                      [Service]
+                      Type=oneshot
+                      ExecStart=timedatectl set-timezone Europe/Prague
+
+                      [Install]
+                      WantedBy=multi-user.target
+                    enabled: true
+                    name: custom-timezone.service
+              osImageURL: ""
+        - complianceType: mustonlyhave
+          objectDefinition:
+            apiVersion: machineconfiguration.openshift.io/v1
+            kind: MachineConfig
+            metadata:
+              labels:
+                machineconfiguration.openshift.io/role: master
+              name: 35-master-custom-timezone-configuration
+            spec:
+              config:
+                ignition:
+                  config: {}
+                  security:
+                    tls: {}
+                  timeouts: {}
+                  version: 3.4.0
+                networkd: {}
+                passwd: {}
+                storage: {}
+                systemd:
+                  units:
+                  - contents: |
+                      [Unit]
+                      Description=set timezone
+                      After=network-online.target
+
+                      [Service]
+                      Type=oneshot
+                      ExecStart=timedatectl set-timezone Europe/Prague
+
+                      [Install]
+                      WantedBy=multi-user.target
+                    enabled: true
+                    name: custom-timezone.service
+              osImageURL: ""
+#Check all machine config pools fully updated
+  - extraDependencies:
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: machine-configs-ssh-key-to-masters
+       namespace: ""
+       compliance: Compliant
+     - apiVersion: policy.open-cluster-management.io/v1
+       kind: ConfigurationPolicy
+       name: machine-configs-set-node-timezone
+       namespace: ""
+       compliance: Compliant
+    objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: machine-configs-check
+      spec:
+        pruneObjectBehavior: None
+        remediationAction: inform
+        severity: low
+        object-templates-raw: |
+          {{- range (lookup "machineconfiguration.openshift.io/v1" "MachineConfigPool" "" "").items }}
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: machineconfiguration.openshift.io/v1
+              kind: MachineConfigPool
+              metadata:
+                name: '{{ .metadata.name }}'
+              status:
+                conditions:
+                - type: RenderDegraded
+                  status: "False"
+                - type: NodeDegraded
+                  status: "False"
+                - type: Degraded
+                  status: "False"
+                - type: Updating
+                  status: "False"
+                - type: Updated
+                  status: "True"
+          {{- end }}

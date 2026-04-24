@@ -1,0 +1,8 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1alpha1
+kind: ClusterClaim
+metadata:
+  name: custom.hub-status
+spec:
+  value: NA
+...

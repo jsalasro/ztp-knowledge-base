@@ -1,0 +1,20 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: jz-5gc-amf-01-a-prod-lig
+spec:
+  desiredState:
+    interfaces:
+      - description: jz-5gc-amf-01-a-prod-lig vlan sub-interface
+        mtu: 9000
+        name: bond2.3034
+        state: up
+        type: vlan
+        vlan:
+          base-iface: bond2
+          id: 3034
+          reorder-headers: true
+  nodeSelector:
+    node-role.kubernetes.io/appworker100g: ""
+...

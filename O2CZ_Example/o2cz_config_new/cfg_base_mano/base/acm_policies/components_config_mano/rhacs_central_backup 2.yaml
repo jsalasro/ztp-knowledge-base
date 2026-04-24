@@ -1,0 +1,283 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Manages backup of ACS central
+  name: rhacs-central-backup
+  namespace: policies
+spec:
+  disabled: false
+  dependencies:
+  # RHACS central running
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: rhacs-central
+    namespace: policies-mano
+  policy-templates:
+    # Render Azure Storage credentials
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-backup-az-secret
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: backup-az-creds
+                namespace: stackrox
+              data: '{{ copySecretData "policies-mano" "azure-blob-connection" }}'
+    # Create script for backup management
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-backup-script
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: rhacs-central-backup-script
+                namespace: stackrox
+              data:
+                upload-central-backup.sh: |
+                  #!/bin/bash
+
+                  echo
+                  echo "Using the following backup configuration:"
+                  echo "    Cluster name: ${CLUSTER_NAME}
+                  echo "    Target container: ${ACS_BACKUP_CONTAINER}
+                  echo "    Retention: ${ACS_BACKUP_RETENTION} hours"
+
+                  echo
+                  echo "Setting az cli environment..."
+                  export AZURE_TENANT_ID=$(cat /az-creds/az_tenant)
+                  export AZURE_CLIENT_ID=$(cat /az-creds/az_client_id)
+                  export AZURE_CLIENT_SECRET=$(cat /az-creds/az_secret_key)
+                  export AZURE_RESOURCE_GROUP=$(cat /az-creds/az_resource_group)
+                  export AZURE_SUBSCRIPTION_ID=$(cat /az-creds/az_subscription)
+                  export AZURE_STORAGE_ACCOUNT=$(cat /az-creds/az_storage_account)
+                  export AZURE_STORAGE_KEY=$(cat /az-creds/az_storage_access_secret_key)
+                  export AZURE_CONFIG_DIR=/backup
+                  export AZURE_CORE_OUTPUT=table
+                  export AZURE_CORE_DISABLE_CONFIRM_PROMPT=true
+
+                  echo
+                  echo "az cli configuration info: "
+                  echo "    Tenant: ${AZURE_TENANT_ID}"
+                  echo "    Client ID: ${AZURE_CLIENT_ID}"
+                  echo "    Subscription: ${AZURE_SUBSCRIPTION_ID}"
+                  echo "    Resource group: $AZURE_RESOURCE_GROUP{}"
+                  echo "    Storage Account: ${AZURE_STORAGE_ACCOUNT}"
+                  echo "    Output format: ${AZURE_CORE_OUTPUT}"
+                  echo "    Disable confirmation prompt: ${AZURE_CORE_DISABLE_CONFIRM_PROMPT}"
+
+                  echo "Available backup files to upload:"
+                  ls -lh /backup
+
+                  # Check for required environment variables
+                  if [ -z "$AZURE_STORAGE_ACCOUNT" ] || [ -z "$ACS_BACKUP_CONTAINER" ] || [ -z "$AZURE_STORAGE_KEY" ] || [ -z "$ACS_BACKUP_RETENTION" ] ; then
+                      echo "Missing required environment variables."
+                      exit 1
+                  fi
+
+                  # Generate SAS token for the blob
+                  SAS_TOKEN=$(az storage container generate-sas \
+                    --account-name $AZURE_STORAGE_ACCOUNT \
+                    --name $ACS_BACKUP_CONTAINER \
+                    --permissions rwdl \
+                    --expiry $(date -u -d "1 hour" +%Y-%m-%dT%H:%MZ) \
+                    --account-key $AZURE_STORAGE_KEY \
+                    --output tsv)
+                  
+                  if [ -z "$SAS_TOKEN" ]; then
+                      echo "Failed to generate SAS token."
+                      exit 1
+                  fi
+
+                  echo
+                  echo "Backup storage current content:"
+                  az storage blob list --container-name ${ACS_BACKUP_CONTAINER} \
+                      --sas-token $SAS_TOKEN \
+                      --account-name ${AZURE_STORAGE_ACCOUNT} \
+                      --query "[?contains(name, '$CLUSTER_NAME')].{Name:name,Size:properties.contentLength,LastModified:properties.lastModified}"
+
+                  filename="/backup/central-db-backup.zip"
+
+                  # Check if the file exists
+                  if [ ! -f $filename ]; then
+                      echo "No backup file found in $filename."
+                      exit 1
+                  fi
+
+                  BACKUP_TIMESTAMP=$(date '+%s')
+
+                  echo
+                  echo "New backup file acs_backup-${CLUSTER_NAME}-${BACKUP_TIMESTAMP}.zip"
+
+                  # Use az to upload the file to blob storage
+                  az storage blob upload --account-name "$AZURE_STORAGE_ACCOUNT" \
+                      --container-name "$ACS_BACKUP_CONTAINER" \
+                      --name "acs_backup-${CLUSTER_NAME}-${BACKUP_TIMESTAMP}.zip" \
+                      --file "$filename" \
+                      --sas-token $SAS_TOKEN
+                    
+                  if [ $? -eq 0 ]; then
+                      echo "File uploaded successfully!"
+
+                      # Calculate the time X hours ago
+                      CURRENT_TIME=$(date '+%Y-%m-%dT%H:%MZ')
+                      TIME_AGO=$(date -u -d "$CURRENT_TIME - $ACS_BACKUP_RETENTION hours" +"%Y-%m-%dT%H:%M:%SZ")
+
+                      # List blobs older than X hours
+                      echo "Listing blobs older than $ACS_BACKUP_RETENTION hours..."
+                      OLD_BLOBS=$(az storage blob list --sas-token $SAS_TOKEN --account-name $AZURE_STORAGE_ACCOUNT --container-name $ACS_BACKUP_CONTAINER --query "[?properties.lastModified < '$TIME_AGO' && contains(name, '$CLUSTER_NAME')].{name:name}" -o tsv)
+
+                      if [ -z "$OLD_BLOBS" ]; then
+                          echo "There are no blobs older than $ACS_BACKUP_RETENTION hours"
+                      else
+                          echo "Found the following blobs older than $ACS_BACKUP_RETENTION hours:"
+                          echo "$OLD_BLOBS" | while read -r blob_name; do
+                              echo "Deleting blob: $blob_name"
+                              az storage blob delete --account-name $AZURE_STORAGE_ACCOUNT --container-name $ACS_BACKUP_CONTAINER --name "$blob_name" --sas-token $SAS_TOKEN
+                          done
+                      fi
+
+                  else
+                      echo "File upload failed"
+                      exit 1
+                  fi
+
+                  echo
+                  echo "Backup storage new content:"
+                  az storage blob list --container-name ${ACS_BACKUP_CONTAINER} \
+                      --sas-token $SAS_TOKEN \
+                      --account-name ${AZURE_STORAGE_ACCOUNT} \
+                      --query "[?contains(name, '$CLUSTER_NAME')].{Name:name,Size:properties.contentLength,LastModified:properties.lastModified}"
+
+    # Create backup cronjob
+    - extraDependencies:
+        - apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          name: rhacs-central-backup-script
+          namespace: ""
+          compliance: Compliant
+      objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-backup-cronjob-create
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: enforce
+          severity: high
+          object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: batch/v1
+              kind: CronJob
+              metadata:
+                name: rhacs-central-backup
+                namespace: stackrox
+              spec:
+                schedule: "0 */8 * * *"
+                concurrencyPolicy: Forbid
+                successfulJobsHistoryLimit: 15
+                failedJobsHistoryLimit: 15
+                jobTemplate:
+                  metadata:
+                    labels:
+                      rhacs-central-backup: ""
+                  spec:
+                    ttlSecondsAfterFinished: 604800 # 1 week
+                    template:
+                      spec:
+                        restartPolicy: OnFailure
+                        terminationGracePeriodSeconds: 30
+                        volumes:
+                          - name: stackrox-token
+                            secret:
+                              secretName: automation-api-token
+                          - name: az-creds
+                            secret:
+                              secretName: backup-az-creds
+                          - name: script
+                            configMap:
+                              name: rhacs-central-backup-script
+                              defaultMode: 0755
+                          - name: central-backup
+                            emptyDir:
+                              sizeLimit: 100Mi
+                        initContainers:
+                          - name: run-central-backup
+                            image: '{{ printf "registry.redhat.io/advanced-cluster-security/rhacs-roxctl-rhel8:%s" (split ".v" (fromConfigMap "policies-mano" "operators-version" "rhacs-startingCSV"))._1 }}'
+                            volumeMounts:
+                              - name: central-backup
+                                mountPath: "/backup"
+                              - name: stackrox-token
+                                mountPath: "/stackrox"
+                                readOnly: true
+                            env:
+                              - name: ROX_ENDPOINT
+                                value: central:443
+                            args: ["central", "backup", "--token-file", "/stackrox/api_token", "--output", "/backup/central-db-backup.zip"]
+                        containers:
+                          - name: backup-uploader
+                            image: mcr.microsoft.com/azure-cli:2.62.0-cbl-mariner2.0
+                            imagePullPolicy: IfNotPresent
+                            volumeMounts:
+                              - name: central-backup
+                                mountPath: "/backup"
+                              - name: az-creds
+                                readOnly: true
+                                mountPath: /az-creds
+                              - name: script
+                                mountPath: "/script"
+                            command:
+                              - /script/upload-central-backup.sh
+                            env:
+                              - name: ACS_BACKUP_CONTAINER
+                                value: '{{ fromConfigMap "policies-mano" "cluster-settings" "acs_backup_target" }}'
+                              - name: ACS_BACKUP_RETENTION
+                                value: '{{ fromConfigMap "policies-mano" "cluster-settings" "acs_backup_retention_hours" }}'
+                              - name: CLUSTER_NAME
+                                value: '{{ (lookup "config.openshift.io/v1" "DNS" "" "cluster").spec.baseDomain }}'
+    # Check for failed jobs
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-backup-job-check
+        spec:
+          pruneObjectBehavior: None
+          remediationAction: inform
+          severity: high
+          object-templates:
+          - complianceType: mustnothave
+            objectDefinition:
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                labels:
+                  rhacs-central-backup: ""
+                namespace: stackrox
+              status:
+                failed: 1
+...

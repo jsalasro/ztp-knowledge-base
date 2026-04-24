@@ -1,0 +1,10 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: http-server-ca
+  namespace: multicluster-engine
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+data:
+  tls.crt: |
+{{ .Values.mgmt.ztp.http_server_certificate_b64 | b64dec | indent 4 }}

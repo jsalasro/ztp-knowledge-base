@@ -1,0 +1,10 @@
+---
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  annotations:
+    openshift.io/description: "NCD Core"
+    openshift.io/display-name: jz-5gc-ncd-01-a-prod
+    openshift.io/node-selector: node-role.kubernetes.io/appworker25g=
+  name: 5gc-ncd-01-a-ns
+...

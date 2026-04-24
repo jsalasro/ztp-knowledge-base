@@ -1,0 +1,27 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: ConfigurationPolicy
+metadata:
+  name: cwl-operator-install-approve-jaeger
+spec:
+  pruneObjectBehavior: None
+  remediationAction: enforce
+  severity: high
+  object-templates-raw: |
+    {{- $operatorCSV := "{{hub fromConfigMap "policies-cwl" "operators-version-cwl-v0" "jaeger-startingCSV" hub}}" }}
+    {{- range $installplan := (lookup "operators.coreos.com/v1alpha1" "InstallPlan" "openshift-distributed-tracing" "").items }}
+      {{- range $installplan.spec.clusterServiceVersionNames }}
+      {{- if eq . $operatorCSV }}
+      - complianceType: musthave
+        objectDefinition:
+          apiVersion: operators.coreos.com/v1alpha1
+          kind: InstallPlan
+          metadata:
+            namespace: '{{ $installplan.metadata.namespace }}'
+            name: '{{ $installplan.metadata.name }}'
+          spec:
+            approved: true
+      {{- end }}
+      {{- end }}
+    {{- end }}
+...

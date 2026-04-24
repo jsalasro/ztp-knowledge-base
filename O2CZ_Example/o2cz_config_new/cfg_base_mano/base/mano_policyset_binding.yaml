@@ -1,0 +1,85 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: mano-base-config-binding
+  namespace: policies-mano
+placementRef:
+  name: mano-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: mano-base-config-policies
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: mano-base-operator-binding
+  namespace: policies-mano
+placementRef:
+  name: mano-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: mano-base-operator-policies
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: mano-components-config-binding
+  namespace: policies-mano
+placementRef:
+  name: mano-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: mano-components-config
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: mano-components-config-active-binding
+  namespace: policies-mano
+placementRef:
+  name: mano-placement-active
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: mano-active-config
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: mano-components-config-standby-binding
+  namespace: policies-mano
+placementRef:
+  name: mano-placement-standby
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: mano-standby-config
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: cwl-cluster-upgrade-management-binding
+  namespace: policies-mano
+placementRef:
+  name: mano-placement-active
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: cwl-cluster-upgrade-management
+    apiGroup: policy.open-cluster-management.io
+    kind: PolicySet
+...

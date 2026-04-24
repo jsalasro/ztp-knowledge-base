@@ -1,0 +1,15 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: metallb-operator
+  namespace: metallb-system
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "10"    
+spec:
+  channel: stable
+  name: metallb-operator
+  source: redhat-operator-index
+  installPlanApproval: '{{hub fromConfigMap "ztp-policy" "site-data" (printf "install-plan-approval") hub}}'
+  sourceNamespace: openshift-marketplace
+  startingCSV: metallb-operator.v4.18.0-202509100344
+...

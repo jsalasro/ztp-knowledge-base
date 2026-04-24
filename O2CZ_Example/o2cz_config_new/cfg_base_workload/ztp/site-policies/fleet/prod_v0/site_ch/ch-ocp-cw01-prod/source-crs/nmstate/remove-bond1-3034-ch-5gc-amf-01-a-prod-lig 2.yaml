@@ -1,0 +1,19 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: remove-bond1-ch-5gc-amf-01-a-prod-lig
+spec:
+  desiredState:
+    interfaces:
+      - description: ch-5gc-amf-01-a-prod-lig vlan sub-interface
+        mtu: 9000
+        name: bond1.3034
+        state: absent
+        type: vlan
+        vlan:
+          base-iface: bond1
+          id: 3034
+  nodeSelector:
+    node-role.kubernetes.io/appworker100g: ""
+...

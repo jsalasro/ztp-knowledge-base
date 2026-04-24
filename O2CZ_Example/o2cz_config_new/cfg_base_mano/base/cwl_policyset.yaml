@@ -1,0 +1,23 @@
+---
+apiVersion: policy.open-cluster-management.io/v1beta1
+kind: PolicySet
+metadata:
+  name: cwl-base-config-policies
+  namespace: policies-mano
+spec:
+  description: "Policies for base workload cluster configuration"
+  policies:
+    - authentication-oauth-config
+    - etcd-encryption
+    - etcd-backup
+    - cert-ingress-replace
+    - cert-api-replace
+    - machine-configs
+    - cert-expiration-check
+    - restrict-users
+    - logging-lokistack
+    - logging-clusterlogging
+    - logging-forward
+    - monitoring-configuration
+    - cluster-upgrade-healthcheck
+    - console-customization

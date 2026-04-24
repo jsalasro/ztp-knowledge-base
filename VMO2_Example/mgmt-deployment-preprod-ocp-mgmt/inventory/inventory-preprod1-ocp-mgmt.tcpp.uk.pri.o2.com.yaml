@@ -1,0 +1,588 @@
+---
+all:
+  # All required vars subject to change from one environment to another
+  vars:
+    # Basic stuff
+    clusterName: "preprod1-ocp-mgmt"
+    location: "slough"
+    install_dir: "{{ playbook_dir }}/clusters/{{ clusterName }}.{{ install_config['baseDomain'] }}"
+    # Specify only major and minor (X.Y) version, example: 4.18
+    ocp_version: 4.18
+    rhcos_image: "/infra/iso/rhcos-418.94.202510081222-0-live.x86_64.iso"
+
+    # BMC data for baremetal hosts
+    bmc_user: "{{ vault_bmc_user }}"
+    bmc_password: "{{ vault_bmc_password }}"
+    nexus_base_url: "https://DOMAIN_EXAMPLE_10.COM/repository"
+    rhcos_base_url: "{{ nexus_base_url + rhcos_image }}"
+    abi_base_url: "{{ nexus_base_url + '/rhocp/agent.x86_64.iso' }}"
+
+    # Other relevant data for install-config file
+    install_config:
+      baseDomain: "DOMAIN_EXAMPLE_5.COM"
+      workerReplicas: 1
+      masterReplicas: 3
+      clusterNetwork: IP_ADDRESS_39/16
+      clusterNetworkPrefix: 23
+      machineNetwork: IP_ADDRESS_54/28
+      networkType: OVNKubernetes
+      serviceNetwork: IP_ADDRESS_41/16
+      apiVIPs: IP_ADDRESS_55
+      ingressVIPs: IP_ADDRESS_56
+      pullSecret: '{{ vault_install_config_pullSecret }}'
+      sshKey: 'SSH_PUBLIC_KEY_1'
+      additionalTrustBundle: |
+        -----BEGIN CERTIFICATE-----
+        MIIE7jCCAtagAwIBAgIUSCYWGOxKUcyWOi/XdvtSY9NT9wYwDQYJKoZIhvcNAQEL
+        BQAwUzELMAkGA1UEBhMCR0IxDzANBgNVBAcMBlNsb3VnaDEWMBQGA1UECgwNVGVs
+        ZWZvbmljYSBVSzEbMBkGA1UEAwwSVGVsZWZvbmljYSBSb290IENBMB4XDTI1MTAx
+        NTEyMDAwMFoXDTM1MDIyMzE1MDA0NlowcTELMAkGA1UEBhMCR0IxDzANBgNVBAcM
+        BlNsb3VnaDEWMBQGA1UECgwNVGVsZWZvbmljYSBVSzE5MDcGA1UEAwwwVGVsZWZv
+        bmljYSBJbnRlcm1lZGlhdGUgQ0EgZm9yIHByZXByb2QxLW9jcC1tZ210MIIBIjAN
+        BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqRtQXHwcMh4Hw0eaEZ2e2N/jKsWr
+        SQR4g0RAhWsnORdSy/ds6FpQnvxmCxVROYB4lXYgMAJNwH8UrEzl5ZvMWCBYy5P0
+        qG999JuajMlw7CTMKFI8bFcYFWGk7Wy7opPprRY6c9bDA/iRIVg1rYTdz2hlA4DG
+        SZhLiy94B5DZTYN83KGYkavbimWAv3ie8n+uaiskQW5Nf2visQfnwUDq0vo9BWAD
+        Anwmj6PMom6TBwRitorKyrAEwznR8qlUdZLao1+DTvmDUKhMarh/gP4V/6+6buDv
+        wv2arPvVuFt5QFWdqvtrPSRvtJYjsFp3qwSnixQBX8Ar1sWzNjWDRDe5uQIDAQAB
+        o4GbMIGYMDsGA1UdEQQ0MDKCMFRlbGVmb25pY2EgSW50ZXJtZWRpYXRlIENBIGZv
+        ciBwcmVwcm9kMS1vY3AtbWdtdDALBgNVHQ8EBAMCAQYwDAYDVR0TBAUwAwEB/zAd
+        BgNVHQ4EFgQU5TlIfthqS3dE5YqEntXYIXKzFDowHwYDVR0jBBgwFoAU0lPYke8D
+        w6FqaQ92XbUHSKHViacwDQYJKoZIhvcNAQELBQADggIBAI2otKoPoojDqLNv+t5S
+        p79A2ltW/qgmUmVA4q4rUNPJefAwXuIWoJd3ADYRyNjgbBWXihlnuOPUUIGMAe/z
+        csS58AOXGW5Y6MgXQ5f/Z2nR7OYSmOdGXZsAZyCM9Bh/EauUvVPVMwMxeoZ6Bngs
+        vKHladpjjjUpoG6Eys/p3puxz1S3lEMGMHaKQ5Zq3xTgAxbXJLlSPFI5HvcKVius
+        A5VAlDN7GZYFHdAzCBgq1MWP35D6txTjZiPGX4+2bgg29ooWVfVeVK38VP8mfmIQ
+        zfX8B0cJY2O/ukN0y46FMwHuPSprTgTxitq1SbFav007+K8OLgc9XWmziwNBmSuk
+        3jBzufTk1ncyF6K1kVg13JFYlF1dnEyrG4DP9+L/VkH0H6MyTNNFLlTgEPqkb8s0
+        OjkmHK56Jqzf5SLpHAHlSNQ3f31K4Onz+DnsLfsLms8gUT6lPQiaufZn+39LqNKU
+        iuO/bLvFtXnUvS6lH4SXOb7dSmGNwUwCVBfvOnLOJiCOnDv5LBN+s2N7ppLtAW/5
+        gnmEq6ExoErhpD8Qc+1Wj9Y9PGgWZoh+xMmytD1SpQrmiSc89cqL7bIEo2oJ3KTD
+        +J5hobik0e+xXCJP01wzrTG1r63F3uFZo9jsf9EElG2O5psTJVHkjcqp6FhfNnXV
+        H0Bu6d+1G9/mkRgm+uyKSHAh
+        -----END CERTIFICATE-----
+        -----BEGIN CERTIFICATE-----
+        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
+        -----END CERTIFICATE-----
+        -----BEGIN CERTIFICATE-----
+        MIIG1DCCBLygAwIBAgIKQDBo0QABAAAACTANBgkqhkiG9w0BAQsFADA8MQswCQYD
+        VQQGEwJHQjEbMBkGA1UEChMSVGVsZWZvbmljYSBVSyAoTzIpMRAwDgYDVQQDEwdP
+        Mi1Sb290MB4XDTIxMDUxMDEyMTQyMVoXDTI2MDUxMDEyMjQyMVowaDETMBEGCgmS
+        JomT8ixkARkWA2NvbTESMBAGCgmSJomT8ixkARkWAm8yMRMwEQYKCZImiZPyLGQB
+        GRYDcHJpMRIwEAYKCZImiZPyLGQBGRYCdWsxFDASBgNVBAMTC08yLUVudENBLTAx
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp2Ne93KYkqvz+/2AKWA4
+        gg5dbcOQIJmsqS1+uUSSWeFl0KpA+xnetQGPCaLxs3TDX0PANf3Hu3i/YoU6STwK
+        c2pu47EIvVZ4IjyJ8j4+WcUXg2TJdN8sl4CzSkwNTV4dIAzWY2A/1ZG5fajpl2YO
+        C4NzURzzMIOE45XLzwgrlUIgNOqGU+fx3ocByz+1nGnQCj2QV8Y56NU91yzMhZPW
+        N6iphcCHf/EbUiYTDGtaVMR1g3utUA6XT/BHMKeAAZ/bVYg1queWGnIwrTauauv7
+        A2b29hYNnVVlViXC/KdttFLRpg5iIuwUr0I/WEjedH0OLSq/Bi0uVWhiEY/awScT
+        9QIDAQABo4ICqjCCAqYwEAYJKwYBBAGCNxUBBAMCAQIwIwYJKwYBBAGCNxUCBBYE
+        FOrraTJJG5MrfsJpf9uzPnRqtzpTMB0GA1UdDgQWBBSyCKMg16TfuX8GPdDfINnO
+        qFeObjAZBgkrBgEEAYI3FAIEDB4KAFMAdQBiAEMAQTALBgNVHQ8EBAMCAYYwDwYD
+        VR0TAQH/BAUwAwEB/zAfBgNVHSMEGDAWgBTRAWJxE3dAsQ0LmgSLpCuzIe89xjCB
+        +gYDVR0fBIHyMIHvMIHsoIHpoIHmhoG3bGRhcDovLy9DTj1PMi1Sb290LENOPVBS
+        SVVLU1RITVNDMDAyLENOPUNEUCxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxD
+        Tj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPXByaSxEQz1vMixEQz1jb20/
+        Y2VydGlmaWNhdGVSZXZvY2F0aW9uTGlzdD9iYXNlP29iamVjdENsYXNzPWNSTERp
+        c3RyaWJ1dGlvblBvaW50hipodHRwOi8vbXNjLnByaS5vMi5jb20vQ2VydERhdGEv
+        TzItUm9vdC5jcmwwgfYGCCsGAQUFBwEBBIHpMIHmMIGoBggrBgEFBQcwAoaBm2xk
+        YXA6Ly8vQ049TzItUm9vdCxDTj1BSUEsQ049UHVibGljJTIwS2V5JTIwU2Vydmlj
+        ZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixEQz1wcmksREM9bzIsREM9
+        Y29tP2NBQ2VydGlmaWNhdGU/YmFzZT9vYmplY3RDbGFzcz1jZXJ0aWZpY2F0aW9u
+        QXV0aG9yaXR5MDkGCCsGAQUFBzAChi1odHRwOi8vbXNjLnByaS5vMi5jb20vQ2Vy
+        dERhdGEvTzItUm9vdCgxKS5jcnQwDQYJKoZIhvcNAQELBQADggIBAJVL48xEwJeJ
+        /NqTo9NnccZlfwLudyx61+R07tKCodhwGjYnefqlUnxkzzsxwKVdilI7ay8ii8UE
+        SRKXPVsHGSo+iK/OI5/Fxwul+LgUMcu0nmLsqCFxAmDZvn7ywGmPaKa1U2PeiL8Y
+        +vb/mt8GJ62mBQIZIyiQQnTJPKYkkcJsgJR9epMcMLgXAssLhk6uD5ddKJos5HlR
+        k5QoV5TAXi4PFrOgtMtaF0QkJsKGRqVLXcrjhC0GGQmdo2DD2oO2lizS27Y5LvKl
+        AEgbZqZOCpUWJK/sViqx04czEe9qUHY1sRzD3OpHNMgdRudfy27bkLBXTlapAnQc
+        N90kcDDppqONZ8RNerR7/rVkR1Lzs8aGa3DmDbrcuGR7rzNYM49flhg27hlrhp1m
+        ElEQpbFGkTdIXmzXSGd6A5dWcPrQJjeGgmvP88OD0yqOJDylHLlCyr4T9GoD8/Be
+        lnKEJUq4Z2jzZ77PMdfBxs7tk4tc549BNtikZXF5SKtf3X2EDnqdxM9I6fFh0UBb
+        I1e4z79IEDf7S6qMNSKhlp8NYxktH8kouQRTisbX+w2+5IVE45ojN66Y3nDlnnvx
+        yJ4hY/yLvUwJfARnwQBFzfb9EWUJXcaqODCI4tEeVdnWsMTGHF/f5nDNtLn6+98o
+        oZ/0tuxoEPrm430xPelqxEfbBqsqg1Yt
+        -----END CERTIFICATE-----
+        -----BEGIN CERTIFICATE-----
+        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
+        -----END CERTIFICATE-----
+        -----BEGIN CERTIFICATE-----
+        MIIHrzCCBZegAwIBAgIKFeYGDAABAAAAETANBgkqhkiG9w0BAQsFADA8MQswCQYD
+        VQQGEwJHQjEbMBkGA1UEChMSVGVsZWZvbmljYSBVSyAoTzIpMRAwDgYDVQQDEwdP
+        Mi1Sb290MB4XDTIyMDkyMjAwMDYyMFoXDTI3MDkyMjAwMTYyMFowaDETMBEGCgmS
+        JomT8ixkARkWA2NvbTESMBAGCgmSJomT8ixkARkWAm8yMRMwEQYKCZImiZPyLGQB
+        GRYDcHJpMRIwEAYKCZImiZPyLGQBGRYCdWsxFDASBgNVBAMTC08yLUVudENBLTAy
+        MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA0bHQjSwmy/VSNigheliu
+        jh+fyKC8FGxqcvNjnjJcAWwSaYMDhqrfmWE2C3XgtBvsdo1Jx1ih057LDAPrIn6w
+        QNdXAKtDpuqxGpYoQGALvhlxhmFIhlE0GDZt9oMjTlGDANsZlun24jo4sDDmYuUN
+        JQrQIHPkGx2kyuVt5Q6t7zBOHY5W0ahd8hGEHzMwkQyAOAjcr09aqcMZvjTL7reo
+        TZ83z+01kL/kfd9ir4BuKMEEM9lMMWkS/JcnrMsmgHn0siZ6HC5MyAXa57jBl3JH
+        QEuG6u+xyv5mE1bmg/rtcaaKKANraR+gf8SBq7wAGXxtMRmP8i1jy5dIMPhhPYkM
+        Z4SrwREk9LUyW9+nqYA0I4/EEuJR/b4IqFisEPgRtDIdI6s1UZn/rxkjAX/sBOKd
+        uR5eKGQS5kdIxsgYzF/xL1pIMgSewGCu5PPD8yor/bwrHPOvy9jCl5KrfKceFdnL
+        TA33o5iJwA+9g1/pHbDh5VjwjdHypPd3p4Eg2LqhraictML7gCe9xyqUG0dee2hx
+        N0xDHOF/+UPsbhzix9RBlNigjvZy0EEDFKT2JWxS5xLA65P4Xfj1wTYVIXuCdJ63
+        7LrT67D69JizhE0CNWFw4yu1mtcJA9GdRuvOBkc3Kod/etr5qpiQVpX2YMgdKo30
+        yhsc5bTSpJ/VFfS7UZSiJVECAwEAAaOCAoUwggKBMBAGCSsGAQQBgjcVAQQDAgEA
+        MB0GA1UdDgQWBBTLg9J0N04KxUS/4cyz/KgzoYoIazAZBgkrBgEEAYI3FAIEDB4K
+        AFMAdQBiAEMAQTALBgNVHQ8EBAMCAYYwDwYDVR0TAQH/BAUwAwEB/zAfBgNVHSME
+        GDAWgBTRAWJxE3dAsQ0LmgSLpCuzIe89xjCB+gYDVR0fBIHyMIHvMIHsoIHpoIHm
+        hoG3bGRhcDovLy9DTj1PMi1Sb290LENOPVBSSVVLU1RITVNDMDAyLENOPUNEUCxD
+        Tj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1
+        cmF0aW9uLERDPXByaSxEQz1vMixEQz1jb20/Y2VydGlmaWNhdGVSZXZvY2F0aW9u
+        TGlzdD9iYXNlP29iamVjdENsYXNzPWNSTERpc3RyaWJ1dGlvblBvaW50hipodHRw
+        Oi8vbXNjLnByaS5vMi5jb20vQ2VydERhdGEvTzItUm9vdC5jcmwwgfYGCCsGAQUF
+        BwEBBIHpMIHmMIGoBggrBgEFBQcwAoaBm2xkYXA6Ly8vQ049TzItUm9vdCxDTj1B
+        SUEsQ049UHVibGljJTIwS2V5JTIwU2VydmljZXMsQ049U2VydmljZXMsQ049Q29u
+        ZmlndXJhdGlvbixEQz1wcmksREM9bzIsREM9Y29tP2NBQ2VydGlmaWNhdGU/YmFz
+        ZT9vYmplY3RDbGFzcz1jZXJ0aWZpY2F0aW9uQXV0aG9yaXR5MDkGCCsGAQUFBzAC
+        hi1odHRwOi8vbXNjLnByaS5vMi5jb20vQ2VydERhdGEvTzItUm9vdCgxKS5jcnQw
+        DQYJKoZIhvcNAQELBQADggIBAFp7DmnGibUAhMEIEdz01xp7tTC7yow269rE5M2t
+        3mkTYk0vHd3E+6xliCWcegef/Mtx3XAejCu3okLbljGMSQRAf1ke66gQ/H7x1rRe
+        kv2LYMuaJ6YGyZLBdSA3CpIJVKPs40ugz1AbOgB66F3t4CHFwvA30XUrz4oZckJD
+        rqk2if/O0Rzfs4rPerBziXjpd2ffVZX2hfOW4IXShfHICsJ8/L5hU9ojqFEANcpa
+        gQ729X2jCJd6TFAC6nK9JzRRe1eacc9z19aZg9u6nLtnSNOSlIQFlEN3dVq046Zv
+        syEjxRQU3SG+yc7TxXi0jcZmn0RHSotClSNgkaoNG+xY0Ekjg44gmuI4+rTZyukm
+        wc9i7kWjXMa4vlEo2EUCvTqosxrVMfsaaJv+jy1tIojYAo5fBaD3idn7eKj+7307
+        gUKug+WffAtwyMlHsR2011paqEX/uD1OYvS7yMiQxTHXpeJafNQnqm4deM8J7omJ
+        sb5sooUCSbthCYczdm3NdBT59h2OtAALqOezXblai4ALsrW1CVt5FGWEoH2fqP9B
+        YObkJnXTTXMlVBaoKtFJso8+SQVKdmfKpydOItJqgl9gF2myMnC9hzpk/sUTrJLO
+        c/1LpsqRLxvbS6Q4wqHryaY7nMfqbta5/MD3OEBxBzsEVYq/rTa+YkZoB1gpmFkH
+        Ho6a
+        -----END CERTIFICATE-----
+      imageContentSources:
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift/release-images
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift/release-images
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift/release-images
+          source: quay.io/openshift-release-dev/ocp-release
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift/release
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift/release
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift/release
+          source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhosdt
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhosdt
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhosdt
+          source: registry.redhat.io/rhosdt
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift-service-mesh-tech-preview
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift-service-mesh-tech-preview
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift-service-mesh-tech-preview
+          source: registry.redhat.io/openshift-service-mesh-tech-preview
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift-service-mesh
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift-service-mesh
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift-service-mesh
+          source: registry.redhat.io/openshift-service-mesh
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift-service-mesh-dev-preview-beta
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift-service-mesh-dev-preview-beta
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift-service-mesh-dev-preview-beta
+          source: registry.redhat.io/openshift-service-mesh-dev-preview-beta
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/oadp
+          - DOMAIN_EXAMPLE_15.COM/openshift/oadp
+          - DOMAIN_EXAMPLE_29.COM/ocp/oadp
+          source: registry.redhat.io/oadp
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/portworx
+          - DOMAIN_EXAMPLE_15.COM/openshift/portworx
+          - DOMAIN_EXAMPLE_29.COM/ocp/portworx
+          source: registry.connect.redhat.com/portworx
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/hashicorp
+          - DOMAIN_EXAMPLE_15.COM/openshift/hashicorp
+          - DOMAIN_EXAMPLE_29.COM/ocp/hashicorp
+          source: registry.connect.redhat.com/hashicorp
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/multicluster-engine
+          - DOMAIN_EXAMPLE_15.COM/openshift/multicluster-engine
+          - DOMAIN_EXAMPLE_29.COM/ocp/multicluster-engine
+          source: registry.redhat.io/multicluster-engine
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/amq-streams
+          - DOMAIN_EXAMPLE_15.COM/openshift/amq-streams
+          - DOMAIN_EXAMPLE_29.COM/ocp/amq-streams
+          source: registry.redhat.io/amq-streams
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhel9
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhel9
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhel9
+          source: registry.redhat.io/rhel9
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhbk
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhbk
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhbk
+          source: registry.redhat.io/rhbk
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/custom-metrics-autoscaler
+          - DOMAIN_EXAMPLE_15.COM/openshift/custom-metrics-autoscaler
+          - DOMAIN_EXAMPLE_29.COM/ocp/custom-metrics-autoscaler
+          source: registry.redhat.io/custom-metrics-autoscaler
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/container-native-virtualization
+          - DOMAIN_EXAMPLE_15.COM/openshift/container-native-virtualization
+          - DOMAIN_EXAMPLE_29.COM/ocp/container-native-virtualization
+          source: registry.redhat.io/container-native-virtualization
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/compliance
+          - DOMAIN_EXAMPLE_15.COM/openshift/compliance
+          - DOMAIN_EXAMPLE_29.COM/ocp/compliance
+          source: registry.redhat.io/compliance
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift4
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift4  
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift4
+          source: registry.redhat.io/openshift4
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/ubi8
+          - DOMAIN_EXAMPLE_15.COM/openshift/ubi8
+          - DOMAIN_EXAMPLE_29.COM/ocp/ubi8
+          source: registry.redhat.io/ubi8
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/migration-toolkit-virtualization
+          - DOMAIN_EXAMPLE_15.COM/openshift/migration-toolkit-virtualization
+          - DOMAIN_EXAMPLE_29.COM/ocp/migration-toolkit-virtualization
+          source: registry.redhat.io/migration-toolkit-virtualization
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift-gitops-1
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift-gitops-1
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift-gitops-1
+          source: registry.redhat.io/openshift-gitops-1
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/hybridcloudpatterns
+          - DOMAIN_EXAMPLE_15.COM/openshift/hybridcloudpatterns
+          - DOMAIN_EXAMPLE_29.COM/ocp/hybridcloudpatterns
+          source: quay.io/hybridcloudpatterns
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/cluster-observability-operator
+          - DOMAIN_EXAMPLE_15.COM/openshift/cluster-observability-operator
+          - DOMAIN_EXAMPLE_29.COM/ocp/cluster-observability-operator
+          source: registry.redhat.io/cluster-observability-operator
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/cert-manager
+          - DOMAIN_EXAMPLE_15.COM/openshift/cert-manager
+          - DOMAIN_EXAMPLE_29.COM/ocp/cert-manager
+          source: registry.redhat.io/cert-manager
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/multicluster-globalhub
+          - DOMAIN_EXAMPLE_15.COM/openshift/multicluster-globalhub
+          - DOMAIN_EXAMPLE_29.COM/ocp/multicluster-globalhub
+          source: registry.redhat.io/multicluster-globalhub
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhoso
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhoso
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhoso
+          source: registry.redhat.io/rhoso
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/rh-sso-7
+          - DOMAIN_EXAMPLE_15.COM/openshift/rh-sso-7
+          - DOMAIN_EXAMPLE_29.COM/ocp/rh-sso-7
+          source: registry.redhat.io/rh-sso-7
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift-update-service
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift-update-service
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift-update-service
+          source: registry.redhat.io/openshift-update-service
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/ubi9
+          - DOMAIN_EXAMPLE_15.COM/openshift/ubi9
+          - DOMAIN_EXAMPLE_29.COM/ocp/ubi9
+          source: registry.redhat.io/ubi9
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/quay
+          - DOMAIN_EXAMPLE_15.COM/openshift/quay
+          - DOMAIN_EXAMPLE_29.COM/ocp/quay
+          source: registry.redhat.io/quay
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/advanced-cluster-security
+          - DOMAIN_EXAMPLE_15.COM/openshift/advanced-cluster-security
+          - DOMAIN_EXAMPLE_29.COM/ocp/advanced-cluster-security
+          source: registry.redhat.io/advanced-cluster-security
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhoso-operators
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhoso-operators
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhoso-operators
+          source: registry.redhat.io/rhoso-operators
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhacm2
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhacm2
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhacm2
+          source: registry.redhat.io/rhacm2
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhel8
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhel8
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhel8
+          source: registry.redhat.io/rhel8
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift-logging
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift-logging
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift-logging
+          source: registry.redhat.io/openshift-logging
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/ansible-automation-platform
+          - DOMAIN_EXAMPLE_15.COM/openshift/ansible-automation-platform
+          - DOMAIN_EXAMPLE_29.COM/ocp/ansible-automation-platform
+          source: registry.redhat.io/ansible-automation-platform
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/ansible-automation-platform-26
+          - DOMAIN_EXAMPLE_15.COM/openshift/ansible-automation-platform-26
+          - DOMAIN_EXAMPLE_29.COM/ocp/ansible-automation-platform-26
+          source: registry.redhat.io/ansible-automation-platform-26
+        - mirrors:
+          - DOMAIN_EXAMPLE_31.COM/openshift/ansible-automation-platform-24
+          - DOMAIN_EXAMPLE_15.COM/openshift/ansible-automation-platform-24
+          - DOMAIN_EXAMPLE_29.COM/ocp/ansible-automation-platform-24
+          source: registry.redhat.io/ansible-automation-platform-24
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/rhem
+          - DOMAIN_EXAMPLE_31.COM/openshift/rhem
+          - DOMAIN_EXAMPLE_29.COM/ocp/rhem
+          source: registry.redhat.io/rhem
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/network-observability
+          - DOMAIN_EXAMPLE_31.COM/openshift/network-observability
+          - DOMAIN_EXAMPLE_29.COM/ocp/network-observability
+          source: registry.redhat.io/network-observability
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/openshift-power-monitoring
+          - DOMAIN_EXAMPLE_31.COM/openshift/openshift-power-monitoring
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift-power-monitoring
+          source: registry.redhat.io/openshift-power-monitoring
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/odf4
+          - DOMAIN_EXAMPLE_31.COM/openshift/odf4
+          - DOMAIN_EXAMPLE_29.COM/ocp/odf4
+          source: registry.redhat.io/odf4
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/ansible-automation-platform-tech-preview
+          - DOMAIN_EXAMPLE_31.COM/openshift/ansible-automation-platform-tech-preview
+          - DOMAIN_EXAMPLE_29.COM/ocp/ansible-automation-platform-tech-preview
+          source: registry.redhat.io/ansible-automation-platform-tech-preview
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/mongodb
+          - DOMAIN_EXAMPLE_31.COM/openshift/mongodb
+          - DOMAIN_EXAMPLE_29.COM/ocp/mongodb
+          source: registry.connect.redhat.com/mongodb
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift
+          - DOMAIN_EXAMPLE_31.COM/openshift
+          - DOMAIN_EXAMPLE_29.COM/ocp/openshift
+          source: registry.redhat.io
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/redislabs
+          - DOMAIN_EXAMPLE_31.COM/openshift/redislabs
+          - DOMAIN_EXAMPLE_29.COM/ocp/redislabs
+          source: registry.connect.redhat.com/redislabs
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/cloudnative-pg
+          - DOMAIN_EXAMPLE_31.COM/openshift/cloudnative-pg
+          - DOMAIN_EXAMPLE_29.COM/ocp/cloudnative-pg
+          source: ghcr.io/cloudnative-pg
+        - mirrors:
+          - DOMAIN_EXAMPLE_15.COM/openshift/community-operator-pipeline-prod
+          - DOMAIN_EXAMPLE_31.COM/openshift/community-operator-pipeline-prod
+          - DOMAIN_EXAMPLE_29.COM/ocp/community-operator-pipeline-prod
+          source: quay.io/community-operator-pipeline-prod
+
+    # Other relevant data for agent-config file
+    agent_config:
+      rendezvousIP: IP_ADDRESS_57
+      rootDevice: "2:1:0:0"
+      nic1: ens4f0
+      nic2: ens6f1
+      mtu: 8950
+      vlanid: 136
+      ntpServer1: "DOMAIN_EXAMPLE_32.COM"
+      ntpServer2: "DOMAIN_EXAMPLE_33.COM"
+      dns1: IP_ADDRESS_3
+      dns2: IP_ADDRESS_45
+      next_hop_address: IP_ADDRESS_58
+    
+    vault:
+      vault_url: "https://DOMAIN_EXAMPLE_30.COM:8200"
+      vault_namespace: "Telco_Management_Infra"
+      engine_mount_point: "ocp"
+
+    mgmt_deployment:
+      branch: preprod-ocp-mgmt
+      url: DOMAIN_EXAMPLE_13.COM/vmo2-automation/private-areas/telco-cloud/infra/redhat/mgmt-deployment.git
+      gitToken: "{{ vault_mgmt_deployment_gitToken }}"
+      vault_encrypt_inv: "{{ vault_encrypt_inv }}"
+
+    # Vars related to vpatterns operators and pattern instance
+    vpatterns:
+      source: cs-community-operator-index-v4-18
+      sourceNamespace: openshift-marketplace
+      channel: fast
+      startingCSV: patterns-operator.v0.0.62
+      gitToken: "{{ vault_vpatterns_gitToken }}"
+      repo: "https://DOMAIN_EXAMPLE_13.COM/vmo2-automation/private-areas/telco-cloud/infra/redhat/mgmt-vpattern.git"
+      gitCert: |-
+        -----BEGIN CERTIFICATE-----
+        MIIG1DCCBLygAwIBAgIKQDBo0QABAAAACTANBgkqhkiG9w0BAQsFADA8MQswCQYD
+        VQQGEwJHQjEbMBkGA1UEChMSVGVsZWZvbmljYSBVSyAoTzIpMRAwDgYDVQQDEwdP
+        Mi1Sb290MB4XDTIxMDUxMDEyMTQyMVoXDTI2MDUxMDEyMjQyMVowaDETMBEGCgmS
+        JomT8ixkARkWA2NvbTESMBAGCgmSJomT8ixkARkWAm8yMRMwEQYKCZImiZPyLGQB
+        GRYDcHJpMRIwEAYKCZImiZPyLGQBGRYCdWsxFDASBgNVBAMTC08yLUVudENBLTAx
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp2Ne93KYkqvz+/2AKWA4
+        gg5dbcOQIJmsqS1+uUSSWeFl0KpA+xnetQGPCaLxs3TDX0PANf3Hu3i/YoU6STwK
+        c2pu47EIvVZ4IjyJ8j4+WcUXg2TJdN8sl4CzSkwNTV4dIAzWY2A/1ZG5fajpl2YO
+        C4NzURzzMIOE45XLzwgrlUIgNOqGU+fx3ocByz+1nGnQCj2QV8Y56NU91yzMhZPW
+        N6iphcCHf/EbUiYTDGtaVMR1g3utUA6XT/BHMKeAAZ/bVYg1queWGnIwrTauauv7
+        A2b29hYNnVVlViXC/KdttFLRpg5iIuwUr0I/WEjedH0OLSq/Bi0uVWhiEY/awScT
+        9QIDAQABo4ICqjCCAqYwEAYJKwYBBAGCNxUBBAMCAQIwIwYJKwYBBAGCNxUCBBYE
+        FOrraTJJG5MrfsJpf9uzPnRqtzpTMB0GA1UdDgQWBBSyCKMg16TfuX8GPdDfINnO
+        qFeObjAZBgkrBgEEAYI3FAIEDB4KAFMAdQBiAEMAQTALBgNVHQ8EBAMCAYYwDwYD
+        VR0TAQH/BAUwAwEB/zAfBgNVHSMEGDAWgBTRAWJxE3dAsQ0LmgSLpCuzIe89xjCB
+        +gYDVR0fBIHyMIHvMIHsoIHpoIHmhoG3bGRhcDovLy9DTj1PMi1Sb290LENOPVBS
+        SVVLU1RITVNDMDAyLENOPUNEUCxDTj1QdWJsaWMlMjBLZXklMjBTZXJ2aWNlcyxD
+        Tj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPXByaSxEQz1vMixEQz1jb20/
+        Y2VydGlmaWNhdGVSZXZvY2F0aW9uTGlzdD9iYXNlP29iamVjdENsYXNzPWNSTERp
+        c3RyaWJ1dGlvblBvaW50hipodHRwOi8vbXNjLnByaS5vMi5jb20vQ2VydERhdGEv
+        TzItUm9vdC5jcmwwgfYGCCsGAQUFBwEBBIHpMIHmMIGoBggrBgEFBQcwAoaBm2xk
+        YXA6Ly8vQ049TzItUm9vdCxDTj1BSUEsQ049UHVibGljJTIwS2V5JTIwU2Vydmlj
+        ZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixEQz1wcmksREM9bzIsREM9
+        Y29tP2NBQ2VydGlmaWNhdGU/YmFzZT9vYmplY3RDbGFzcz1jZXJ0aWZpY2F0aW9u
+        QXV0aG9yaXR5MDkGCCsGAQUFBzAChi1odHRwOi8vbXNjLnByaS5vMi5jb20vQ2Vy
+        dERhdGEvTzItUm9vdCgxKS5jcnQwDQYJKoZIhvcNAQELBQADggIBAJVL48xEwJeJ
+        /NqTo9NnccZlfwLudyx61+R07tKCodhwGjYnefqlUnxkzzsxwKVdilI7ay8ii8UE
+        SRKXPVsHGSo+iK/OI5/Fxwul+LgUMcu0nmLsqCFxAmDZvn7ywGmPaKa1U2PeiL8Y
+        +vb/mt8GJ62mBQIZIyiQQnTJPKYkkcJsgJR9epMcMLgXAssLhk6uD5ddKJos5HlR
+        k5QoV5TAXi4PFrOgtMtaF0QkJsKGRqVLXcrjhC0GGQmdo2DD2oO2lizS27Y5LvKl
+        AEgbZqZOCpUWJK/sViqx04czEe9qUHY1sRzD3OpHNMgdRudfy27bkLBXTlapAnQc
+        N90kcDDppqONZ8RNerR7/rVkR1Lzs8aGa3DmDbrcuGR7rzNYM49flhg27hlrhp1m
+        ElEQpbFGkTdIXmzXSGd6A5dWcPrQJjeGgmvP88OD0yqOJDylHLlCyr4T9GoD8/Be
+        lnKEJUq4Z2jzZ77PMdfBxs7tk4tc549BNtikZXF5SKtf3X2EDnqdxM9I6fFh0UBb
+        I1e4z79IEDf7S6qMNSKhlp8NYxktH8kouQRTisbX+w2+5IVE45ojN66Y3nDlnnvx
+        yJ4hY/yLvUwJfARnwQBFzfb9EWUJXcaqODCI4tEeVdnWsMTGHF/f5nDNtLn6+98o
+        oZ/0tuxoEPrm430xPelqxEfbBqsqg1Yt
+        -----END CERTIFICATE-----
+        -----BEGIN CERTIFICATE-----
+        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
+        -----END CERTIFICATE-----
+    
+    # Vars related to gitops operator version
+    gitops:
+      channel: gitops-1.14
+      source: cs-redhat-operator-index-v4-18
+
+  # Hosts information (hostname, IP address, MAC, etc.)
+  children:
+    # OCP nodes
+    nodes:
+      hosts:
+        DOMAIN_EXAMPLE_22.COM:
+          role: master
+          bmc_address: IP_ADDRESS_59
+          macAddress: d4:f5:ef:b0:e4:b8
+          macAddress_2: d4:f5:ef:b0:e8:2d
+          ipv4: IP_ADDRESS_57
+        DOMAIN_EXAMPLE_23.COM:
+          role: master
+          bmc_address: IP_ADDRESS_60
+          macAddress: d4:f5:ef:b1:f4:d8
+          macAddress_2: d4:f5:ef:b1:f1:35
+          ipv4: IP_ADDRESS_61
+        DOMAIN_EXAMPLE_24.COM:
+          role: master
+          bmc_address: IP_ADDRESS_62
+          macAddress: d4:f5:ef:b0:e8:98
+          macAddress_2: d4:f5:ef:b0:e3:ed
+          ipv4: IP_ADDRESS_63
+        DOMAIN_EXAMPLE_25.COM:
+          role: worker
+          bmc_address: IP_ADDRESS_64
+          macAddress: d4:f5:ef:b0:e1:18
+          macAddress_2: d4:f5:ef:b0:d1:79
+          ipv4: IP_ADDRESS_65
+...

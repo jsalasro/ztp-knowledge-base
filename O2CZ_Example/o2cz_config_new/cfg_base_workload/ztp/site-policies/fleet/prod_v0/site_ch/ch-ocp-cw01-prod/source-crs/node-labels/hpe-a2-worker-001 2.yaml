@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Node
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: gateway
+    node-role.kubernetes.io/gateway: ""
+    node-role.kubernetes.io/Gateway: ""
+    k8s.ovn.org/egress-assignable: ""
+  name: DOMAIN_EXAMPLE_5.COM
+  annotations:
+    ran.openshift.io/ztp-deploy-wave: "1"
+spec: {}
+...

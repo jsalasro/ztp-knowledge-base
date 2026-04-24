@@ -1,0 +1,47 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/description: Configure ACM OADP protection passive restore for secondary HUB
+  name: acm-oadp-restore-schedule
+  namespace: policies
+spec:
+  disabled: true
+  dependencies:
+  # ACM OADP configuration ready
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: acm-oadp-prerequisites
+    namespace: policies-mano
+  policy-templates:
+  # Schedule ACM backups
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: acm-restore-schedule
+      spec:
+        pruneObjectBehaviour: DeleteIfCreated
+        remediationAction: enforce
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: cluster.open-cluster-management.io/v1beta1
+              kind: Restore
+              metadata:
+                name: restore-acm-passive-sync
+                namespace: open-cluster-management-backup
+              spec:
+                syncRestoreWithNewBackups: true # restore again when new backups are available
+                restoreSyncInterval: 10m # check for new backups every 10 minutes
+                cleanupBeforeRestore: CleanupRestored
+                veleroManagedClustersBackupName: skip # if this is set to "latest" the ACM standby cluster is activated 
+                veleroCredentialsBackupName: latest
+                veleroResourcesBackupName: latest
+...

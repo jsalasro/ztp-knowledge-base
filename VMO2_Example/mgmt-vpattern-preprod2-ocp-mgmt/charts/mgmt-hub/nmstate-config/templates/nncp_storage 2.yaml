@@ -1,0 +1,39 @@
+
+{{- range .Values.mgmt.nmstate.storageNetworks }}
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: mgmt-storage-{{ .nodeName }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: {{ .nodeName }}
+  desiredState:
+    interfaces:
+      - name: bond0.{{ .vlan_id_FB }}
+        type: vlan
+        state: up
+        vlan:
+          base-iface: bond0
+          id: {{ .vlan_id_FB }}
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: {{ .ip_FB }}
+              prefix-length: 28
+      - name: bond0.{{ .vlan_id_FA }}
+        type: vlan
+        state: up
+        vlan:
+          base-iface: bond0
+          id: {{ .vlan_id_FA }}
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+            - ip: {{ .ip_FA }}
+              prefix-length: 28
+{{- end }}

@@ -1,0 +1,58 @@
+# ---
+# apiVersion: core.libopenstorage.org/v1
+# kind: StorageCluster
+# metadata:
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "5"
+#     portworx.io/is-openshift: "true"
+#     portworx.io/misc-args: " -T px-storev2 "
+#   name: px-cluster
+#   namespace: portworx
+# spec:
+#   autopilot:
+#     enabled: true
+#     providers:
+#     - name: default
+#       params:
+#         url: https://{{ .Values.mgmt.portworx.thanos_route }}
+#       type: prometheus
+#   cloudStorage:
+#     deviceSpecs:
+#     - size=1000,pod={{ .Values.mgmt.portworx.pod }}
+#     - size=1000,pod={{ .Values.mgmt.portworx.pod }}
+#     systemMetadataDeviceSpec: size=64,pod={{ .Values.mgmt.portworx.pod }}
+#     provider: pure
+#   csi:
+#     enabled: true
+#   image: portworx/oci-monitor:IP_ADDRESS_23
+#   #customImageRegistry: {{ .Values.mgmt.portworx.customImageRegistry }}
+#   # If your registry requires auth, reference a pull secret in the same namespace
+#   imagePullSecret: px-image-repository
+#   imagePullPolicy: IfNotPresent
+#   kvdb:
+#     internal: true
+#     enableTLS: true
+#   network:
+#     dataInterface: {{ .Values.mgmt.portworx.dataInterface }}
+#     mgmtInterface: {{ .Values.mgmt.portworx.mgmtInterface }}
+#   monitoring:
+#     prometheus:
+#       # enabled: true
+#       exportMetrics: true
+#     telemetry: {}
+#       # enabled: false
+#   runtimeOptions:
+#     limit_drives_per_pool: "2"
+#     rt_opts_conf_high: "1"
+#     num_threads: "16"
+#     num_io_threads: "12"
+#     num_cpu_threads: "16"
+#     default-io-profile: "6"
+#   secretsProvider: k8s
+#   stork:
+#     args:
+#       webhook-controller: "true"
+#     enabled: true
+#   # Uncomment before delteting StorageCluster CR
+#   #deleteStrategy:
+#   #  type: UninstallAndWipe

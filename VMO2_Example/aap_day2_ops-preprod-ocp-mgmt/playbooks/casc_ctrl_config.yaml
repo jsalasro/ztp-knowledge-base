@@ -1,0 +1,71 @@
+---
+- name: "CasC AAP - Apply Gateway and Controller Settings"
+  hosts: "localhost"
+  connection: "local"
+  gather_facts: false
+  vars_files:
+    - "../vault_casc_preprod1.yaml"
+  vars:
+    aap_configuration_secure_logging: false
+    dir_orgs_vars: "../orgs_vars"
+    orgs: "Default"
+    env: "preprod1"
+    aap_username: "{{ vault_aap_username | default(lookup('env', 'CONTROLLER_USERNAME')) }}"
+    aap_password: "{{ vault_aap_password | default(lookup('env', 'CONTROLLER_PASSWORD')) }}"
+    aap_hostname: "{{ vault_aap_hostname | default(lookup('env', 'CONTROLLER_HOST')) }}"
+    aap_validate_certs: "{{ vault_aap_validate_certs | default(lookup('env', 'CONTROLLER_VERIFY_SSL')) }}"
+    controller_license:
+      manifest_file: "{{ vault_manifest_file }}"
+
+  pre_tasks:
+    - name: "Setup authentication (block)"
+      when: aap_oauthtoken is not defined
+      tags:
+        - "always"
+      block:
+        - name: "Get the Authentication Token for the future requests"
+          ansible.builtin.uri:
+            url: "https://{{ aap_hostname }}/api/gateway/v1/tokens/"
+            user: "{{ aap_username }}"
+            password: "{{ aap_password }}"
+            method: "POST"
+            force_basic_auth: true
+            validate_certs: "{{ aap_validate_certs }}"
+            status_code: 201
+          register: "authtoken_res"
+          no_log: false
+
+        - name: "Set the oauth token to be used since now"
+          ansible.builtin.set_fact:
+            aap_oauthtoken: "{{ authtoken_res.json.token }}"
+            aap_oauthtoken_url: "{{ authtoken_res.json.url }}"
+
+  roles:
+    - {role: infra.aap_configuration.controller_license, when: controller_license is defined }
+    - role: infra.aap_configuration_extended.filetree_read
+      vars:
+        controller_configuration_filetree_read_tasks:
+          - {name: controller_credentials, var: controller_credentials, tags: credentials}
+          - {name: controller_projects, var: controller_projects, tags: projects}
+          - {name: controller_execution_environments, var: controller_execution_environments, tags: execution_environments}
+          - {name: controller_inventories, var: controller_inventories, tags: inventories}
+          - {name: controller_hosts, var: controller_hosts, tags: hosts}
+          - {name: controller_job_templates, var: controller_templates, tags: job_templates}
+          - {name: gateway_authenticators, var: gateway_authenticators, tags: authenticators}
+          - {name: gateway_authenticator_maps, var: gateway_authenticator_maps, tags: authenticator_maps}
+          # - {name: controller_settings, var: controller_settings, tags: settings}
+          - {name: gateway_settings, var: gateway_settings, tags: settings}
+    - role: "infra.aap_configuration.dispatch"
+
+  post_tasks:
+    - name: "Delete the Authentication Token used"
+      ansible.builtin.uri:
+        url: "https://{{ aap_hostname }}{{ aap_oauthtoken_url }}"
+        user: "{{ aap_username }}"
+        password: "{{ aap_password }}"
+        method: "DELETE"
+        force_basic_auth: true
+        validate_certs: "{{ aap_validate_certs }}"
+        status_code: 204
+      when: aap_oauthtoken_url is defined
+...
